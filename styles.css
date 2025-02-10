@@ -101,7 +101,7 @@ nav ul li a {
     flex: 1;
     max-width: 20%; /* Adjust the size as needed */
     height: auto;
-    border-radius: 50px;
+    border-radius: 25px;
 }
 
 /* About Section - Mobile Layout */
@@ -123,20 +123,18 @@ nav ul li a {
     }
 }
 
-
-
 /* How It Works Section */
 .how-it-works {
-    padding: 40px 20px;
+    padding: auto;
     text-align: center;
     background-color: #333; /* Dark background */
+    overflow: hidden; /* Ensure images stay within the box */
 }
 
 .how-it-works img {
     flex: 1;
-    max-width: 50%; /* Adjust the size as needed */
-    height: auto;
-    
+    max-width: 100%; /* Ensure images fit within the container */
+    height: auto; /* Maintain aspect ratio */
     border-radius: 20px;
 }
 
@@ -149,7 +147,7 @@ nav ul li a {
     display: flex;
     justify-content: space-between;
     gap: 20px; /* Add space between boxes */
-    max-width: 25%;
+    max-width: 1000px;
     margin: 0 auto;
     flex-wrap: wrap;
 }
@@ -167,6 +165,18 @@ nav ul li a {
 .step h3 {
     font-size: 1.5em;
     margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .steps-container {
+        flex-direction: column; /* Stack boxes vertically */
+        align-items: center; /* Center-align boxes */
+    }
+
+    .step {
+        width: 80%; /* Adjust width for better visibility on mobile */
+        margin: 10px 0; /* Add margin between boxes */
+    }
 }
 
 /* Mission Statement Section */
