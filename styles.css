@@ -71,7 +71,7 @@ nav ul li a {
 }
 
 
-/* About SkilWise Section */
+/* what is SkilWise Section */
 .about-skills {
     padding: 40px 20px;
     text-align: center;
@@ -99,7 +99,7 @@ nav ul li a {
 
 .about-content img {
     flex: 1;
-    max-width: 300px; /* Adjust the size as needed */
+    max-width: 20%; /* Adjust the size as needed */
     height: auto;
     border-radius: 50px;
 }
