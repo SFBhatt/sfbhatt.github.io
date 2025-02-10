@@ -311,8 +311,9 @@ html {
 
 @media (max-width: 768px) {
     .service-card {
-        width: 80%; /* Adjust width for better visibility on mobile */
-        margin: 10px auto; /* Center-align cards and add margin */
+        width: 90%; /* Increase width for better visibility on mobile */
+        margin: 15px auto; /* Center-align cards and add margin */
+        padding: 20px; /* Adjust padding for better spacing */
     }
 }
 
