@@ -196,8 +196,8 @@ nav ul li a {
 
 .mission p {
     font-size: 1.2em;
-    max-width: 800px;
-    text-align: justify;
+    max-width: 850px;
+    text-align: center;
     margin: 0 auto 30px;
 }
 
@@ -239,6 +239,7 @@ html {
     scroll-behavior: smooth;
 }
 
+/* Services Page CSS */
 /* Services Hero Section */
 .services-hero {
     background-color: #95c0f1;
@@ -315,5 +316,227 @@ html {
         margin: 15px auto; /* Center-align cards and add margin */
         padding: 20px; /* Adjust padding for better spacing */
     }
+
+    footer {
+        padding: 20px; /* Add padding for better spacing */
+    }
+
+    footer .footer-content {
+        padding: 0 15px; /* Add padding to the footer content */
+    }
 }
 
+
+/* About Page CSS */
+/* About Hero Section */
+.about-hero {
+    background-color: #95c0f1;
+    color: #0f4582;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.about-hero h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.about-hero p {
+    font-size: 1.5em;
+}
+
+/* Mission Statement Section */
+.mission-statement {
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #f4f4f4;
+    color: #0f4582;
+}
+
+.mission-statement h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.mission-statement p {
+    font-size: 1.2em;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.mission-statement p:first-of-type {
+    margin-bottom: 20px; /* Add space after the first paragraph */
+}
+
+/* Our Story Section */
+.our-story {
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #fff;
+    color: #0f4582;
+}
+
+.our-story h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.our-story p {
+    font-size: 1.2em;
+    max-width: 800px;
+    margin: 0 auto 20px;
+    text-align: center;
+}
+
+/* Meet The Team Section */
+.meet-the-team {
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #f4f4f4;
+    color: #0f4582;
+}
+
+.meet-the-team h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.team-members {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.team-member {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    width: 250px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.team-member img {
+    max-width: 100%;
+    border-radius: 50%;
+    margin-bottom: 15px;
+}
+
+.team-member h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.team-member p {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.team-member a {
+    color: #0f4582;
+    text-decoration: none;
+}
+
+.team-member a:hover {
+    text-decoration: underline;
+}
+
+/* Our Clients Section */
+.our-clients {
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #fff;
+    color: #0f4582;
+}
+
+.our-clients h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.our-clients p {
+    font-size: 1.2em;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works h2, .step h3, .mission h2, .mission p, .service-card p, .services-hero h1, .services-hero p, .services-section h2, .service-card h3, .about-hero h1, .about-hero p, .mission-statement h2, .mission-statement p, .our-story h2, .our-story p, .meet-the-team h2, .team-member h3, .team-member p, .our-clients h2, .our-clients p, .steps-container h2, .steps-container p, .steps-container h3 {
+    font-family: 'Georgia', serif; /* Change to desired font */
+}
+
+
+/* Contact Page CSS */
+/* Contact Hero Section */
+.contact-hero {
+    background-color: #95c0f1;
+    color: #0f4582;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.contact-hero h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.contact-hero p {
+    font-size: 1.2em;
+    max-width: 800px;
+    margin: 0 auto 20px;
+}
+
+/* Contact Form Section */
+.contact-form {
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #f4f4f4;
+    color: #0f4582;
+}
+
+.contact-form h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.contact-form form {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.contact-form .btn {
+    background-color: #0f4582;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 1.1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.contact-form .btn:hover {
+    background-color: #2e7fdb;
+}
