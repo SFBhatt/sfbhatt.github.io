@@ -113,7 +113,8 @@ nav ul li a {
     }
 
     .about-content img {
-        max-width: 60%; /* Increase image size for better visibility on mobile */
+        max-width: 60%;
+        height: auto; /* Increase image size for better visibility on mobile */
         margin-bottom: 20px; /* Add space below the image */
     }
 
