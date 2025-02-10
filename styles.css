@@ -104,6 +104,27 @@ nav ul li a {
     border-radius: 50px;
 }
 
+/* About Section - Mobile Layout */
+@media (max-width: 768px) {
+    .about-content {
+        flex-direction: column; /* Stack image and content vertically */
+        gap: 20px; /* Reduce gap between image and content */
+        text-align: center; /* Center-align text on mobile */
+    }
+
+    .about-content img {
+        max-width: 60%; /* Increase image size for better visibility on mobile */
+        margin-bottom: 20px; /* Add space below the image */
+    }
+
+    .about-content p {
+        font-size: 1.2em; /* Adjust font size for mobile */
+        text-align: center; /* Center-align text */
+    }
+}
+
+
+
 /* How It Works Section */
 .how-it-works {
     padding: 40px 20px;
@@ -113,8 +134,9 @@ nav ul li a {
 
 .how-it-works img {
     flex: 1;
-    max-width: 200px; /* Adjust the size as needed */
+    max-width: 50%; /* Adjust the size as needed */
     height: auto;
+    
     border-radius: 20px;
 }
 
@@ -127,7 +149,7 @@ nav ul li a {
     display: flex;
     justify-content: space-between;
     gap: 20px; /* Add space between boxes */
-    max-width: 1000px;
+    max-width: 25%;
     margin: 0 auto;
     flex-wrap: wrap;
 }
