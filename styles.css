@@ -71,6 +71,64 @@ nav ul li a:hover {
     display: block;
 }
 
+/* New Code for Menu Toggle */
+/* Hide the checkbox */
+.menu-toggle {
+    display: none;
+}
+
+/* Style the menu icon for mobile */
+.menu-icon {
+    display: none; /* Hide by default */
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 10px;
+    color: #fff;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    /* Show the menu icon */
+    .menu-icon {
+        display: block;
+    }
+
+    /* Hide the menu by default */
+    nav ul {
+        display: none;
+        position: absolute;
+        top: 50px; /* Adjust based on header height */
+        right: 0;
+        background-color: #0f4582;
+        width: 100%;
+        text-align: center;
+        z-index: 1000;
+    }
+
+    /* Show the menu when the checkbox is checked */
+    .menu-toggle:checked ~ ul {
+        display: block;
+    }
+
+    /* Style the menu items */
+    nav ul li {
+        display: block;
+        margin: 0;
+    }
+
+    nav ul li a {
+        padding: 15px;
+        display: block;
+        border-bottom: 1px solid #1558a4;
+    }
+
+    nav ul li a:hover {
+        background-color: #1558a4;
+    }
+}
+/* end of new code */
+
+
 /* Hero Section */
 .hero {
     background: url('/images/hero.jpeg') no-repeat center center/cover;
