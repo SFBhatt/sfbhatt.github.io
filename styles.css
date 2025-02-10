@@ -1,92 +1,277 @@
-/* Add this to make sure the footer stays at the bottom */
-html, body {
-    height: 100%; /* Ensures that the body takes up the full height of the screen */
+/* static/css/styles.css */
+body {
+    font-family: Arial, sans-serif, 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', 'Times New Roman', Times, serif;
     margin: 0;
     padding: 0;
+    background-color: #1a1a1a; /* Dark background */
+    color: #ffffff; /* Light font color */
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    flex-direction: column;
-}
-
+/* Header and Navigation */
 header {
-    background-color: #333;
-    color: white;
+    background-color: #0f4582;
+    color: #fff;
     padding: 10px 0;
+    text-align: right;
+    
 }
 
 nav ul {
-    list-style-type: none;
+    list-style: none;
     padding: 0;
-    margin: 0;
-    display: flex;
-    justify-content: center;
+    margin-right: 30px;
 }
 
 nav ul li {
+    display: inline;
     margin: 0 15px;
 }
 
 nav ul li a {
-    color: white;
+    color: #fff;
     text-decoration: none;
-    font-size: 18px;
 }
 
-nav ul li a:hover {
-    color: #f4a261;
-}
-
+/* Hero Section */
 .hero {
-    background-color: #2d6a4f;
-    color: white;
+    background: url('/images/hero.jpeg') no-repeat center center/cover;
+    color: #fff;
     text-align: center;
-    padding: 50px 20px;
+    padding: 100px 20px;
 }
 
-.content {
-    padding: 30px 20px;
-    text-align: center;
-    flex-grow: 1; /* Ensures content section grows to take remaining space */
+.hero h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
 }
 
-.cta {
-    text-align: center;
-    padding: 30px 20px;
-    background-color: #f4a261;
+.hero p {
+    font-size: 1.5em;
+    max-width: 800px;
+    margin: 0 auto;
+    margin-bottom: 30px;
 }
 
-.cta a {
-    color: white;
+.hero-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.hero .btn {
+    background-color: #5a99e1;
+    color: #fff;
+    padding: 10px 20px;
     text-decoration: none;
-    font-size: 20px;
-    padding: 15px 25px;
-    background-color: #2d6a4f;
     border-radius: 5px;
 }
 
-.cta a:hover {
-    background-color: #f4a261;
+.hero .btn:hover {
+    background-color: #1558a4;
 }
 
-.testimonials {
-    background-color: #e9c46a;
+
+/* About SkilWise Section */
+.about-skills {
     padding: 40px 20px;
     text-align: center;
+    background-color: #2a2a2a;
 }
 
-.testimonial {
+.about-skills h2 {
+    font-size: 2em;
     margin-bottom: 20px;
-    font-style: italic;
 }
 
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    margin-top: auto; /* Pushes the footer to the bottom */
+.about-content {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: justify;
 }
+
+.about-content p {
+    flex: 2;
+    font-size: 1.5em;
+}
+
+.about-content img {
+    flex: 1;
+    max-width: 300px; /* Adjust the size as needed */
+    height: auto;
+    border-radius: 50px;
+}
+
+/* How It Works Section */
+.how-it-works {
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #333; /* Dark background */
+}
+
+.how-it-works img {
+    flex: 1;
+    max-width: 200px; /* Adjust the size as needed */
+    height: auto;
+    border-radius: 20px;
+}
+
+.how-it-works h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.steps-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Add space between boxes */
+    max-width: 1000px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+
+.step {
+    background-color: #444; /* Darker background for steps */
+    border: 1px solid #555;
+    border-radius: 5px;
+    padding: 20px;
+    width: 25%;
+    margin: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.step h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+/* Mission Statement Section */
+.mission {
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #2a2a2a; /* Darker background */
+}
+
+.mission h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.mission p {
+    font-size: 1.2em;
+    max-width: 800px;
+    text-align: justify;
+    margin: 0 auto 30px;
+}
+
+.mission-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.mission .btn {
+    background-color: #5a99e1; /* Green color for example */
+    color: #fff;
+    padding: 12px 24px; /* Slightly larger padding */
+    font-size: 1.1em; /* Slightly larger font size */
+    border: none; /* Remove border */
+    border-radius: 8px; /* More rounded corners */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.mission .btn:hover {
+    background-color: #1558a4; /* Darker green on hover */
+}
+
+/* Footer */
+footer {
+    background-color: #0f4582;
+    ;
+    color: #fff;
+    text-align: left;
+    padding: 20px 0;
+}
+
+footer .footer-content {
+    max-width: 1150px;
+    margin: 0 auto;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Services Hero Section */
+.services-hero {
+    background-color: #95c0f1;
+    color: #0f4582;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.services-hero h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+.services-hero p {
+    font-size: 1.2em;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Services Section */
+.services-section {
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #f4f4f4;
+}
+
+.services-section h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #0f4582;
+}
+
+.service-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 10px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.service-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 25px;
+    width: calc(38% - 5px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.service-card img {
+    max-width: 50%;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    
+}
+
+.service-card h3 {
+    font-size: 1.2em;
+    margin-bottom: 5px;
+    color: #0f4582;
+}
+
+.service-card p {
+    font-size: 1em;
+    color: #555;
+    text-align: center;
+}
+
