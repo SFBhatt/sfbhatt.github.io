@@ -110,11 +110,12 @@ nav ul li a {
         flex-direction: column; /* Stack image and content vertically */
         gap: 20px; /* Reduce gap between image and content */
         text-align: center; /* Center-align text on mobile */
+        height: auto; /* Adjust height as needed */
     }
 
     .about-content img {
-        max-width: 60%;
-        height: auto; /* Increase image size for better visibility on mobile */
+        max-width: 40%; /* Ensure image does not stretch */
+        height: auto; /* Maintain aspect ratio */
         margin-bottom: 20px; /* Add space below the image */
     }
 
