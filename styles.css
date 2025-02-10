@@ -13,7 +13,6 @@ header {
     color: #fff;
     padding: 10px 0;
     text-align: right;
-    
 }
 
 nav ul {
@@ -23,13 +22,53 @@ nav ul {
 }
 
 nav ul li {
-    display: inline;
+    display: inline-block;
     margin: 0 15px;
+    position: relative;
 }
 
 nav ul li a {
     color: #fff;
     text-decoration: none;
+    padding: 10px 15px;
+    display: block;
+}
+
+nav ul li a:hover {
+    background-color: #1558a4;
+    border-radius: 5px;
+}
+
+/* Dropdown Menu */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #0f4582;
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 5px;
+}
+
+.dropdown-content a {
+    color: #fff;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {
+    background-color: #1558a4;
+    border-radius: 5px;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
 }
 
 /* Hero Section */
@@ -546,8 +585,8 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
 /* Careers Page CSS */
 /* Careers Hero Section */
 .careers-hero {
-    background-color: #0f4582;
-    color: #fff;
+    background-color: #95c0f1;
+    color: #0f4582;
     text-align: center;
     padding: 60px 20px;
 }
@@ -568,7 +607,7 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
     padding: 40px 20px;
     text-align: center;
     background-color: #f4f4f4;
-    color: #333;
+    color: #0f4582;
 }
 
 .job-listings h2 {
