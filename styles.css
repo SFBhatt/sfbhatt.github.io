@@ -540,3 +540,107 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
 .contact-form .btn:hover {
     background-color: #2e7fdb;
 }
+
+
+
+/* Careers Page CSS */
+/* Careers Hero Section */
+.careers-hero {
+    background-color: #0f4582;
+    color: #fff;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.careers-hero h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+.careers-hero p {
+    font-size: 1.2em;
+    max-width: 800px;
+    margin: 0 auto 20px;
+}
+
+/* Job Listings Section */
+.job-listings {
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.job-listings h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.job-filters {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.filter label {
+    font-size: 1.1em;
+    margin-right: 10px;
+}
+
+.filter select {
+    padding: 5px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.job-count {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
+.jobs-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.job-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    width: 300px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.job-card h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #0f4582;
+}
+
+.job-card p {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.job-card .btn {
+    background-color: #0f4582;
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.job-card .btn:hover {
+    background-color: #1558a4;
+}
