@@ -888,5 +888,6 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
 }
 
 .apply-now .btn:hover {
-    background-color: #f4f4f4;
+    color: #fff;
+    background-color: #010000;
 }
