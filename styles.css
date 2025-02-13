@@ -904,3 +904,36 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
     color: #fff;
     background-color: #010000;
 }
+
+/* Thank You Section for Applying */
+.thank-you {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.thank-you h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #0f4582;
+}
+
+.thank-you p {
+    font-size: 1.2em;
+    max-width: 800px;
+    margin: 0 auto 20px;
+}
+
+.thank-you .btn {
+    background-color: #0f4582;
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+}
+
+.thank-you .btn:hover {
+    background-color: #1558a4;
+}

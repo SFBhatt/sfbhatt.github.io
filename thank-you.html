@@ -12,18 +12,24 @@
             <img src="/images/SkilWise Logo.png" alt="SkilWise Logo">
         </a>
         <nav>
+            <input type="checkbox" id="menu-toggle" class="menu-toggle">
+            <label for="menu-toggle" class="menu-icon">Menu ☰</label>
             <ul>
                 <li><a href="index.html">Home</a></li>
                 <li><a href="services.html">Services</a></li>
                 <li><a href="about.html">About</a></li>
                 <li><a href="contact.html">Contact</a></li>
+                <li><a href="careers.html">Careers</a></li>
             </ul>
         </nav>
     </header>
 
     <section class="thank-you">
-        <h1>Thank You!</h1>
-        <p>Your submission has been received. We’ll be in touch soon.</p>
+        <h1>Thank You for Applying!</h1>
+        <p>We have received your application for the Co-Founder & CTO role. Our team will review your details and get back to you soon.</p>
+        
+        <!-- Countdown Timer -->
+        <p>You will be redirected to the homepage in <span id="countdown">30</span> seconds.</p>
         <a href="index.html" class="btn">Return to Home</a>
     </section>
 
@@ -35,7 +41,21 @@
             <p>Sarnia, ON, N7S 4L3, Canada</p>
         </div>
     </footer>
-    <!-- Link the JavaScript file for the menu toggle -->
-    <script src="/script.js"></script>
+
+    <!-- JavaScript to redirect to homepage after 30 seconds -->
+    <script>
+        let timeLeft = 30;
+        const countdownElement = document.getElementById('countdown');
+    
+        const countdown = setInterval(function() {
+            timeLeft--;
+            countdownElement.textContent = timeLeft;
+    
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                window.location.href = 'index.html'; // Redirect to homepage
+            }
+        }, 1000); // Update every second
+    </script>
 </body>
 </html>
