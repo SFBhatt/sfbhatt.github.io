@@ -146,10 +146,77 @@ nav ul li a:hover {
 
 /* Hero Section */
 .hero {
-    background: #95c0f1;
+    position: relative; /* Required for absolute positioning of images */
+    height: 300px; /* Adjust height as needed */
+    overflow: hidden; /* Hide overflowing images */
     color: #0f4582;
     text-align: center;
     padding: 40px 20px;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.5); /* White overlay with 50% opacity */
+    z-index: 1; /* Place overlay above images but below text */
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.6); /* White overlay */
+    z-index: 0; /* Place below text but above images */
+}
+
+/* Background Images */
+
+/* Scrolling Images - navo akhtro*/
+/* Background Images */
+.bg-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    animation: slide 15s infinite; /* 5s per image × 3 images */
+}
+
+.bg-slide:nth-child(1) { animation-delay: 0s; }
+.bg-slide:nth-child(2) { animation-delay: 5s; }
+.bg-slide:nth-child(3) { animation-delay: 10s; }
+
+/* Animation */
+@keyframes slide {
+    0% { opacity: 0; }
+    5% { opacity: 1; } /* Fade in */
+    28.33% { opacity: 1; } /* Stay visible */
+    33.33% { opacity: 1; } /* Fade out */
+    100% { opacity: 0; }
+}
+
+/* Add smooth transitions */
+.bg-slide {
+    transition: opacity 5s ease-in-out; /* Smooth fade-in and fade-out */
+}
+
+/* Scrolling Images - navo akhtro end */
+
+/* Hero Content (Text & Buttons) */
+.hero h1,
+.hero p,
+.hero-buttons {
+    position: relative; /* Ensure content stays above images */
+    z-index: 1; /* Higher z-index than images */
 }
 
 .hero h1 {
@@ -160,8 +227,7 @@ nav ul li a:hover {
 .hero p {
     font-size: 1.5em;
     max-width: 800px;
-    margin: 0 auto;
-    margin-bottom: 30px;
+    margin: 0 auto 30px;
 }
 
 .hero-buttons {
@@ -181,6 +247,40 @@ nav ul li a:hover {
 
 .hero .btn:hover {
     background-color: #adadad;
+}
+
+/* Hero Section - Mobile Layout */
+
+@media (max-width: 768px) {
+    /* Adjust Hero Section Height */
+    .hero {
+        height: 400px; /* Shorter height for mobile */
+    }
+
+    /* Adjust Hero Content Padding */
+    .hero-content {
+        padding: 50px 20px; /* Less padding for mobile */
+    }
+
+    /* Adjust Font Sizes */
+    .hero h1 {
+        font-size: 2em; /* Smaller font size for mobile */
+    }
+    .hero p {
+        font-size: 1.2em; /* Smaller font size for mobile */
+    }
+
+    /* Adjust Button Layout */
+    .hero-buttons {
+        flex-direction: column; /* Stack buttons vertically */
+        gap: 10px;
+    }
+
+    .hero .btn {
+        width: 100%; /* Full-width buttons */
+        max-width: 300px; /* Limit button width */
+        margin: 0 auto; /* Center buttons */
+    }
 }
 
 
