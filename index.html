@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- authentication starts-->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        // Initialize Supabase (replace with your URL and key)
+        const supabaseUrl = 'https://ovqkuwbjstovqjjtrwny.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92cWt1d2Jqc3RvdnFqanRyd255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTY5NzUsImV4cCI6MjA1NjA3Mjk3NX0.zEXoXzlyOyE4UvPI7yIzXKOAkjhZv0gYwA35ycwRiPw';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
+    <!-- authentication ends-->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkilWise - Skill-Verified Talent, Simplified Hiring</title>
@@ -20,6 +29,8 @@
                 <li><a href="about.html">About</a></li>
                 <li><a href="contact.html">Contact</a></li>
                 <li><a href="careers.html">Careers</a></li>
+                <!-- Add Login Button -->
+                <li><a href="login.html" class="login-btn">Login</a></li>
             </ul>
         </nav>
     </header>
