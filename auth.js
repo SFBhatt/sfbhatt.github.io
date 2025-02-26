@@ -33,8 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (error) {
             alert(`Login failed: ${error.message}`);
         } else {
-            alert('Login successful! Redirecting...');
-            window.location.href = 'index.html';
+            window.location.href = 'profile.html';
         }
     });
 
