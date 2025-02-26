@@ -84,5 +84,20 @@
     </footer>
     <!-- Link the JavaScript file for the menu toggle -->
     <script src="/script.js"></script>
+    <script>
+        // Update navigation based on auth status
+        (async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            const loginButton = document.querySelector('.login-btn');
+            const profileLink = document.querySelector('.profile-btn');
+            
+            if (user) {
+                if (loginButton) loginButton.style.display = 'none';
+                if (profileLink) profileLink.style.display = 'block';
+            } else {
+                if (profileLink) profileLink.style.display = 'none';
+            }
+        })();
+    </script>
 </body>
 </html>

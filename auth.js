@@ -1,7 +1,32 @@
 // auth.js
 const supabase = window.supabase; // Get from global scope
 
-document.addEventListener('DOMContentLoaded', () => {
+// Auth Check
+async function checkAuth() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) window.location.href = 'login.html';
+    return user;
+}
+
+// Navigation Update
+async function updateNavigation() {
+    const user = await checkAuth();
+    const profileLink = document.querySelector('.profile-btn');
+    const loginButton = document.querySelector('.login-btn');
+    
+    if (user) {
+        if (loginButton) loginButton.style.display = 'none';
+        if (profileLink) profileLink.style.display = 'block';
+    } else {
+        if (profileLink) profileLink.style.display = 'none';
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', async () => {
+    await checkAuth();
+    updateNavigation();
+
     // Tab functionality
     const tabs = document.querySelectorAll('.tab-link');
     const forms = document.querySelectorAll('.auth-form');
@@ -33,8 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (error) {
             alert(`Login failed: ${error.message}`);
         } else {
-            alert('Login successful! Redirecting...');
-            window.location.href = 'index.html';
+            alert('Login successful!');
+            window.location.href = 'profile.html';
         }
     });
 
@@ -132,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show reset modal
         document.getElementById('resetPasswordModal').style.display = 'block';
     });
-    
+
     // Close modal when X is clicked
     allCloseButtons.forEach(btn => {
         btn.addEventListener('click', () => {

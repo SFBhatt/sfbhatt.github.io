@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile - SkilWise</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        // Initialize Supabase
+        window.supabase = supabase.createClient(
+            'https://ovqkuwbjstovqjjtrwny.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92cWt1d2Jqc3RvdnFqanRyd255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTY5NzUsImV4cCI6MjA1NjA3Mjk3NX0.zEXoXzlyOyE4UvPI7yIzXKOAkjhZv0gYwA35ycwRiPw'
+        );
+    </script>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">
+            <img src="/images/SkilWise Logo.png" alt="SkilWise Logo">
+        </a>
+        <nav>
+            <input type="checkbox" id="menu-toggle" class="menu-toggle">
+            <label for="menu-toggle" class="menu-icon">Menu ☰</label>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="profile.html" class="profile-btn">Profile</a></li>
+                <li><button class="logout-btn" id="logoutButton">Logout</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="profile-container">
+        <h1>Your Candidate Profile</h1>
+        <button id="toggleEdit" class="edit-btn">Edit Profile</button>
+    
+        <form id="profileForm" class="read-mode">
+            <div class="profile-section">
+                <h2>Personal Information</h2>
+                <div class="form-group">
+                    <label>Full Name:</label>
+                    <span class="view-mode">John Doe</span>
+                    <input type="text" class="edit-mode" id="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label>Professional Title:</label>
+                    <span class="view-mode">Senior Software Engineer</span>
+                    <input type="text" class="edit-mode" id="jobTitle">
+                </div>
+                <div class="form-group">
+                    <label>Location:</label>
+                    <span class="view-mode">New York, NY</span>
+                    <input type="text" class="edit-mode" id="location">
+                </div>
+            </div>
+    
+            <div class="profile-section">
+                <h2>Skills & Expertise</h2>
+                <div id="skillsContainer" class="tags-container">
+                    <!-- View mode skills -->
+                    <div class="view-mode">
+                        <div class="skills-view"></div>
+                    </div>
+                    <!-- Edit mode skills -->
+                    <div class="edit-mode">
+                        <div class="skills-edit"></div>
+                        <button type="button" class="add-more" id="addSkill">+ Add Skill</button>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Work Experience Section -->
+            <div class="profile-section">
+                <h2>Work Experience</h2>
+                <div id="experienceContainer">
+                    <!-- View mode experience -->
+                    <div class="view-mode experience-view"></div>
+                    <!-- Edit mode experience -->
+                    <div class="edit-mode experience-edit"></div>
+                </div>
+                <button type="button" class="add-more edit-mode" id="addExperience">+ Add Experience</button>
+            </div>
+    
+            <!-- Education Section -->
+            <div class="profile-section">
+                <h2>Education</h2>
+                <div id="educationContainer">
+                    <!-- View mode education -->
+                    <div class="view-mode education-view"></div>
+                    <!-- Edit mode education -->
+                    <div class="edit-mode education-edit"></div>
+                </div>
+                <button type="button" class="add-more edit-mode" id="addEducation">+ Add Education</button>
+            </div>
+    
+            <div class="form-actions edit-mode">
+                <button type="submit" class="save-btn">Save Changes</button>
+                <button type="button" class="cancel-btn" id="cancelEdit">Cancel</button>
+            </div>
+        </form>
+    </main>
+
+    <script src="/auth.js"></script>
+    <script>
+        const supabase = window.supabase;
+        let profileData = {};
+
+        // Profile Data Handling
+        async function initializeProfile() {
+            const user = await checkAuth();
+            
+            const { data } = await supabase
+                .from('candidate_profiles')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+
+            profileData = data || {
+                user_id: user.id,
+                full_name: user.user_metadata.full_name || '',
+                skills: [],
+                experience: [],
+                education: []
+            };
+
+            populateForm();
+            setupEventListeners();
+        }
+
+        // Updated populateForm function
+        function populateForm() {
+            // Clear existing content
+            document.querySelectorAll('.skills-view, .experience-view, .education-view').forEach(el => el.innerHTML = '');
+            
+            // Populate Personal Info
+            document.querySelectorAll('.view-mode')[0].textContent = profileData.full_name;
+            document.getElementById('fullName').value = profileData.full_name;
+
+            // Populate Skills
+            const skillsView = document.querySelector('.skills-view');
+            skillsView.innerHTML = (profileData.skills || []).map(skill => `
+                <div class="skill-tag">${skill}</div>
+            `).join('');
+
+            // Populate Experience
+            const experienceView = document.querySelector('.experience-view');
+            experienceView.innerHTML = (profileData.experience || []).map(exp => `
+                <div class="experience-item">
+                    <h3>${exp.position || ''}</h3>
+                    <p>${exp.company || ''} • ${exp.duration || ''}</p>
+                </div>
+            `).join('');
+
+            // Populate Education
+            const educationView = document.querySelector('.education-view');
+            educationView.innerHTML = (profileData.education || []).map(edu => `
+                <div class="education-item">
+                    <h3>${edu.degree || ''}</h3>
+                    <p>${edu.institution || ''} • ${edu.field || ''}</p>
+                </div>
+            `).join('');
+
+            // Populate Edit Mode Fields
+            populateEditModeFields();
+        }
+
+        function populateEditModeFields() {
+            // Skills Edit
+            const skillsEdit = document.querySelector('.skills-edit');
+            skillsEdit.innerHTML = (profileData.skills || []).map(skill => `
+                <div class="skill-tag-edit">
+                    <span>${skill}</span>
+                    <button type="button" class="remove-skill">×</button>
+                </div>
+            `).join('');
+
+            // Experience Edit
+            const experienceEdit = document.querySelector('.experience-edit');
+            experienceEdit.innerHTML = (profileData.experience || []).map(exp => `
+                <div class="experience-item-edit">
+                    <input type="text" value="${exp.company || ''}" placeholder="Company">
+                    <input type="text" value="${exp.position || ''}" placeholder="Position">
+                    <input type="text" value="${exp.duration || ''}" placeholder="Duration">
+                    <button type="button" class="remove-item">Remove</button>
+                </div>
+            `).join('');
+
+            // Education Edit
+            const educationEdit = document.querySelector('.education-edit');
+            educationEdit.innerHTML = (profileData.education || []).map(edu => `
+                <div class="education-item-edit">
+                    <input type="text" value="${edu.institution || ''}" placeholder="Institution">
+                    <input type="text" value="${edu.degree || ''}" placeholder="Degree">
+                    <input type="text" value="${edu.field || ''}" placeholder="Field of Study">
+                    <button type="button" class="remove-item">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        // Event Handlers
+        function setupEventListeners() {
+            // Edit Mode Toggle
+            document.getElementById('toggleEdit').addEventListener('click', () => {
+                document.getElementById('profileForm').classList.add('edit-mode-active');
+            });
+
+            // Cancel Edit
+            document.getElementById('cancelEdit').addEventListener('click', () => {
+                document.getElementById('profileForm').classList.remove('edit-mode-active');
+                populateForm();
+            });
+
+            // Form Submission
+            document.getElementById('profileForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = getFormData();
+                
+                const { error } = await supabase
+                    .from('candidate_profiles')
+                    .upsert(formData)
+                    .eq('user_id', formData.user_id);
+
+                if (!error) {
+                    profileData = formData;
+                    document.getElementById('profileForm').classList.remove('edit-mode-active');
+                    populateForm();
+                }
+            });
+
+            // Dynamic Field Handling
+            document.getElementById('addSkill').addEventListener('click', addSkill);
+            document.getElementById('addExperience').addEventListener('click', addExperience);
+            document.getElementById('addEducation').addEventListener('click', addEducation);
+            document.querySelectorAll('.remove-skill, .remove-item').forEach(btn => {
+                btn.addEventListener('click', removeItem);
+            });
+        }
+
+        // Helper Functions
+        function getFormData() {
+            return {
+                user_id: profileData.user_id,
+                full_name: document.getElementById('fullName').value,
+                job_title: document.getElementById('jobTitle').value,
+                location: document.getElementById('location').value,
+                skills: Array.from(document.querySelectorAll('.skill-tag span')).map(s => s.textContent),
+                experience: Array.from(document.querySelectorAll('.experience-item')).map(item => ({
+                    company: item.querySelector('.company').value,
+                    position: item.querySelector('.position').value,
+                    duration: item.querySelector('.duration').value
+                })),
+                education: Array.from(document.querySelectorAll('.education-item')).map(item => ({
+                    institution: item.querySelector('.institution').value,
+                    degree: item.querySelector('.degree').value,
+                    field: item.querySelector('.field').value
+                }))
+            };
+        }
+
+        function addSkill() {
+            const skill = prompt('Enter a skill:');
+            if (skill) {
+                const skillTag = document.createElement('div');
+                skillTag.className = 'skill-tag';
+                skillTag.innerHTML = `
+                    <span>${skill}</span>
+                    <button type="button" class="remove-skill">×</button>
+                `;
+                document.getElementById('skillsContainer').appendChild(skillTag);
+                skillTag.querySelector('.remove-skill').addEventListener('click', removeItem);
+            }
+        }
+
+        function addExperience() {
+            const newExp = document.createElement('div');
+            newExp.className = 'experience-item';
+            newExp.innerHTML = `
+                <input type="text" class="edit-mode company" placeholder="Company">
+                <input type="text" class="edit-mode position" placeholder="Position">
+                <input type="text" class="edit-mode duration" placeholder="Duration">
+                <button type="button" class="remove-item">Remove</button>
+            `;
+            document.getElementById('experienceContainer').appendChild(newExp);
+            newExp.querySelector('.remove-item').addEventListener('click', removeItem);
+        }
+
+        function addEducation() {
+            const newEdu = document.createElement('div');
+            newEdu.className = 'education-item';
+            newEdu.innerHTML = `
+                <input type="text" class="edit-mode institution" placeholder="Institution">
+                <input type="text" class="edit-mode degree" placeholder="Degree">
+                <input type="text" class="edit-mode field" placeholder="Field">
+                <button type="button" class="remove-item">Remove</button>
+            `;
+            document.getElementById('educationContainer').appendChild(newEdu);
+            newEdu.querySelector('.remove-item').addEventListener('click', removeItem);
+        }
+
+        function removeItem(e) {
+            e.target.closest('.skill-tag, .experience-item, .education-item').remove();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuth();
+            await initializeProfile();
+            updateNavigation();
+            
+            document.getElementById('logoutButton').addEventListener('click', async () => {
+                await supabase.auth.signOut();
+                window.location.href = 'login.html';
+            });
+        });
+    </script>
+</body>
+</html>
