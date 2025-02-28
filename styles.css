@@ -738,7 +738,7 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
 }
 
 .form-group input {
-    width: 100%;
+    max-width: 95%;
     padding: 10px;
     font-size: 1em;
     border: 1px solid #ddd;
