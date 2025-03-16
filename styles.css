@@ -1397,3 +1397,24 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
 }
 
 /* profile page code end */
+
+/* Chatbot Bubble */
+.chatbot-bubble {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    background-color: #0f4582;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1em;
+}
+
+.chatbot-bubble p {
+    margin: 0;
+}
