@@ -6,13 +6,8 @@
     <title>Your Profile - SkilWise</title>
     <link rel="stylesheet" href="/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <script>
-        // Initialize Supabase
-        window.supabase = supabase.createClient(
-            'https://ovqkuwbjstovqjjtrwny.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92cWt1d2Jqc3RvdnFqanRyd255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTY5NzUsImV4cCI6MjA1NjA3Mjk3NX0.zEXoXzlyOyE4UvPI7yIzXKOAkjhZv0gYwA35ycwRiPw'
-        );
-    </script>
+    <script type="module" src="/supabase.js"></script>
+    
 </head>
 <body>
     <header>
@@ -39,60 +34,39 @@
                 <h2>Personal Information</h2>
                 <div class="form-group">
                     <label>Full Name:</label>
-                    <span class="view-mode">John Doe</span>
+                    <span class="view-mode"></span>
                     <input type="text" class="edit-mode" id="fullName" required>
                 </div>
                 <div class="form-group">
                     <label>Professional Title:</label>
-                    <span class="view-mode">Senior Software Engineer</span>
+                    <span class="view-mode"></span>
                     <input type="text" class="edit-mode" id="jobTitle">
                 </div>
                 <div class="form-group">
                     <label>Location:</label>
-                    <span class="view-mode">New York, NY</span>
+                    <span class="view-mode"></span>
                     <input type="text" class="edit-mode" id="location">
                 </div>
             </div>
-    
+
             <div class="profile-section">
                 <h2>Skills & Expertise</h2>
-                <div id="skillsContainer" class="tags-container">
-                    <!-- View mode skills -->
-                    <div class="view-mode">
-                        <div class="skills-view"></div>
-                    </div>
-                    <!-- Edit mode skills -->
-                    <div class="edit-mode">
-                        <div class="skills-edit"></div>
-                        <button type="button" class="add-more" id="addSkill">+ Add Skill</button>
-                    </div>
-                </div>
+                <div id="skillsContainer" class="tags-container"></div>
+                <button type="button" class="add-more edit-mode" id="addSkill">+ Add Skill</button>
             </div>
-    
-            <!-- Work Experience Section -->
+
             <div class="profile-section">
                 <h2>Work Experience</h2>
-                <div id="experienceContainer">
-                    <!-- View mode experience -->
-                    <div class="view-mode experience-view"></div>
-                    <!-- Edit mode experience -->
-                    <div class="edit-mode experience-edit"></div>
-                </div>
+                <div id="experienceContainer"></div>
                 <button type="button" class="add-more edit-mode" id="addExperience">+ Add Experience</button>
             </div>
-    
-            <!-- Education Section -->
+
             <div class="profile-section">
                 <h2>Education</h2>
-                <div id="educationContainer">
-                    <!-- View mode education -->
-                    <div class="view-mode education-view"></div>
-                    <!-- Edit mode education -->
-                    <div class="edit-mode education-edit"></div>
-                </div>
+                <div id="educationContainer"></div>
                 <button type="button" class="add-more edit-mode" id="addEducation">+ Add Education</button>
             </div>
-    
+
             <div class="form-actions edit-mode">
                 <button type="submit" class="save-btn">Save Changes</button>
                 <button type="button" class="cancel-btn" id="cancelEdit">Cancel</button>
@@ -100,10 +74,23 @@
         </form>
     </main>
 
-    <script src="/auth.js"></script>
     <script>
         const supabase = window.supabase;
         let profileData = {};
+
+        // Auth Check
+        async function checkAuth() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) window.location.href = 'login.html';
+            return user;
+        }
+
+        // Navigation Update
+        async function updateNavigation() {
+            const user = await checkAuth();
+            const profileLink = document.querySelector('.profile-btn');
+            profileLink.style.display = user ? 'block' : 'none';
+        }
 
         // Profile Data Handling
         async function initializeProfile() {
@@ -127,72 +114,55 @@
             setupEventListeners();
         }
 
-        // Updated populateForm function
         function populateForm() {
-            // Clear existing content
-            document.querySelectorAll('.skills-view, .experience-view, .education-view').forEach(el => el.innerHTML = '');
-            
-            // Populate Personal Info
+            // Personal Info
             document.querySelectorAll('.view-mode')[0].textContent = profileData.full_name;
             document.getElementById('fullName').value = profileData.full_name;
+            document.querySelectorAll('.view-mode')[1].textContent = profileData.job_title || '';
+            document.getElementById('jobTitle').value = profileData.job_title || '';
+            document.querySelectorAll('.view-mode')[2].textContent = profileData.location || '';
+            document.getElementById('location').value = profileData.location || '';
 
-            // Populate Skills
-            const skillsView = document.querySelector('.skills-view');
-            skillsView.innerHTML = (profileData.skills || []).map(skill => `
-                <div class="skill-tag">${skill}</div>
-            `).join('');
-
-            // Populate Experience
-            const experienceView = document.querySelector('.experience-view');
-            experienceView.innerHTML = (profileData.experience || []).map(exp => `
-                <div class="experience-item">
-                    <h3>${exp.position || ''}</h3>
-                    <p>${exp.company || ''} • ${exp.duration || ''}</p>
-                </div>
-            `).join('');
-
-            // Populate Education
-            const educationView = document.querySelector('.education-view');
-            educationView.innerHTML = (profileData.education || []).map(edu => `
-                <div class="education-item">
-                    <h3>${edu.degree || ''}</h3>
-                    <p>${edu.institution || ''} • ${edu.field || ''}</p>
-                </div>
-            `).join('');
-
-            // Populate Edit Mode Fields
-            populateEditModeFields();
-        }
-
-        function populateEditModeFields() {
-            // Skills Edit
-            const skillsEdit = document.querySelector('.skills-edit');
-            skillsEdit.innerHTML = (profileData.skills || []).map(skill => `
-                <div class="skill-tag-edit">
+            // Skills
+            const skillsContainer = document.getElementById('skillsContainer');
+            skillsContainer.innerHTML = (profileData.skills || []).map(skill => `
+                <div class="skill-tag">
                     <span>${skill}</span>
                     <button type="button" class="remove-skill">×</button>
                 </div>
             `).join('');
 
-            // Experience Edit
-            const experienceEdit = document.querySelector('.experience-edit');
-            experienceEdit.innerHTML = (profileData.experience || []).map(exp => `
-                <div class="experience-item-edit">
-                    <input type="text" value="${exp.company || ''}" placeholder="Company">
-                    <input type="text" value="${exp.position || ''}" placeholder="Position">
-                    <input type="text" value="${exp.duration || ''}" placeholder="Duration">
-                    <button type="button" class="remove-item">Remove</button>
+            // Experience
+            const expContainer = document.getElementById('experienceContainer');
+            expContainer.innerHTML = (profileData.experience || []).map(exp => `
+                <div class="experience-item">
+                    <div class="view-mode">
+                        <h3>${exp.position || ''}</h3>
+                        <p>${exp.company || ''} | ${exp.duration || ''}</p>
+                    </div>
+                    <div class="edit-mode">
+                        <input type="text" class="edit-mode company" value="${exp.company || ''}" placeholder="Company">
+                        <input type="text" class="edit-mode position" value="${exp.position || ''}" placeholder="Position">
+                        <input type="text" class="edit-mode duration" value="${exp.duration || ''}" placeholder="Duration">
+                        <button type="button" class="remove-item">Remove</button>
+                    </div>
                 </div>
             `).join('');
 
-            // Education Edit
-            const educationEdit = document.querySelector('.education-edit');
-            educationEdit.innerHTML = (profileData.education || []).map(edu => `
-                <div class="education-item-edit">
-                    <input type="text" value="${edu.institution || ''}" placeholder="Institution">
-                    <input type="text" value="${edu.degree || ''}" placeholder="Degree">
-                    <input type="text" value="${edu.field || ''}" placeholder="Field of Study">
-                    <button type="button" class="remove-item">Remove</button>
+            // Education
+            const eduContainer = document.getElementById('educationContainer');
+            eduContainer.innerHTML = (profileData.education || []).map(edu => `
+                <div class="education-item">
+                    <div class="view-mode">
+                        <h3>${edu.degree || ''}</h3>
+                        <p>${edu.institution || ''} | ${edu.field || ''}</p>
+                    </div>
+                    <div class="edit-mode">
+                        <input type="text" class="edit-mode institution" value="${edu.institution || ''}" placeholder="Institution">
+                        <input type="text" class="edit-mode degree" value="${edu.degree || ''}" placeholder="Degree">
+                        <input type="text" class="edit-mode field" value="${edu.field || ''}" placeholder="Field">
+                        <button type="button" class="remove-item">Remove</button>
+                    </div>
                 </div>
             `).join('');
         }
