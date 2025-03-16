@@ -6,8 +6,13 @@
     <title>Your Profile - SkilWise</title>
     <link rel="stylesheet" href="/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <script type="module" src="/supabase.js"></script>
     
+    <script>
+        window.supabase = supabase.createClient(
+            'https://ovqkuwbjstovqjjtrwny.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92cWt1d2Jqc3RvdnFqanRyd255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTY5NzUsImV4cCI6MjA1NjA3Mjk3NX0.zEXoXzlyOyE4UvPI7yIzXKOAkjhZv0gYwA35ycwRiPw'
+        );
+    </script>
 </head>
 <body>
     <header>
