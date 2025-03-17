@@ -45,6 +45,11 @@
         window.location.href = 'login.html';
         return;
       }
+      // Add event listener to logout button
+      document.getElementById('logoutButton').addEventListener('click', async () => {
+                await supabase.auth.signOut();
+                window.location.href = 'login.html';
+            });
 
       // Fetch candidate profile data from Supabase table "candidate_profiles"
       const { data: candidateProfile, error } = await supabase
