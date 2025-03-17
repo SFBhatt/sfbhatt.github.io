@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (error) {
             alert(`Login failed: ${error.message}`);
         } else {
-            window.location.href = 'profile.html';
+            window.location.href = 'candidatehome.html';
         }
     });
 
