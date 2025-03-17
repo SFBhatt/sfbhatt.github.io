@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Skills - SkilWise</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    window.supabase = supabase.createClient(
+      'https://ovqkuwbjstovqjjtrwny.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92cWt1d2Jqc3RvdnFqanRyd255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTY5NzUsImV4cCI6MjA1NjA3Mjk3NX0.zEXoXzlyOyE4UvPI7yIzXKOAkjhZv0gYwA35ycwRiPw'
+    );
+  </script>
+  
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">
+      <img src="/images/SkilWise Logo.png" alt="SkilWise Logo">
+    </a>
+    <nav>
+      <input type="checkbox" id="menu-toggle" class="menu-toggle">
+      <label for="menu-toggle" class="menu-icon">Menu ☰</label>
+      <ul>
+        <li><span id="userName">[Name]</span></li>
+        <li><a href="profile.html" class="profile-btn">Profile</a></li>
+        <li><button class="logout-btn" id="logoutButton">Logout</button></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="skills-container">
+    <h1>Your Skills</h1>
+    <div id="skillsGrid" class="skills-grid">
+      <!-- Skill cards will be generated here -->
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Fetch candidate profile data from Supabase table "candidate_profiles"
+      const { data: candidateProfile, error } = await supabase
+        .from('candidate_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error || !candidateProfile) {
+        console.error('Error fetching candidate profile:', error);
+        return;
+      }
+
+      // Update user name in header
+      document.getElementById('userName').textContent = candidateProfile.full_name || 'Candidate';
+
+      // Here we assume candidateProfile.skills is an array. In your profile page, it is stored as an array of strings.
+      // If in the future you update skills to be an array of objects (e.g., { name: "JavaScript", verified: true }), the code below supports that.
+      const skills = candidateProfile.skills || [];
+      const skillsGrid = document.getElementById('skillsGrid');
+
+      // Function to create a skill card element
+      function createSkillCard(skill) {
+        const card = document.createElement('div');
+        card.classList.add('skill-card');
+
+        let skillName = "";
+        let verified = false;
+        // Check if skill is stored as an object with a verified property
+        if (typeof skill === 'object' && skill !== null) {
+          skillName = skill.name;
+          verified = skill.verified;
+        } else {
+          // If it's a string, we treat it as non-verified by default
+          skillName = skill;
+        }
+
+        if (verified) {
+          card.classList.add('verified');
+          card.innerHTML = `
+            <h3>${skillName}</h3>
+            <p><span class="verified-mark">✔️ Verified</span></p>
+          `;
+        } else {
+          card.innerHTML = `
+            <h3>${skillName}</h3>
+            <button class="action-btn primary" onclick="takeTest('${skillName}')">Take Test</button>
+          `;
+        }
+        return card;
+      }
+
+      // Render all skills as cards
+      skills.forEach(skill => {
+        const card = createSkillCard(skill);
+        skillsGrid.appendChild(card);
+      });
+    });
+
+    // Dummy function to simulate taking a test for a skill
+    function takeTest(skillName) {
+      alert('Starting test for ' + skillName);
+      // Optionally redirect to a test page:
+      // window.location.href = 'test.html?skill=' + encodeURIComponent(skillName);
+    }
+  </script>
+</body>
+</html>

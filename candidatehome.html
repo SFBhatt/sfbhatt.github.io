@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - SkilWise</title>
+    <title>Welcome to SkilWise</title>
     <link rel="stylesheet" href="/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script>
@@ -22,7 +22,7 @@
             <input type="checkbox" id="menu-toggle" class="menu-toggle">
             <label for="menu-toggle" class="menu-icon">Menu ☰</label>
             <ul>
-                <li><a href="index.html">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
                 <li><a href="profile.html" class="profile-btn">Profile</a></li>
                 <li><button class="logout-btn" id="logoutButton">Logout</button></li>
             </ul>
@@ -36,46 +36,37 @@
                 <button class="action-btn primary" onclick="location.href='profile.html'">
                     ✏️ Update Profile
                 </button>
-                <button class="action-btn secondary" onclick="location.href='jobs.html'">
-                    🔍 Search Jobs
+                <button class="action-btn secondary" onclick="location.href='Dashboard.html'">
+                    🎯 Go to Dashboard
                 </button>
             </div>
-        </section>
-
-        <section class="skill-tests">
-            <h2>Recommended Skill Tests</h2>
-            <div class="skilltest-grid">
-                <!-- Repeat this skilltest-card for each skill test -->
-                <div class="skilltest-card">
-                    <h3>Frontend Developer</h3>
-                    <p class="company">Tech Corp Inc.</p>
-                    <p class="location">📍 New York, NY</p>
-                    <p class="description">Looking for React developer with 3+ years experience...</p>
-                    <button class="apply-btn">Apply Now</button>
-                </div>
-                <!-- Add more job cards -->
+            <div class="quick-actions">
+                <!-- Countdown Timer -->
+                <p>You will be redirected to the Dashboard in <span id="countdown">30</span> seconds.</p>
+                
             </div>
         </section>
 
-        <section class="upcoming-interviews">
-            <h2>Upcoming Interviews</h2>
-            <div class="interview-list">
-                <!-- Repeat this interview-item for each schedule -->
-                <div class="interview-item">
-                    <div class="interview-time">
-                        <span class="date">15 Oct</span>
-                        <span class="time">10:00 AM</span>
-                    </div>
-                    <div class="interview-details">
-                        <h3>Senior Developer Position</h3>
-                        <p class="company">Digital Solutions Ltd.</p>
-                        <p class="type">📱 Video Call Interview</p>
-                    </div>
-                </div>
-                <!-- Add more interview items -->
-            </div>
-        </section>
+        
+
+        
     </main>
+
+    <!-- JavaScript to redirect to Dashboard after 30 seconds -->
+    <script>
+        let timeLeft = 30;
+        const countdownElement = document.getElementById('countdown');
+    
+        const countdown = setInterval(function() {
+            timeLeft--;
+            countdownElement.textContent = timeLeft;
+    
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                window.location.href = 'Dashboard.html'; // Redirect to homepage
+            }
+        }, 1000); // Update every second
+    </script>
 
     <script>
         // Add home page specific JavaScript here

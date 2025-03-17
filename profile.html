@@ -23,7 +23,7 @@
             <input type="checkbox" id="menu-toggle" class="menu-toggle">
             <label for="menu-toggle" class="menu-icon">Menu ☰</label>
             <ul>
-                <li><a href="candidatehome.html">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
                 <li><a href="profile.html" class="profile-btn">Profile</a></li>
                 <li><button class="logout-btn" id="logoutButton">Logout</button></li>
             </ul>
@@ -132,7 +132,7 @@
             const skillsContainer = document.getElementById('skillsContainer');
             skillsContainer.innerHTML = (profileData.skills || []).map(skill => `
                 <div class="skill-tag">
-                    <span>${skill}</span>
+                    <span>${skill.name}</span>
                     <button type="button" class="remove-skill">×</button>
                 </div>
             `).join('');
@@ -221,7 +221,10 @@
                 full_name: document.getElementById('fullName').value,
                 job_title: document.getElementById('jobTitle').value,
                 location: document.getElementById('location').value,
-                skills: Array.from(document.querySelectorAll('.skill-tag span')).map(s => s.textContent),
+                skills: Array.from(document.querySelectorAll('.skill-tag span')).map(s => ({
+                    name: s.textContent,
+                    verified: false // Default value (update accordingly if you track verification status)
+                })),
                 experience: Array.from(document.querySelectorAll('.experience-item')).map(item => ({
                     company: item.querySelector('.company').value,
                     position: item.querySelector('.position').value,
@@ -238,12 +241,17 @@
         }
 
         function addSkill() {
-            const skill = prompt('Enter a skill:');
-            if (skill) {
+            const skillName = prompt('Enter a skill:');
+            if (skillName) {
+                // Create skill object
+                const skill = {
+                    name: skillName,
+                    verified: false // Default value
+                };
                 const skillTag = document.createElement('div');
                 skillTag.className = 'skill-tag';
                 skillTag.innerHTML = `
-                    <span>${skill}</span>
+                    <span>${skill.name}</span>
                     <button type="button" class="remove-skill">×</button>
                 `;
                 document.getElementById('skillsContainer').appendChild(skillTag);

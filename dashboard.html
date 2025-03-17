@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SkilWise</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        window.supabase = supabase.createClient(
+            'https://ovqkuwbjstovqjjtrwny.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92cWt1d2Jqc3RvdnFqanRyd255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTY5NzUsImV4cCI6MjA1NjA3Mjk3NX0.zEXoXzlyOyE4UvPI7yIzXKOAkjhZv0gYwA35ycwRiPw'
+        );
+    </script>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">
+            <img src="/images/SkilWise Logo.png" alt="SkilWise Logo">
+        </a>
+        <nav>
+            <input type="checkbox" id="menu-toggle" class="menu-toggle">
+            <label for="menu-toggle" class="menu-icon">Menu ☰</label>
+            <ul>
+                <li><span id="userName">[Name]</span></li>
+                <li><a href="profile.html" class="profile-btn">Profile</a></li>
+                <li><button class="logout-btn" id="logoutButton">Logout</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="home-container">
+        <section class="welcome-section">
+            <h1>Showcase your skills and land your dream job.</h1>
+            <p>Get started by updating your profile and exploring the recommended skill tests.</p>
+            <div class="quick-actions">
+                <button class="action-btn primary" onclick="location.href='profile.html'">
+                    ✏️ Update Profile
+                </button>
+                <button class="action-btn secondary" onclick="location.href='Skills.html'">
+                    🎯 Take a Skill Test
+                </button>
+            </div>
+        </section>
+
+         <!-- Dashboard Overview Section (Point 2) -->
+        <section class="dashboard-overview">
+            <h2>Your Dashboard Overview</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Profile Completion</h3>
+                    <p>80%</p>
+                    <button class="action-btn primary" onclick="location.href='profile.html'">
+                        Update Profile
+                    </button>
+                </div>
+                <div class="stat-card">
+                    <h3>Verified Skills</h3>
+                    <p>5</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Tests</h3>
+                    <p>2</p>
+                    <button class="action-btn secondary" onclick="location.href='Skills.html'">
+                        Take New Test
+                    </button>
+                </div>
+            </div>
+            
+        </section>
+  
+        <!-- Skill Showcase & Validation Section (Point 3) -->
+        <section class="skill-showcase">
+            <h2>Your Skill Showcase</h2>
+            <div class="skills-overview">
+                <!-- Example Skill Progress/Bars or Badges -->
+                <div class="skill-card">
+                    <h3>JavaScript</h3>
+                    <div class="progress-bar">
+                    <div class="progress" style="width: 75%;">75%</div>
+                    </div>
+                    <p>Validated Test Score: 85%</p>
+                </div>
+                <div class="skill-card">
+                    <h3>React</h3>
+                    <div class="progress-bar">
+                    <div class="progress" style="width: 60%;">60%</div>
+                    </div>
+                    <p>Validated Test Score: 70%</p>
+                </div>
+                <!-- Add more skill cards as needed -->
+            </div>
+            <div class="skill-cta">
+                <button class="action-btn primary" onclick="location.href='Skills.html'">
+                    Explore More Skill Tests
+                </button>
+            </div>
+        </section>
+
+        <!-- Community & Resources Section (Point 5) -->
+        <section class="community-resources">
+            <h2>Community & Resources</h2>
+            <div class="community-content">
+                <div class="resource-item">
+                    <h3>Success Story: Jane Doe</h3>
+                    <p>How validated skills helped Jane land her dream job.</p>
+                    <a href="#">Read More</a>
+                </div>
+                <div class="resource-item">
+                    <h3>Career Tips & Tricks</h3>
+                    <p>Top 10 tips to ace your next interview.</p>
+                    <a href="#">Explore Now</a>
+                </div>
+                <div class="resource-item">
+                    <h3>Upcoming Webinar</h3>
+                    <p>Join our community webinar on mastering technical interviews.</p>
+                    <a href="#">Register Today</a>
+                </div>
+            </div>
+        </section>
+
+
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <h3>SkilWise</h3>
+            <p>226-886-4291</p>
+            <p>Sahil.Romease@gmail.com</p>
+            <p>Sarnia, ON, N7S 4L3, Canada</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Add home page specific JavaScript here
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Fetch candidate profile data from Supabase table "candidate_profiles"
+            const { data: candidateProfile, error } = await supabase
+                .from('candidate_profiles')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+
+            if (error || !candidateProfile) {
+                console.error('Error fetching candidate profile:', error);
+                // Optionally redirect to an error page or display an error message
+                return;
+            }
+
+            // Update user name using the candidate profile data
+            document.getElementById('userName').textContent = candidateProfile.full_name || 'Candidate';
+            document.getElementById('userNameBanner').textContent = candidateProfile.full_name || 'Candidate';
+
+        });
+
+    </script>
+</body>
+</html>
