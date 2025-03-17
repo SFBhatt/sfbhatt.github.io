@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - SkilWise</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        window.supabase = supabase.createClient(
+            'https://ovqkuwbjstovqjjtrwny.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92cWt1d2Jqc3RvdnFqanRyd255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTY5NzUsImV4cCI6MjA1NjA3Mjk3NX0.zEXoXzlyOyE4UvPI7yIzXKOAkjhZv0gYwA35ycwRiPw'
+        );
+    </script>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">
+            <img src="/images/SkilWise Logo.png" alt="SkilWise Logo">
+        </a>
+        <nav>
+            <input type="checkbox" id="menu-toggle" class="menu-toggle">
+            <label for="menu-toggle" class="menu-icon">Menu ☰</label>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="profile.html" class="profile-btn">Profile</a></li>
+                <li><button class="logout-btn" id="logoutButton">Logout</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="home-container">
+        <section class="welcome-section">
+            <h1>Welcome Back, <span id="userName">[Name]</span>!</h1>
+            <div class="quick-actions">
+                <button class="action-btn primary" onclick="location.href='profile.html'">
+                    ✏️ Update Profile
+                </button>
+                <button class="action-btn secondary" onclick="location.href='jobs.html'">
+                    🔍 Search Jobs
+                </button>
+            </div>
+        </section>
+
+        <section class="skill-tests">
+            <h2>Recommended Skill Tests</h2>
+            <div class="skilltest-grid">
+                <!-- Repeat this skilltest-card for each skill test -->
+                <div class="skilltest-card">
+                    <h3>Frontend Developer</h3>
+                    <p class="company">Tech Corp Inc.</p>
+                    <p class="location">📍 New York, NY</p>
+                    <p class="description">Looking for React developer with 3+ years experience...</p>
+                    <button class="apply-btn">Apply Now</button>
+                </div>
+                <!-- Add more job cards -->
+            </div>
+        </section>
+
+        <section class="upcoming-interviews">
+            <h2>Upcoming Interviews</h2>
+            <div class="interview-list">
+                <!-- Repeat this interview-item for each schedule -->
+                <div class="interview-item">
+                    <div class="interview-time">
+                        <span class="date">15 Oct</span>
+                        <span class="time">10:00 AM</span>
+                    </div>
+                    <div class="interview-details">
+                        <h3>Senior Developer Position</h3>
+                        <p class="company">Digital Solutions Ltd.</p>
+                        <p class="type">📱 Video Call Interview</p>
+                    </div>
+                </div>
+                <!-- Add more interview items -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Add home page specific JavaScript here
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Fetch candidate profile data from Supabase table "candidate_profiles"
+            const { data: candidateProfile, error } = await supabase
+                .from('candidate_profiles')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+
+            if (error || !candidateProfile) {
+                console.error('Error fetching candidate profile:', error);
+                // Optionally redirect to an error page or display an error message
+                return;
+            }
+
+            // Update user name using the candidate profile data
+            document.getElementById('userName').textContent = candidateProfile.full_name || 'Candidate';
+        });
+
+    </script>
+</body>
+</html>

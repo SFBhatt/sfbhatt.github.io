@@ -142,13 +142,15 @@
             expContainer.innerHTML = (profileData.experience || []).map(exp => `
                 <div class="experience-item">
                     <div class="view-mode">
-                        <h3>${exp.position || ''}</h3>
-                        <p>${exp.company || ''} | ${exp.duration || ''}</p>
+                        <h3>${exp.position || ''} | ${exp.company || ''}</h3>
+                        <h4>${exp.duration || ''}</h4>
+                        <p>${exp.description || ''}</p>
                     </div>
                     <div class="edit-mode">
                         <input type="text" class="edit-mode company" value="${exp.company || ''}" placeholder="Company">
                         <input type="text" class="edit-mode position" value="${exp.position || ''}" placeholder="Position">
                         <input type="text" class="edit-mode duration" value="${exp.duration || ''}" placeholder="Duration">
+                        <textarea class="edit-mode description" placeholder="Description" rows="4">${exp.description || ''}</textarea>
                         <button type="button" class="remove-item">Remove</button>
                     </div>
                 </div>
@@ -159,13 +161,14 @@
             eduContainer.innerHTML = (profileData.education || []).map(edu => `
                 <div class="education-item">
                     <div class="view-mode">
-                        <h3>${edu.degree || ''}</h3>
-                        <p>${edu.institution || ''} | ${edu.field || ''}</p>
+                        <h3>${edu.degree || ''} | ${edu.institution || ''}</h3>
+                        <p>${edu.field || ''} | ${edu.year || ''}</p>
                     </div>
                     <div class="edit-mode">
                         <input type="text" class="edit-mode institution" value="${edu.institution || ''}" placeholder="Institution">
                         <input type="text" class="edit-mode degree" value="${edu.degree || ''}" placeholder="Degree">
                         <input type="text" class="edit-mode field" value="${edu.field || ''}" placeholder="Field">
+                        <input type="integer" class="edit-mode year" value="${edu.year || ''}" placeholder="GraduationYear">
                         <button type="button" class="remove-item">Remove</button>
                     </div>
                 </div>
@@ -222,12 +225,14 @@
                 experience: Array.from(document.querySelectorAll('.experience-item')).map(item => ({
                     company: item.querySelector('.company').value,
                     position: item.querySelector('.position').value,
-                    duration: item.querySelector('.duration').value
+                    duration: item.querySelector('.duration').value,
+                    description: item.querySelector('.description').value
                 })),
                 education: Array.from(document.querySelectorAll('.education-item')).map(item => ({
                     institution: item.querySelector('.institution').value,
                     degree: item.querySelector('.degree').value,
-                    field: item.querySelector('.field').value
+                    field: item.querySelector('.field').value,
+                    year: item.querySelector('.year').value
                 }))
             };
         }
@@ -253,6 +258,7 @@
                 <input type="text" class="edit-mode company" placeholder="Company">
                 <input type="text" class="edit-mode position" placeholder="Position">
                 <input type="text" class="edit-mode duration" placeholder="Duration">
+                <textarea class="edit-mode description" placeholder="Description" rows="4"></textarea>
                 <button type="button" class="remove-item">Remove</button>
             `;
             document.getElementById('experienceContainer').appendChild(newExp);
@@ -266,6 +272,7 @@
                 <input type="text" class="edit-mode institution" placeholder="Institution">
                 <input type="text" class="edit-mode degree" placeholder="Degree">
                 <input type="text" class="edit-mode field" placeholder="Field">
+                <input type="integer" class="edit-mode year" placeholder="Graduation Year">
                 <button type="button" class="remove-item">Remove</button>
             `;
             document.getElementById('educationContainer').appendChild(newEdu);
