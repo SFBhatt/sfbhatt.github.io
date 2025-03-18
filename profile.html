@@ -128,14 +128,8 @@
             document.querySelectorAll('.view-mode')[2].textContent = profileData.location || '';
             document.getElementById('location').value = profileData.location || '';
 
-            // Skills
-            const skillsContainer = document.getElementById('skillsContainer');
-            skillsContainer.innerHTML = (profileData.skills || []).map(skill => `
-                <div class="skill-tag">
-                    <span>${skill.name}</span>
-                    <button type="button" class="remove-skill">×</button>
-                </div>
-            `).join('');
+            // Render Skills
+            renderSkills();
 
             // Experience
             const expContainer = document.getElementById('experienceContainer');
@@ -223,7 +217,7 @@
                 location: document.getElementById('location').value,
                 skills: Array.from(document.querySelectorAll('.skill-tag span')).map(s => ({
                     name: s.textContent,
-                    verified: false // Default value (update accordingly if you track verification status)
+                    verified: s.dataset.verified === "true" // Preserve existing status
                 })),
                 experience: Array.from(document.querySelectorAll('.experience-item')).map(item => ({
                     company: item.querySelector('.company').value,
@@ -248,15 +242,33 @@
                     name: skillName,
                     verified: false // Default value
                 };
-                const skillTag = document.createElement('div');
-                skillTag.className = 'skill-tag';
-                skillTag.innerHTML = `
-                    <span>${skill.name}</span>
-                    <button type="button" class="remove-skill">×</button>
-                `;
-                document.getElementById('skillsContainer').appendChild(skillTag);
-                skillTag.querySelector('.remove-skill').addEventListener('click', removeItem);
+                // Add the new skill to the profileData.skills array
+                profileData.skills.push(skill);
+
+                // Re-render the skills list to include the new skill
+                renderSkills();
             }
+        }
+
+        function renderSkills() {
+            const skillsContainer = document.getElementById('skillsContainer');
+            skillsContainer.innerHTML = profileData.skills.map(skill => `
+                <div class="skill-tag">
+                    <span data-verified="${skill.verified}">${skill.name}</span>
+                    <button type="button" class="remove-skill">×</button>
+                </div>
+            `).join('');
+
+            // Add event listeners for the remove buttons
+            skillsContainer.querySelectorAll('.remove-skill').forEach((btn, index) => {
+                btn.addEventListener('click', () => {
+                    // Remove the skill from the profileData.skills array
+                    profileData.skills.splice(index, 1);
+
+                    // Re-render the skills list
+                    renderSkills();
+                });
+            });
         }
 
         function addExperience() {
