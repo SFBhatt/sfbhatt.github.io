@@ -52,12 +52,45 @@
                     <span class="view-mode"></span>
                     <input type="text" class="edit-mode" id="location">
                 </div>
+                <!-- ADDED: Contact Details -->
+                <div class="form-group">
+                    <label>Email:</label>
+                    <span class="view-mode"></span>
+                    <input type="email" class="edit-mode" id="email" />
+                </div>
+                <div class="form-group">
+                    <label>Phone:</label>
+                    <span class="view-mode"></span>
+                    <input type="text" class="edit-mode" id="phone" />
+                </div>
+                <div class="form-group">
+                    <label>LinkedIn:</label>
+                    <span class="view-mode"></span>
+                    <input type="text" class="edit-mode" id="linkedin" />
+                </div>
+            </div>
+
+            <!-- ADDED: Professional Summary Section -->
+            <div class="profile-section">
+                <h2>Professional Summary</h2>
+                <div class="form-group">
+                <label></label>
+                <span class="view-mode"></span>
+                <textarea class="edit-mode" id="summary" rows="4" placeholder="Write a short bio"></textarea>
+                </div>
             </div>
 
             <div class="profile-section">
                 <h2>Skills & Expertise</h2>
                 <div id="skillsContainer" class="tags-container"></div>
                 <button type="button" class="add-more edit-mode" id="addSkill">+ Add Skill</button>
+            </div>
+
+            <!-- ADDED: Certifications Section -->
+            <div class="profile-section">
+                <h2>Certifications</h2>
+                <div id="certificationsContainer" class="tags-container"></div>
+                <button type="button" class="add-more edit-mode" id="addCertification">+ Add Certification</button>
             </div>
 
             <div class="profile-section">
@@ -72,6 +105,59 @@
                 <button type="button" class="add-more edit-mode" id="addEducation">+ Add Education</button>
             </div>
 
+              <!-- ADDED: Job Preferences Section -->
+            <div class="profile-section">
+                <h2>Job Preferences</h2>
+                <div class="form-group">
+                    <label>Preferred Job Roles:</label>
+                    <div class="view-mode" id="preferredjobroles-view"></div>
+                    <input type="text" class="edit-mode" id="preferredjobroles" placeholder="e.g., Developer, Manager" />
+                </div>
+                <div class="form-group">
+                    <label>Industries of Interest:</label>
+                    <div class="view-mode" id="industries-view"></div>
+                    <input type="text" class="edit-mode" id="industries" placeholder="e.g., Tech, Finance" />
+                </div>
+                <div class="form-group">
+                    <label>Employment Type:</label>
+                    <div class="view-mode" id="employmenttype-view"></div>
+                    <input type="text" class="edit-mode" id="employmenttype" placeholder="e.g., Full-time, Part-time" />
+                </div>
+                <div class="form-group">
+                    <label>Preferred Locations:</label>
+                    <div class="view-mode" id="preferredlocations-view"></div>
+                    <input type="text" class="edit-mode" id="preferredlocations" placeholder="e.g., Remote, Onsite" />
+                </div>
+            </div>
+
+            <!-- ADDED: Languages Section -->
+            <div class="profile-section">
+                <h2>Languages</h2>
+                <div id="languagesContainer" class="tags-container"></div>
+                <button type="button" class="add-more edit-mode" id="addLanguage">+ Add Language</button>
+            </div>
+
+            <!-- ADDED: Social Media Section -->
+            <div class="profile-section">
+                <h2>Social Media</h2>
+                <div id="socialmediaContainer" class="tags-container"></div>
+                <button type="button" class="add-more edit-mode" id="addSocialmedia">+ Add Social Media</button>
+            </div>
+
+            <!-- ADDED: Volunteer Experience Section -->
+            <div class="profile-section">
+                <h2>Volunteer Experience</h2>
+                <div id="volunteerContainer"></div>
+                <button type="button" class="add-more edit-mode" id="addVolunteer">+ Add Volunteer Experience</button>
+            </div>
+
+            <!-- ADDED: Projects & Portfolio Section -->
+            <div class="profile-section">
+                <h2>Projects & Portfolio</h2>
+                <div id="projectsContainer"></div>
+                <button type="button" class="add-more edit-mode" id="addProject">+ Add Project</button>
+            </div>
+
             <div class="form-actions edit-mode">
                 <button type="submit" class="save-btn">Save Changes</button>
                 <button type="button" class="cancel-btn" id="cancelEdit">Cancel</button>
@@ -82,6 +168,31 @@
     <script>
         const supabase = window.supabase;
         let profileData = {};
+
+        // ADDED: Extend profileData defaults for new sections
+        const defaultProfileData = {
+        user_id: "",
+        full_name: "",
+        job_title: "",
+        location: "",
+        email: "",
+        phone: "",
+        linkedin: "",
+        summary: "",
+        skills: [],
+        certifications: [],
+        experience: [],
+        education: [],
+        preferredjobroles: "",
+        industries: "",
+        employmenttype: "",
+        preferredlocations: "",
+        languages: [],
+        socialmedia: [],
+        volunteer: [],
+        projects: []
+        };
+
 
         // Auth Check
         async function checkAuth() {
@@ -107,13 +218,11 @@
                 .eq('user_id', user.id)
                 .single();
 
-            profileData = data || {
+            profileData = data || Object.assign({}, defaultProfileData, {
                 user_id: user.id,
                 full_name: user.user_metadata.full_name || '',
-                skills: [],
-                experience: [],
-                education: []
-            };
+                
+            });
 
             populateForm();
             setupEventListeners();
@@ -127,9 +236,23 @@
             document.getElementById('jobTitle').value = profileData.job_title || '';
             document.querySelectorAll('.view-mode')[2].textContent = profileData.location || '';
             document.getElementById('location').value = profileData.location || '';
+            // ADDED: Contact Details
+            document.querySelectorAll('.view-mode')[3].textContent = profileData.email || '';
+            document.getElementById('email').value = profileData.email || '';
+            document.querySelectorAll('.view-mode')[4].textContent = profileData.phone || '';
+            document.getElementById('phone').value = profileData.phone || '';
+            document.querySelectorAll('.view-mode')[5].textContent = profileData.linkedin || '';
+            document.getElementById('linkedin').value = profileData.linkedin || '';
+
+            // ADDED: Professional Summary
+            document.querySelectorAll('.view-mode')[6].textContent = profileData.summary || '';
+            document.getElementById('summary').value = profileData.summary || '';
 
             // Render Skills
             renderSkills();
+
+            // ADDED: Certifications Section
+            renderCertifications();
 
             // Experience
             const expContainer = document.getElementById('experienceContainer');
@@ -167,7 +290,125 @@
                     </div>
                 </div>
             `).join('');
+
+            // ADDED: Job Preferences
+            document.querySelector('.view-mode#preferredjobroles-view').textContent = profileData.preferredjobroles || '';
+            document.getElementById('preferredjobroles').value = profileData.preferredjobroles || '';
+            
+            document.querySelector('.view-mode#industries-view').textContent = profileData.industries || '';
+            document.getElementById('industries').value = profileData.industries || '';
+
+            document.querySelector('.view-mode#employmenttype-view').textContent = profileData.employmenttype || '';
+            document.getElementById('employmenttype').value = profileData.employmenttype || '';
+
+            document.querySelector('.view-mode#preferredlocations-view').textContent = profileData.preferredlocations || '';
+            document.getElementById('preferredlocations').value = profileData.preferredlocations || '';
+
+            // ADDED: Languages
+            renderLanguages();
+
+            // ADDED: Social Media
+            renderSocialmedia();
+
+            // ADDED: Volunteer Experience
+            renderVolunteer();
+
+            // ADDED: Projects & Portfolio
+            renderProjects();
+
         }
+
+        // ADDED: Render Functions for New Sections
+
+        function renderCertifications() {
+            const container = document.getElementById('certificationsContainer');
+            container.innerHTML = (profileData.certifications || []).map(cert => `
+                <div class="certification-item">
+                <div class="view-mode">
+                    <p><strong>${cert.name || ''}</strong> - ${cert.institution || ''}</p>
+                    <p>Issued: ${cert.issueDate || ''} ${cert.expiryDate ? ('| Expires: ' + cert.expiryDate) : ''}</p>
+                </div>
+                <div class="edit-mode">
+                    <input type="text" class="edit-mode cert-name" value="${cert.name || ''}" placeholder="Certificate Name">
+                    <input type="text" class="edit-mode cert-institution" value="${cert.institution || ''}" placeholder="Certifying Institution">
+                    <input type="date" class="edit-mode cert-issueDate" value="${cert.issueDate || ''}" placeholder="Issue Date">
+                    <input type="date" class="edit-mode cert-expiryDate" value="${cert.expiryDate || ''}" placeholder="Expiry Date (Optional)">
+                    <button type="button" class="remove-item">Remove</button>
+                </div>
+                </div>
+            `).join('');
+        }
+
+        function renderLanguages() {
+            const container = document.getElementById('languagesContainer');
+            container.innerHTML = (profileData.languages || []).map(lang => `
+                <div class="language-item">
+                <div class="view-mode">
+                    <p><strong>${lang.name || ''}</strong> - ${lang.proficiency || ''}</p>
+                </div>
+                <div class="edit-mode">
+                    <input type="text" class="edit-mode language-name" value="${lang.name || ''}" placeholder="Language">
+                    <input type="text" class="edit-mode language-proficiency" value="${lang.proficiency || ''}" placeholder="Proficiency">
+                    <button type="button" class="remove-item">Remove</button>
+                </div>
+                </div>
+            `).join('');
+        }
+
+        function renderSocialmedia() {
+            const container = document.getElementById('socialmediaContainer');
+            container.innerHTML = (profileData.socialmedia || []).map(sm => `
+                <div class="social-item">
+                <div class="view-mode">
+                    <p><strong>${sm.platform || ''}</strong> - ${sm.link || ''}</p>
+                </div>
+                <div class="edit-mode">
+                    <input type="text" class="edit-mode social-platform" value="${sm.platform || ''}" placeholder="Platform Name">
+                    <input type="text" class="edit-mode social-link" value="${sm.link || ''}" placeholder="Profile Link">
+                    <button type="button" class="remove-item">Remove</button>
+                </div>
+                </div>
+            `).join('');
+        }
+
+        function renderVolunteer() {
+            const container = document.getElementById('volunteerContainer');
+            container.innerHTML = (profileData.volunteer || []).map(vol => `
+                <div class="volunteer-item">
+                <div class="view-mode">
+                    <p><strong>${vol.role || ''}</strong> at ${vol.organisation || ''}</p>
+                    <p>${vol.description || ''}</p>
+                </div>
+                <div class="edit-mode">
+                    <input type="text" class="edit-mode volunteer-role" value="${vol.role || ''}" placeholder="Role Title">
+                    <input type="text" class="edit-mode volunteer-org" value="${vol.organisation || ''}" placeholder="Organisation">
+                    <textarea class="edit-mode volunteer-desc" placeholder="Description" rows="3">${vol.description || ''}</textarea>
+                    <button type="button" class="remove-item">Remove</button>
+                </div>
+                </div>
+            `).join('');
+        }
+
+        function renderProjects() {
+            const container = document.getElementById('projectsContainer');
+            container.innerHTML = (profileData.projects || []).map(proj => `
+                <div class="project-item">
+                <div class="view-mode">
+                    <p><strong>${proj.name || ''}</strong></p>
+                    <p>${proj.description || ''}</p>
+                    <p><a href="${proj.link || '#'}" target="_blank">${proj.link || ''}</a></p>
+                </div>
+                <div class="edit-mode">
+                    <input type="text" class="edit-mode project-name" value="${proj.name || ''}" placeholder="Project Name">
+                    <textarea class="edit-mode project-desc" placeholder="Short Description" rows="3">${proj.description || ''}</textarea>
+                    <input type="text" class="edit-mode project-link" value="${proj.link || ''}" placeholder="Project Link">
+                    <button type="button" class="remove-item">Remove</button>
+                </div>
+                </div>
+            `).join('');
+        }
+
+
 
         // Event Handlers
         function setupEventListeners() {
@@ -186,13 +427,18 @@
             document.getElementById('profileForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = getFormData();
-                
-                const { error } = await supabase
-                    .from('candidate_profiles')
-                    .upsert(formData)
-                    .eq('user_id', formData.user_id);
 
-                if (!error) {
+                console.log('Form Data to save:', formData); // Debug log
+
+                const { data, error } = await supabase
+                    .from('candidate_profiles')
+                    .upsert(formData, { onConflict: 'user_id'});
+
+                if (error) {
+                    console.error('Error saving profile:', error);
+                    alert('Error saving profile. Check console for details.');
+                } 
+                else {
                     profileData = formData;
                     document.getElementById('profileForm').classList.remove('edit-mode-active');
                     populateForm();
@@ -203,6 +449,14 @@
             document.getElementById('addSkill').addEventListener('click', addSkill);
             document.getElementById('addExperience').addEventListener('click', addExperience);
             document.getElementById('addEducation').addEventListener('click', addEducation);
+
+            // ADDED: New dynamic field event listeners
+            document.getElementById('addCertification').addEventListener('click', addCertification);
+            document.getElementById('addLanguage').addEventListener('click', addLanguage);
+            document.getElementById('addSocialmedia').addEventListener('click', addSocialmedia);
+            document.getElementById('addVolunteer').addEventListener('click', addVolunteer);
+            document.getElementById('addProject').addEventListener('click', addProject);
+
             document.querySelectorAll('.remove-skill, .remove-item').forEach(btn => {
                 btn.addEventListener('click', removeItem);
             });
@@ -215,10 +469,24 @@
                 full_name: document.getElementById('fullName').value,
                 job_title: document.getElementById('jobTitle').value,
                 location: document.getElementById('location').value,
+                // ADDED: Contact Details
+                email: document.getElementById('email').value,             // ADDED
+                phone: document.getElementById('phone').value,             // ADDED
+                linkedin: document.getElementById('linkedin').value,       // ADDED
+                summary: document.getElementById('summary').value,         // ADDED
+                // existing skills
                 skills: Array.from(document.querySelectorAll('.skill-tag span')).map(s => ({
                     name: s.textContent,
                     verified: s.dataset.verified === "true" // Preserve existing status
                 })),
+                // ADDED: Certifications
+                certifications: Array.from(document.querySelectorAll('.certification-item')).map(item => ({
+                name: item.querySelector('.cert-name').value || item.querySelector('.view-mode p strong').textContent,
+                institution: item.querySelector('.cert-institution').value,
+                issueDate: item.querySelector('.cert-issueDate').value,
+                expiryDate: item.querySelector('.cert-expiryDate').value
+                })),
+                // existing experience and education fields
                 experience: Array.from(document.querySelectorAll('.experience-item')).map(item => ({
                     company: item.querySelector('.company').value,
                     position: item.querySelector('.position').value,
@@ -230,6 +498,29 @@
                     degree: item.querySelector('.degree').value,
                     field: item.querySelector('.field').value,
                     year: item.querySelector('.year').value
+                })),
+                // ADDED: New dynamic fields: Job Preferences, Languages, Social Media, Volunteer Experience, Projects
+                preferredjobroles: document.getElementById('preferredjobroles').value,  // ADDED
+                industries: document.getElementById('industries').value,              // ADDED
+                employmenttype: document.getElementById('employmenttype').value,        // ADDED
+                preferredlocations: document.getElementById('preferredlocations').value, // ADDED
+                languages: Array.from(document.querySelectorAll('.language-item')).map(item => ({
+                    name: item.querySelector('.language-name').value,
+                    proficiency: item.querySelector('.language-proficiency').value
+                })),
+                socialmedia: Array.from(document.querySelectorAll('.social-item')).map(item => ({
+                    platform: item.querySelector('.social-platform').value,
+                    link: item.querySelector('.social-link').value
+                })),
+                volunteer: Array.from(document.querySelectorAll('.volunteer-item')).map(item => ({
+                    role: item.querySelector('.volunteer-role').value,
+                    organisation: item.querySelector('.volunteer-org').value,
+                    description: item.querySelector('.volunteer-desc').value
+                })),
+                projects: Array.from(document.querySelectorAll('.project-item')).map(item => ({
+                    name: item.querySelector('.project-name').value,
+                    description: item.querySelector('.project-desc').value,
+                    link: item.querySelector('.project-link').value
                 }))
             };
         }
@@ -271,6 +562,77 @@
             });
         }
 
+
+        // ADDED: Certification Handling (Using same format as addEducation())
+        function addCertification() {
+            const newCert = document.createElement('div');
+            newCert.className = 'certification-item';
+            newCert.innerHTML = `
+                <input type="text" class="edit-mode cert-name" placeholder="Certificate Name">
+                <input type="text" class="edit-mode cert-institution" placeholder="Certifying Institution">
+                <input type="date" class="edit-mode cert-issueDate" placeholder="Issue Date">
+                <input type="date" class="edit-mode cert-expiryDate" placeholder="Expiry Date (Optional)">
+                <button type="button" class="remove-item">Remove</button>
+            `;
+            document.getElementById('certificationsContainer').appendChild(newCert);
+            newCert.querySelector('.remove-item').addEventListener('click', removeItem);
+        }
+
+        // ADDED: Languages Handling (Using same format as addEducation())
+        function addLanguage() {
+            const newLang = document.createElement('div');
+            newLang.className = 'language-item';
+            newLang.innerHTML = `
+                <input type="text" class="edit-mode language-name" placeholder="Language">
+                <input type="text" class="edit-mode language-proficiency" placeholder="Proficiency">
+                <button type="button" class="remove-item">Remove</button>
+            `;
+            document.getElementById('languagesContainer').appendChild(newLang);
+            newLang.querySelector('.remove-item').addEventListener('click', removeItem);
+        }
+
+        // ADDED: Social Media Handling (Using same format as addEducation())
+        function addSocialmedia() {
+            const newSM = document.createElement('div');
+            newSM.className = 'social-item';
+            newSM.innerHTML = `
+                <input type="text" class="edit-mode social-platform" placeholder="Platform Name">
+                <input type="text" class="edit-mode social-link" placeholder="Profile Link">
+                <button type="button" class="remove-item">Remove</button>
+            `;
+            document.getElementById('socialmediaContainer').appendChild(newSM);
+            newSM.querySelector('.remove-item').addEventListener('click', removeItem);
+        }
+
+        // ADDED: Volunteer Experience Handling (Using same format as addEducation())
+        function addVolunteer() {
+            const newVol = document.createElement('div');
+            newVol.className = 'volunteer-item';
+            newVol.innerHTML = `
+                <input type="text" class="edit-mode volunteer-role" placeholder="Role Title">
+                <input type="text" class="edit-mode volunteer-org" placeholder="Organisation">
+                <textarea class="edit-mode volunteer-desc" placeholder="Description" rows="3"></textarea>
+                <button type="button" class="remove-item">Remove</button>
+            `;
+            document.getElementById('volunteerContainer').appendChild(newVol);
+            newVol.querySelector('.remove-item').addEventListener('click', removeItem);
+        }
+
+
+        // ADDED: Projects & Portfolio Handling (Using same format as addEducation())
+        function addProject() {
+            const newProj = document.createElement('div');
+            newProj.className = 'project-item';
+            newProj.innerHTML = `
+                <input type="text" class="edit-mode project-name" placeholder="Project Name">
+                <textarea class="edit-mode project-desc" placeholder="Short Description" rows="3"></textarea>
+                <input type="text" class="edit-mode project-link" placeholder="Project Link">
+                <button type="button" class="remove-item">Remove</button>
+            `;
+            document.getElementById('projectsContainer').appendChild(newProj);
+            newProj.querySelector('.remove-item').addEventListener('click', removeItem);
+        }
+
         function addExperience() {
             const newExp = document.createElement('div');
             newExp.className = 'experience-item';
@@ -300,7 +662,7 @@
         }
 
         function removeItem(e) {
-            e.target.closest('.skill-tag, .experience-item, .education-item').remove();
+            e.target.closest('.skill-tag, .experience-item, .education-item, .certification-item, .language-item, .social-item, .volunteer-item, .project-item').remove();
         }
 
         // Initialize

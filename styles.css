@@ -1313,6 +1313,7 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+    height: auto;
 }
 
 .skill-tag {
@@ -1765,3 +1766,34 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
     }
 
     /* Additional CSS for Skills Page ends............................ */
+
+
+    /* Additional styling for new sections if needed */
+    .certification-item,
+    .language-item,
+    .social-item,
+    .volunteer-item,
+    .project-item {
+    height: auto;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    }
+
+    .edit-mode-active input,
+    .edit-mode-active textarea {
+    border-color: #1a73e8;
+    }
+
+    .certification-item p {
+    margin: 0.2rem 0;
+    }
+
+    .language-item p {
+    margin: 0.2rem 0;
+    }
+
+    .social-item p {
+    margin: 0.2rem 0;
+    }
