@@ -49,11 +49,11 @@
                 </div>
                 <div class="stat-card">
                     <h3>Verified Skills</h3>
-                    <p>5</p>
+                    <p id="verifiedSkillsCount">Loading...</p>
                 </div>
                 <div class="stat-card">
                     <h3>Pending Tests</h3>
-                    <p>2</p>
+                    <p id="pendingSkillsCount">Loading...</p>
                     <button class="action-btn secondary" onclick="location.href='Skills.html'">
                         Take New Test
                     </button>
@@ -155,5 +155,40 @@
         });
 
     </script>
+    
+    <!-- Verified Skills & Pending Count Script -->
+    <script>
+        async function fetchVerifiedSkills() {
+            const user = await supabase.auth.getUser();
+            if (!user.data.user) {
+                document.getElementById('verifiedSkillsCount').textContent = '0';
+                document.getElementById('pendingSkillsCount').textContent = '0';
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from('candidate_profiles')
+                .select('skills')
+                .eq('user_id', user.data.user.id)
+                .single();
+
+            if (error || !data || !data.skills) {
+                console.error('Error fetching skills:', error);
+                document.getElementById('verifiedSkillsCount').textContent = '0';
+                document.getElementById('pendingSkillsCount').textContent = '0';
+                return;
+            }
+
+            // Count verified and pending skills
+            const verifiedSkillsCount = data.skills.filter(skill => skill.verified === true).length;
+            const pendingSkillsCount = data.skills.filter(skill => skill.verified === false).length;
+
+            document.getElementById('verifiedSkillsCount').textContent = verifiedSkillsCount;
+            document.getElementById('pendingSkillsCount').textContent = pendingSkillsCount;
+        }
+
+        fetchVerifiedSkills();
+    </script>
+
 </body>
 </html>
