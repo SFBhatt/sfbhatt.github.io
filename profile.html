@@ -475,10 +475,7 @@
                 linkedin: document.getElementById('linkedin').value,       // ADDED
                 summary: document.getElementById('summary').value,         // ADDED
                 // existing skills
-                skills: Array.from(document.querySelectorAll('.skill-tag span')).map(s => ({
-                    name: s.textContent,
-                    verified: s.dataset.verified === "true" // Preserve existing status
-                })),
+                skills: profileData.skills,
                 // ADDED: Certifications
                 certifications: Array.from(document.querySelectorAll('.certification-item')).map(item => ({
                 name: item.querySelector('.cert-name').value || item.querySelector('.view-mode p strong').textContent,
@@ -522,6 +519,7 @@
                     description: item.querySelector('.project-desc').value,
                     link: item.querySelector('.project-link').value
                 }))
+                
             };
         }
 
@@ -531,7 +529,9 @@
                 // Create skill object
                 const skill = {
                     name: skillName,
-                    verified: false // Default value
+                    verified: false, // Default value
+                    progress: null, // Will be determined from testscore later
+                    testScore: null // Will be determined from testscore later
                 };
                 // Add the new skill to the profileData.skills array
                 profileData.skills.push(skill);
