@@ -65,24 +65,13 @@
         <!-- Skill Showcase & Validation Section (Point 3) -->
         <section class="skill-showcase">
             <h2>Your Skill Showcase</h2>
-            <div class="skills-overview">
-                <!-- Example Skill Progress/Bars or Badges -->
-                <div class="skill-card">
-                    <h3>JavaScript</h3>
-                    <div class="progress-bar">
-                    <div class="progress" style="width: 75%;">75%</div>
-                    </div>
-                    <p>Validated Test Score: 85%</p>
-                </div>
-                <div class="skill-card">
-                    <h3>React</h3>
-                    <div class="progress-bar">
-                    <div class="progress" style="width: 60%;">60%</div>
-                    </div>
-                    <p>Validated Test Score: 70%</p>
-                </div>
-                <!-- Add more skill cards as needed -->
+            <p>Here are your verified skills that you can showcase to potential employers.</p>
+
+            <!-- NEW CODE: Empty container for dynamically added verified skills -->
+            <div class="skills-overview" id="skillsOverview">
+                <!-- Verified skills will be inserted here dynamically -->
             </div>
+            
             <div class="skill-cta">
                 <button class="action-btn primary" onclick="location.href='Skills.html'">
                     Explore More Skill Tests
@@ -127,8 +116,9 @@
     </footer>
     
     <script>
-        // Add home page specific JavaScript here
+        
         document.addEventListener('DOMContentLoaded', async () => {
+            // Check if user is authenticated
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 window.location.href = 'login.html';
@@ -152,6 +142,47 @@
             document.getElementById('userName').textContent = candidateProfile.full_name || 'Candidate';
             //document.getElementById('userNameBanner').textContent = candidateProfile.full_name || 'Candidate';
 
+            // NEW CODE: Dynamically generate verified skills for the Skill Showcase section
+            if (candidateProfile.skills && Array.isArray(candidateProfile.skills)) {
+                const skillsOverview = document.getElementById('skillsOverview');
+                // Clear any existing content
+                skillsOverview.innerHTML = '';
+
+                candidateProfile.skills.forEach(skill => {
+                    if (skill.verified) {
+                        // Create the skill card container
+                        const skillCard = document.createElement('div');
+                        skillCard.classList.add('skill-card');
+
+                        // Skill name
+                        const skillName = document.createElement('h3');
+                        skillName.textContent = skill.name || 'Unnamed Skill';
+                        skillCard.appendChild(skillName);
+
+                        // Progress bar container
+                        const progressBar = document.createElement('div');
+                        progressBar.classList.add('progress-bar');
+
+                        // Progress element inside the progress bar
+                        const progress = document.createElement('div');
+                        progress.classList.add('progress');
+                        // Assuming skill.progress holds a percentage value
+                        const progressValue = skill.progress || 0;
+                        progress.style.width = progressValue + '%';
+                        progress.textContent = progressValue + '%';
+                        progressBar.appendChild(progress);
+                        skillCard.appendChild(progressBar);
+
+                        // Validated test score
+                        const testScore = document.createElement('p');
+                        testScore.textContent = `Validated Test Score: ${skill.testScore || 'N/A'}%`;
+                        skillCard.appendChild(testScore);
+
+                        // Append the skill card to the skills overview container
+                        skillsOverview.appendChild(skillCard);
+                    }
+                });
+            }
         });
 
     </script>

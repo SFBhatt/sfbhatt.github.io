@@ -1596,6 +1596,10 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
     color: #333;
   }
   
+  .skill-showcase p {
+    color: #333;
+  }
+
   .skills-overview {
     display: flex;
     flex-wrap: wrap;
