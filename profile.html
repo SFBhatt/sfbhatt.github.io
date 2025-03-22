@@ -163,6 +163,19 @@
                 <button type="button" class="cancel-btn" id="cancelEdit">Cancel</button>
             </div>
         </form>
+        <!-- Skill Modal -->
+        <div id="skillModal" class="modal">
+            <div class="modal-content">
+                <h3>Select a Skill</h3>
+                <select id="skillDropdown" class="skill-dropdown">
+                    <!-- Options will be dynamically populated -->
+                </select>
+                <div class="modal-actions">
+                    <button id="confirmSkillButton" class="btn-primary">Add Skill</button>
+                    <button id="cancelSkillButton" class="btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
@@ -524,21 +537,57 @@
         }
 
         function addSkill() {
-            const skillName = prompt('Enter a skill:');
-            if (skillName) {
-                // Create skill object
-                const skill = {
-                    name: skillName,
-                    verified: false, // Default value
-                    progress: null, // Will be determined from testscore later
-                    testScore: null // Will be determined from testscore later
-                };
-                // Add the new skill to the profileData.skills array
-                profileData.skills.push(skill);
+            // Predefined list of skills
+            const skillOptions = ['Project Management', 'Drive', 'Leadership', 'Communication', 'Problem Solving'];
 
-                // Re-render the skills list to include the new skill
-                renderSkills();
-            }
+            // Populate the dropdown
+            const dropdown = document.getElementById('skillDropdown');
+            dropdown.innerHTML = `
+                <option value="" disabled selected>Select a skill</option>
+                ${skillOptions.map(skill => `<option value="${skill}">${skill}</option>`).join('')}
+            `;
+            // Show the modal
+            const modal = document.getElementById('skillModal');
+            modal.style.display = 'flex';
+
+            // Handle the confirmation button click
+            document.getElementById('confirmSkillButton').onclick = () => {
+                const selectedSkill = dropdown.value;
+
+                // Ensure a valid skill is selected
+                if (!selectedSkill) {
+                    alert('Please select a skill.');
+                    return;
+                }
+
+                // Check if the skill is already added
+                if (profileData.skills.some(skill => skill.name === selectedSkill)) {
+                    alert('This skill is already added.');
+                } else {
+                    // Add the selected skill to the profileData.skills array
+                    const skill = {
+                        name: selectedSkill,
+                        verified: false, // Default value
+                        progress: null, // Will be determined from testscore later
+                        testScore: null // Will be determined from testscore later
+                    };
+                    profileData.skills.push(skill);
+
+                    // Re-render the skills list to include the new skill
+                    renderSkills();
+
+                    // Provide feedback
+                    alert(`Skill "${selectedSkill}" added successfully!`);
+                }
+
+                // Hide the modal
+                modal.style.display = 'none';
+            };
+
+            // Handle the cancel button click
+            document.getElementById('cancelSkillButton').onclick = () => {
+                modal.style.display = 'none';
+            };
         }
 
         function renderSkills() {

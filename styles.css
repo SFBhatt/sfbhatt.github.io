@@ -1325,13 +1325,29 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
     gap: 0.5rem;
 }
 
+/* Styling for Add Buttons */
 .add-more {
-    background: none;
-    border: 2px dashed #007bff;
-    color: #007bff;
-    padding: 0.5rem 1rem;
-    margin-top: 1rem;
-    cursor: pointer;
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    padding: 10px 20px; /* Add padding */
+    font-size: 16px; /* Increase font size */
+    font-weight: bold; /* Make text bold */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effect */
+    display: inline-block; /* Ensure proper alignment */
+    margin-top: 10px; /* Add spacing above */
+}
+
+.add-more:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+}
+
+.add-more:focus {
+    outline: none; /* Remove focus outline */
+    box-shadow: 0 0 5px #000000; /* Add focus shadow */
 }
 
 .experience-item, .education-item {
@@ -1427,7 +1443,96 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
     white-space: pre-line;
 }
 
-/* profile page code end */
+/* Add skill popup Modal Styles starts */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    width: 300px;
+}
+
+.modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.skill-dropdown {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.btn-primary {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.btn-secondary {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    opacity: 0.9;
+}
+/* add skill popup modal styles ends */
+
+/* Additional styling for new sections */
+.certification-item,
+.language-item,
+.social-item,
+.volunteer-item,
+.project-item {
+height: auto;
+padding: 0.5rem;
+border: 1px solid #ccc;
+border-radius: 4px;
+background-color: #fff;
+}
+
+.edit-mode-active input,
+.edit-mode-active textarea {
+border-color: #1a73e8;
+}
+
+.certification-item p {
+margin: 0.2rem 0;
+}
+
+.language-item p {
+margin: 0.2rem 0;
+}
+
+.social-item p {
+margin: 0.2rem 0;
+}
+
+/* profile page code end............................................. */
 
 /* Chatbot Bubble */
 .chatbot-bubble {
@@ -1772,32 +1877,4 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
     /* Additional CSS for Skills Page ends............................ */
 
 
-    /* Additional styling for new sections if needed */
-    .certification-item,
-    .language-item,
-    .social-item,
-    .volunteer-item,
-    .project-item {
-    height: auto;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #fff;
-    }
-
-    .edit-mode-active input,
-    .edit-mode-active textarea {
-    border-color: #1a73e8;
-    }
-
-    .certification-item p {
-    margin: 0.2rem 0;
-    }
-
-    .language-item p {
-    margin: 0.2rem 0;
-    }
-
-    .social-item p {
-    margin: 0.2rem 0;
-    }
+    
