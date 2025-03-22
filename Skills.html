@@ -67,8 +67,7 @@
       // Update user name in header
       document.getElementById('userName').textContent = candidateProfile.full_name || 'Candidate';
 
-      // Here we assume candidateProfile.skills is an array. In your profile page, it is stored as an array of strings.
-      // If in the future you update skills to be an array of objects (e.g., { name: "JavaScript", verified: true }), the code below supports that.
+      // Now, skills are stored as an array of objects (e.g., { name: "JavaScript", verified: true }), the code below supports that.
       const skills = candidateProfile.skills || [];
       const skillsGrid = document.getElementById('skillsGrid');
 
@@ -110,12 +109,46 @@
       });
     });
 
-    // Dummy function to simulate taking a test for a skill
+    // NEW CODE: Real test redirection function
     function takeTest(skillName) {
-      alert('Starting test for ' + skillName);
-      // Optionally redirect to a test page:
-      // window.location.href = 'test.html?skill=' + encodeURIComponent(skillName);
+      // Convert skill name to lowercase for case-insensitive comparison
+      const lowerCaseSkill = skillName.toLowerCase();
+
+      if (lowerCaseSkill === 'project management') {
+        // Detailed instructions including the provided information
+        const instructions = "Instructions for the Project Management Test:\n\n" +
+          "1. Please use your email ID for the test—the same you used to create your SkilWise account—to track your score.\n" +
+          "2. Use the password: SkilWise for this test.\n" +
+          "3. Read each question carefully and manage your time effectively.\n" +
+          "4. You can review your answers before submitting.\n\n" +
+          "Are you ready to begin?";
+          // Show a confirmation popup with the instructions
+          if (confirm(instructions)) {
+            // Redirect to the specific Project Management test page after confirmation
+            window.location.href = 'https://testmoz.com/14385014';
+          }
+      } 
+      
+      else if (lowerCaseSkill === 'drive') {
+        // Instructions for the Drive test
+        const instructions = "Instructions for the Drive Test:\n\n" +
+            "1. Please use your email ID for the test—the same you used to create your SkilWise account—to track your score.\n" +
+            "2. Use the password: SkilWise for this test.\n" +
+            "3. Read each question carefully and manage your time effectively.\n" +
+            "4. You can review your answers before submitting.\n\n" +
+            "Are you ready to begin?";
+          if (confirm(instructions)) {
+              // Redirect to the fullscreen test page
+              window.location.href = 'fullscreen.html';
+          }
+        
+        } else {
+          // Handle other skills (optional)
+          alert(`No specific test is available for the skill: ${skillName}`);
+      }
     }
+
+    
   </script>
 </body>
 </html>

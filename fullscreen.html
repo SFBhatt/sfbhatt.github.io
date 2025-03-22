@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Timed Exam</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        #welcomeOverlay {
+            display: flex;
+        }
+
+        #exitOverlay {
+            display: none;
+        }
+
+        .warningMessage {
+            font-size: 2.5rem;
+            margin: 20px;
+            color: #ff0000;
+        }
+
+        .instruction {
+            font-size: 1.5rem;
+            margin: 10px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+
+        #finishBtn {
+            padding: 20px 40px;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            position: fixed;
+            bottom: 20px;
+            display: none;
+            z-index: 10000;
+        }
+
+        #timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            color: #fff;
+            background-color: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 9998;
+        }
+    </style>
+</head>
+<body>
+    <div id="welcomeOverlay" class="overlay">
+        <div class="warningMessage">Important Instructions</div>
+        <div class="instruction">
+            • This test must be completed in fullscreen mode<br>
+            • You will have 30 minutes to complete the test<br>
+            • Do not attempt to exit fullscreen during the test<br>
+            • Click anywhere to begin your test
+        </div>
+    </div>
+
+    <div id="exitOverlay" class="overlay">
+        <div class="warningMessage">⚠️ Fullscreen is required to continue ⚠️</div>
+        <div class="instruction">Click anywhere to return to your test</div>
+    </div>
+
+    <div id="timer">30:00</div>
+    <button id="finishBtn">Submit Test</button>
+
+    <script>
+        let fullscreenActive = false;
+        let allowExit = false;
+        let timerInterval;
+        const TEST_DURATION = 1 * 60 * 1000; // 1 minutes
+        let startTime;
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            document.addEventListener('keydown', handleKeys);
+            document.getElementById('welcomeOverlay').addEventListener('click', startTest);
+        });
+
+        function startTest() {
+            document.getElementById('welcomeOverlay').style.display = 'none';
+            initializeFullscreen();
+            if (!startTime) {
+                // Set startTime only once
+                startTime = Date.now();
+                startTimer();
+            }
+        }
+
+        function initializeFullscreen() {
+            const element = document.documentElement;
+            const requestFullscreen = element.requestFullscreen || 
+                element.mozRequestFullScreen ||
+                element.webkitRequestFullscreen ||
+                element.msRequestFullscreen;
+
+            if (requestFullscreen) {
+                requestFullscreen.call(element).then(() => {
+                    fullscreenActive = true;
+                    document.getElementById('finishBtn').style.display = 'block';
+                    startTimer();
+                    startFullscreenProtection();
+                }).catch(error => {
+                    showExitOverlay();
+                });
+            }
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            const elapsed = Date.now() - startTime;
+            const remaining = TEST_DURATION - elapsed;
+            
+            if (remaining <= 0) {
+                clearInterval(timerInterval);
+                autoSubmit();
+                return;
+            }
+
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            document.getElementById('timer').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function autoSubmit() {
+            allowExit = true;
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+            document.getElementById('finishBtn').style.display = 'none';
+            // Show a new overlay for the "time up" scenario
+            showTimeUpOverlay();
+        }
+
+        function showTimeUpOverlay() {
+            const exitOverlay = document.getElementById('exitOverlay');
+            exitOverlay.style.display = 'flex';
+
+            // Update the warning message
+            exitOverlay.querySelector('.warningMessage').textContent = 'Time Up! Test Automatically Submitted';
+
+            // Clear existing content in the instruction section
+            const instruction = exitOverlay.querySelector('.instruction');
+            instruction.innerHTML = '';
+
+            // Add a button to go to the dashboard
+            const dashboardButton = document.createElement('button');
+            dashboardButton.textContent = 'Go to Dashboard';
+            dashboardButton.style.padding = '10px 20px';
+            dashboardButton.style.fontSize = '18px';
+            dashboardButton.style.cursor = 'pointer';
+            dashboardButton.style.backgroundColor = '#4CAF50';
+            dashboardButton.style.color = 'white';
+            dashboardButton.style.border = 'none';
+            dashboardButton.style.borderRadius = '5px';
+            dashboardButton.addEventListener('click', () => {
+                window.location.href = 'dashboard.html'; // Redirect to the dashboard
+            });
+
+            instruction.appendChild(dashboardButton);
+        }
+
+        function startFullscreenProtection() {
+            setInterval(() => {
+                if (!document.fullscreenElement && fullscreenActive && !allowExit) {
+                    handleFullscreenExit();
+                }
+            }, 100);
+
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+        }
+
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && !allowExit) {
+                handleFullscreenExit();
+            }
+        }
+
+        function handleFullscreenExit() {
+            showExitOverlay();
+            document.getElementById('finishBtn').style.display = 'none';
+        }
+
+        function showExitOverlay(message = '⚠️ Fullscreen is required to continue ⚠️') {
+            document.getElementById('exitOverlay').style.display = 'flex';
+            document.getElementById('exitOverlay').querySelector('.warningMessage').textContent = message;
+            document.getElementById('exitOverlay').addEventListener('click', attemptResumeTest, { once: true });
+        }
+
+        function attemptResumeTest() {
+            document.getElementById('exitOverlay').style.display = 'none';
+            initializeFullscreen();
+        }
+
+        function handleKeys(e) {
+            if (!allowExit && (e.key === 'Escape' || e.key === 'F11')) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleFullscreenExit();
+            }
+        }
+
+
+        function showSuccessOverlay() {
+            const exitOverlay = document.getElementById('exitOverlay');
+            exitOverlay.style.display = 'flex';
+
+            // Update the warning message to show success
+            exitOverlay.querySelector('.warningMessage').textContent = 'Test Successfully Submitted!';
+
+            // Clear existing content in the instruction section
+            const instruction = exitOverlay.querySelector('.instruction');
+            instruction.innerHTML = '';
+
+            // Add a button to go to the dashboard
+            const dashboardButton = document.createElement('button');
+            dashboardButton.textContent = 'Go to Dashboard';
+            dashboardButton.style.padding = '10px 20px';
+            dashboardButton.style.fontSize = '18px';
+            dashboardButton.style.cursor = 'pointer';
+            dashboardButton.style.backgroundColor = '#4CAF50';
+            dashboardButton.style.color = 'white';
+            dashboardButton.style.border = 'none';
+            dashboardButton.style.borderRadius = '5px';
+            dashboardButton.addEventListener('click', () => {
+                window.location.href = 'dashboard.html'; // Redirect to the dashboard
+            });
+
+            instruction.appendChild(dashboardButton);
+        }
+
+        document.getElementById('finishBtn').addEventListener('click', function() {
+            if (confirm('Are you absolutely sure you want to submit this test?')) {
+                clearInterval(timerInterval);
+                allowExit = true;
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+                this.style.display = 'none';
+                // Show the "Test Successfully Submitted" overlay
+                showSuccessOverlay();
+            }
+        });
+    </script>
+</body>
+</html>
