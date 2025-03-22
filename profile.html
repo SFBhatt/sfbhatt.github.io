@@ -167,12 +167,32 @@
         <div id="skillModal" class="modal">
             <div class="modal-content">
                 <h3>Select a Skill</h3>
-                <select id="skillDropdown" class="skill-dropdown">
-                    <!-- Options will be dynamically populated -->
-                </select>
+                <!-- Searchable Dropdown -->
+                <div class="searchable-dropdown">
+                    <input type="text" id="skillSearch" class="skill-search" placeholder="Search for a skill..." />
+                    <ul id="skillDropdown" class="dropdown-list">
+                        <!-- Options will be dynamically populated -->
+                    </ul>
+                </div>
                 <div class="modal-actions">
                     <button id="confirmSkillButton" class="btn-primary">Add Skill</button>
                     <button id="cancelSkillButton" class="btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skill Removal Confirmation Modal -->
+        <div id="removeSkillModal" class="skill-removal-modal">
+            <div class="modal-content">
+                <h2>⚠️ <strong>Warning!</strong> ⚠️</h2>
+                <h3>Are you sure you want to remove this skill?</h3>
+                <p>If you proceed, you may lose your verified status and any test score associated with it (if any).<br><br>
+
+                    <strong>This action cannot be undone!</strong></p>
+                    <h3>⚠️ <strong>Proceed with caution!</strong> ⚠️</h3>
+                <div class="modal-actions">
+                    <button id="confirmRemoveSkillButton" class="btn-danger">Remove Skill</button>
+                    <button id="cancelRemoveSkillButton" class="btn-secondary">Keep Skill</button>
                 </div>
             </div>
         </div>
@@ -538,22 +558,78 @@
 
         function addSkill() {
             // Predefined list of skills
-            const skillOptions = ['Project Management', 'Drive', 'Leadership', 'Communication', 'Problem Solving'];
+            const skillOptions = 
+            ['3D Modeling', 'Adaptability', 'Adobe Illustrator', 'Adobe Photoshop', 'Adobe XD', 
+                'Agile Methodology', 'AI (Artificial Intelligence)', 'Algorithms', 'Android Development', 
+                'Angular', 'Asana', 'AWS', 'Big Data', 'Blockchain', 'Business Intelligence', 'C#', 'C++', 
+                'Cloud Computing', 'Communication', 'Computer Vision', 'Content Writing', 'Copywriting', 
+                'Creativity', 'Critical Thinking', 'Cryptocurrency', 'Cryptography', 'Customer Service', 
+                'Cybersecurity', 'Data Analytics', 'Data Science', 'Data Structures', 'Data Visualization', 
+                'Database Management', 'Decision Making', 'Deep Learning', 'Debugging', 'DevOps', 
+                'Django', 'Drive', 'Economics', 'E-commerce', 'Emotional Intelligence', 'Excel', 
+                'Express.js', 'Figma', 'Finance', 'Firebase', 'Flask', 'Functional Programming', 
+                'Game Development', 'Go', 'Google Cloud Platform', 'Graphic Design', 'HR & Recruitment', 
+                'HTML', 'Investment Banking', 'iOS Development', 'JIRA', 'Java', 'JavaScript', 
+                'Kanban', 'Kotlin', 'Leadership', 'Linux', 'Machine Learning', 'Marketing', 
+                'Mathematics', 'Mobile App Development', 'MongoDB', 'Natural Language Processing', 
+                'Negotiation Skills', 'Networking', 'NoSQL', 'Node.js', 'Object-Oriented Programming', 
+                'Penetration Testing', 'PHP', 'PostgreSQL', 'Power BI', 'Presentation Skills', 
+                'Problem Solving', 'Project Management', 'Public Speaking', 'Python', 'React', 
+                'Ruby on Rails', 'Rust', 'Sales', 'Scrum', 'SEO', 'Shell Scripting', 'Smart Contracts', 
+                'Software Testing', 'Spring Boot', 'SQL', 'SQL Optimization', 'Statistics', 
+                'Supply Chain Management', 'Swift', 'System Design', 'Tableau', 'Teamwork', 
+                'Time Management', 'Trelo', 'TypeScript', 'UI/UX Design', 'Unreal Engine', 'Video Editing', 
+                'Vue.js', 'Web3'
+            ];
 
-            // Populate the dropdown
+            const searchInput = document.getElementById('skillSearch');
             const dropdown = document.getElementById('skillDropdown');
-            dropdown.innerHTML = `
-                <option value="" disabled selected>Select a skill</option>
-                ${skillOptions.map(skill => `<option value="${skill}">${skill}</option>`).join('')}
-            `;
+            let selectedSkill = null;
+
+            // Populate the dropdown with all skills
+            function populateDropdown(filteredSkills) {
+                dropdown.innerHTML = filteredSkills.map(skill => `<li>${skill}</li>`).join('');
+                dropdown.style.display = filteredSkills.length > 0 ? 'block' : 'none';
+            }
+
+            // Initially hide the dropdown
+            dropdown.style.display = 'none';
+
+            // Show the dropdown when the search input is clicked
+            searchInput.addEventListener('focus', () => {
+                populateDropdown(skillOptions); // Populate with all skills initially
+                dropdown.style.display = 'block';
+            });
+
+            // Add event listener to the search input for real-time filtering
+            searchInput.addEventListener('input', () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                const filteredSkills = skillOptions.filter(skill => skill.toLowerCase().includes(searchTerm));
+                populateDropdown(filteredSkills);
+            });
+
+            // Handle dropdown item selection
+            dropdown.addEventListener('click', (e) => {
+                if (e.target.tagName === 'LI') {
+                    selectedSkill = e.target.textContent;
+                    searchInput.value = selectedSkill; // Set the selected skill in the input
+                    dropdown.style.display = 'none'; // Hide the dropdown
+                }
+            });
+
+            // Hide the dropdown when clicking outside the modal or dropdown
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.searchable-dropdown') && e.target !== searchInput) {
+                    dropdown.style.display = 'none';
+                }
+            });
+
             // Show the modal
             const modal = document.getElementById('skillModal');
             modal.style.display = 'flex';
 
             // Handle the confirmation button click
             document.getElementById('confirmSkillButton').onclick = () => {
-                const selectedSkill = dropdown.value;
-
                 // Ensure a valid skill is selected
                 if (!selectedSkill) {
                     alert('Please select a skill.');
@@ -592,7 +668,7 @@
 
         function renderSkills() {
             const skillsContainer = document.getElementById('skillsContainer');
-            skillsContainer.innerHTML = profileData.skills.map(skill => `
+            skillsContainer.innerHTML = profileData.skills.map((skill, index) => `
                 <div class="skill-tag">
                     <span data-verified="${skill.verified}">${skill.name}</span>
                     <button type="button" class="remove-skill">×</button>
@@ -602,13 +678,37 @@
             // Add event listeners for the remove buttons
             skillsContainer.querySelectorAll('.remove-skill').forEach((btn, index) => {
                 btn.addEventListener('click', () => {
-                    // Remove the skill from the profileData.skills array
-                    profileData.skills.splice(index, 1);
-
-                    // Re-render the skills list
-                    renderSkills();
+                    showRemoveSkillModal(index);
                 });
             });
+        }
+
+        // ADDED: Remove Item Warning Function
+        function showRemoveSkillModal(skillIndex) {
+            const modal = document.getElementById('removeSkillModal');
+            const confirmButton = document.getElementById('confirmRemoveSkillButton');
+            const cancelButton = document.getElementById('cancelRemoveSkillButton');
+
+            // Show the modal
+            modal.style.display = 'flex';
+
+            // Handle "Remove Skill" button click
+            confirmButton.onclick = () => {
+                // Remove the skill from the profileData.skills array
+                profileData.skills.splice(skillIndex, 1);
+
+                // Re-render the skills list
+                renderSkills();
+
+                // Close the modal
+                modal.style.display = 'none';
+            };
+
+            // Handle "Keep Skill" button click
+            cancelButton.onclick = () => {
+                // Close the modal without removing the skill
+                modal.style.display = 'none';
+            };
         }
 
 

@@ -1326,7 +1326,7 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
 }
 
 /* Styling for Add Buttons */
-.add-more {
+.edit-mode-active .add-more {
     background-color: #007bff; /* Blue background */
     color: white; /* White text */
     border: none; /* Remove border */
@@ -1340,12 +1340,12 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
     margin-top: 10px; /* Add spacing above */
 }
 
-.add-more:hover {
+.edit-mode-active .add-more:hover {
     background-color: #0056b3; /* Darker blue on hover */
     transform: translateY(-2px); /* Slight lift effect */
 }
 
-.add-more:focus {
+.edit-mode-active .add-more:focus {
     outline: none; /* Remove focus outline */
     box-shadow: 0 0 5px #000000; /* Add focus shadow */
 }
@@ -1500,6 +1500,108 @@ h1, h2, h3, .hero h1, .hero p, .about-skills h2, .about-content p, .how-it-works
 .btn-primary:hover, .btn-secondary:hover {
     opacity: 0.9;
 }
+
+/* Add Skill Removal Popup Modal Styles */
+.skill-removal-modal {
+    display: none; /* Hide by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.skill-removal-modal .modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    width: 300px;
+}
+
+.skill-removal-modal .modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.skill-removal-modal .btn-danger {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.skill-removal-modal .btn-secondary {
+    background-color: #ccc;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.skill-removal-modal .btn-danger:hover {
+    background-color: #d32f2f;
+}
+
+.skill-removal-modal .btn-secondary:hover {
+    background-color: #b0b0b0;
+}
+
+/* Add skill popup Modal Styles ends */
+
+/* Searchable Dropdown Styles */
+.searchable-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.skill-search {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.dropdown-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    position: absolute;
+    width: 100%;
+    z-index: 1000;
+    display: none; /* Initially hidden */
+}
+
+.dropdown-list li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.dropdown-list li:hover {
+    background-color: #f0f0f0;
+}
+
+.dropdown-list li.selected {
+    background-color: #007bff;
+    color: white;
+}
+
 /* add skill popup modal styles ends */
 
 /* Additional styling for new sections */
