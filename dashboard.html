@@ -157,8 +157,8 @@
             }
 
             // Update user name using the candidate profile data
-            document.getElementById('userName').textContent = candidateProfile.full_name || 'Candidate';
-            //document.getElementById('userNameBanner').textContent = candidateProfile.full_name || 'Candidate';
+            document.getElementById('userName').textContent = user.user_metadata.full_name || 'Candidate';
+            //document.getElementById('userNameBanner').textContent = use.user_metadata.full_name || 'Candidate';
 
             // NEW CODE: Dynamically generate verified skills for the Skill Showcase section
             if (candidateProfile.skills && Array.isArray(candidateProfile.skills)) {

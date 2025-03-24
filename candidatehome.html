@@ -117,7 +117,7 @@
             }
 
             // Update user name using the candidate profile data
-            document.getElementById('userName').textContent = candidateProfile.full_name || 'Candidate';
+            document.getElementById('userName').textContent = user.user_metadata.full_name || 'Candidate';
         });
 
     </script>
