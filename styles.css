@@ -2194,4 +2194,15 @@ margin: 0.2rem 0;
     /* Additional CSS for Skills Page ends............................ */
 
 
-    
+    /* Ensure the footer stays at the bottom for candidatehome.html starts...........................*/
+    body.candidate-home {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; /* Full height of the viewport */
+        margin: 0; /* Remove default margin */
+    }
+
+    body.candidate-home main {
+        flex: 1; /* Push the footer to the bottom */
+    }
+    /* Footer Styles for candidatehome.html end..........................................*/

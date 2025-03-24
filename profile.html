@@ -820,6 +820,7 @@
             await checkAuth();
             await initializeProfile();
             updateNavigation();
+            setupEventListeners();
             
             document.getElementById('logoutButton').addEventListener('click', async () => {
                 await supabase.auth.signOut();
