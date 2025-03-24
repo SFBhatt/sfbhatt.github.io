@@ -1,4 +1,4 @@
-/* static/css/styles.css */
+/*/styles.css */
 body {
     font-family: Arial, sans-serif, 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', 'Times New Roman', Times, serif;
     margin: 0;
@@ -440,25 +440,133 @@ nav ul li a:hover {
     background-color: #1558a4; /* Darker green on hover */
 }
 
-/* Footer */
+/* Footer Section */
 footer {
     background-color: #0f4582;
-    ;
     color: #fff;
-    text-align: left;
     padding: 20px 0;
+    font-size: 14px;
 }
-
-footer .footer-content {
+  
+  .footer-container {
     max-width: 1150px;
     margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* Left-side navigation links */
+  .footer-pages {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .footer-pages li {
+    margin-right: 15px;
+    
+  }
+  
+  .footer-pages a {
+    color: #fff;
+    text-decoration: none;
+    font-size: large;
+  }
+  
+  .footer-pages a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Right-side legal links & copyright */
+  .footer-right {
+    text-align: right;
+  }
+  
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .footer-links li {
+    display: inline;
+    margin-left: 15px;
+  }
+  
+  .footer-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: large;
+  }
+  
+  .footer-links a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Copyright text */
+  .footer-bottom {
+    margin-top: 5px;
+    text-align: center;
+  }
+  
+/* Mobile layout: Stack vertically but keep alignment */
+@media (max-width: 768px) {
+    .footer-container {
+        display: flex;
+        flex-direction: auto;/* Display items vertically */
+        
+    }
+
+    .footer-right, .footer-left {
+        float: left;
+        padding: 10px;
+        height: 300px; /* Should be removed. Only for demonstration */
+        }
+    
+    .footer-left {
+        width: 25%;
+        height: auto;
+    }    
+    .footer-pages {
+       flex-direction: column;
+    }
+    .footer-right {
+        width: 75%;
+        height: auto;
+    }
+    .footer-links {
+        
+        flex-direction: column;
+    }
+    .footer-container:after {
+        content: "";
+        display: table;
+        clear: both;
+      }
+    
+
+    .footer-bottom {
+        
+        text-align: center; /* Center-align copyright text */
+        margin-top: 10px; /* Add spacing above */
+    }
 }
+  
+  
+/* footer code end */
 
 html {
     scroll-behavior: smooth;
 }
+/* Home Page CSS end......................................................*/
 
-/* Services Page CSS */
+/* Services Page CSS starts..............................................*/
 /* Services Hero Section */
 .services-hero {
     background-color: #95c0f1;
