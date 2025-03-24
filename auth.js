@@ -37,6 +37,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
+    // Google login functionality
+    document.getElementById('googleSignIn').addEventListener('click', async () => { // NEW
+        try { // NEW
+            const { data, error } = await supabase.auth.signInWithOAuth({ // NEW
+                provider: 'google', // NEW
+                options: { // NEW
+                    redirectTo: 'https://skilwise.com/candidatehome.html' // NEW
+                } // NEW
+            }); // NEW
+
+            if (error) throw error; // NEW
+        } catch (error) { // NEW
+            console.error('Google login error:', error); // NEW
+            alert('Google login failed: ' + error.message); // NEW
+        } // NEW
+    }); // NEW
+
     // Signup form submission
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
         e.preventDefault();
