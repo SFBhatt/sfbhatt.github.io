@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Situation-Based Personality Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .question { margin: 40px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .options { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
+        .option-label { width: 200px; text-align: center; }
+        .scale-options { display: flex; gap: 15px; }
+        .scale-option label { display: block; width: 60px; text-align: center; cursor: pointer; }
+        input[type="radio"] { display: none; }
+        input[type="radio"] + span { 
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+        input[type="radio"]:checked + span { 
+            background: #007bff; 
+            color: white;
+            border-color: #007bff;
+        }
+        #result { margin-top: 30px; padding: 20px; background: #f0f8ff; display: none; }
+    </style>
+</head>
+<body>
+    <h1>Personality Spectrum Test</h1>
+    <div id="testContainer"></div>
+    <button onclick="calculateResults()">Get Results</button>
+    <div id="result"></div>
+
+    <script>
+        // Personality dimensions (MBTI-style for example)
+        const dimensions = {
+            EI: { left: "Extraversion", right: "Introversion", score: 0 },
+            SN: { left: "Sensing", right: "Intuition", score: 0 },
+            TF: { left: "Thinking", right: "Feeling", score: 0 },
+            JP: { left: "Judging", right: "Perceiving", score: 0 }
+        };
+
+        // Question pairs (20 questions - 5 per dimension)
+        const questions = [
+            // Extraversion vs Introversion (EI)
+            { 
+                dimension: 'EI',
+                left: "I feel energized after social gatherings",
+                right: "I prefer quiet evenings alone"
+            },
+            {
+                dimension: 'EI',
+                left: "I enjoy being the center of attention",
+                right: "I prefer observing from the sidelines"
+            },
+            // Add 3 more EI questions...
+
+            // Sensing vs Intuition (SN)
+            {
+                dimension: 'SN',
+                left: "I focus on concrete facts and details",
+                right: "I look for patterns and possibilities"
+            },
+            {
+                dimension: 'SN',
+                left: "I prefer practical applications",
+                right: "I enjoy theoretical discussions"
+            },
+            // Add 3 more SN questions...
+
+            // Thinking vs Feeling (TF)
+            {
+                dimension: 'TF',
+                left: "I make decisions based on logic",
+                right: "I consider people's feelings first"
+            },
+            {
+                dimension: 'TF',
+                left: "I value truth over tact",
+                right: "I prioritize harmony over blunt honesty"
+            },
+            // Add 3 more TF questions...
+
+            // Judging vs Perceiving (JP)
+            {
+                dimension: 'JP',
+                left: "I prefer clear schedules and deadlines",
+                right: "I like keeping options open"
+            },
+            {
+                dimension: 'JP',
+                left: "I make lists and stick to plans",
+                right: "I prefer spontaneous decisions"
+            }
+            // Add 3 more JP questions...
+        ];
+
+        // Initialize test
+        function initTest() {
+            const container = document.getElementById('testContainer');
+            
+            questions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <div class="options">
+                        <div class="option-label">${question.left}</div>
+                        <div class="scale-options">
+                            ${[-2, -1, 0, 1, 2].map(value => `
+                                <label class="scale-option">
+                                    <input type="radio" name="q${index + 1}" 
+                                           value="${value}" 
+                                           data-dimension="${question.dimension}">
+                                    <span>${getScaleLabel(value)}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                        <div class="option-label">${question.right}</div>
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+        }
+
+        // Get scale labels
+        function getScaleLabel(value) {
+            switch(value) {
+                case -2: return 'Strongly Left';
+                case -1: return 'Lean Left';
+                case 0: return 'Neutral';
+                case 1: return 'Lean Right';
+                case 2: return 'Strongly Right';
+            }
+        }
+
+        // Calculate results
+        function calculateResults() {
+            // Reset scores
+            Object.keys(dimensions).forEach(d => dimensions[d].score = 0);
+
+            // Calculate scores
+            document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                const dimension = radio.dataset.dimension;
+                dimensions[dimension].score += parseInt(radio.value);
+            });
+
+            // Determine personality type
+            const results = {};
+            Object.entries(dimensions).forEach(([key, dim]) => {
+                results[key] = dim.score >= 0 ? dim.left : dim.right;
+            });
+
+            // Display results
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <h2>Your Personality Spectrum:</h2>
+                ${Object.entries(results).map(([key, value]) => `
+                    <p><strong>${dimensions[key].left} vs ${dimensions[key].right}:</strong> 
+                    ${value}</p>
+                `).join('')}
+                <button onclick="location.reload()">Retake Test</button>
+            `;
+        }
+
+        // Start test
+        initTest();
+    </script>
+</body>
+</html>

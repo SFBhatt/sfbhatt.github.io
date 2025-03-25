@@ -79,6 +79,35 @@
             </div>
         </section>
 
+        <!-- Personality Tests Section (Point 4) -->
+        <section class="personality-tests">
+            <h2>Personality Assessments</h2>
+            <p>Complete these assessments to showcase your personality traits to employers.</p>
+            <div class="tests-container" id="personalityTests">
+                <div class="test-card">
+                    <h3>Employee Personality Profile (EPP)</h3>
+                    <p>Measures workplace personality traits</p>
+                    <div class="epp-score">EPP Score: <strong><span id="eppScore">Not Taken</span></strong></div>
+                    <button class="action-btn primary" onclick="location.href='epp.html'">Take Test</button>
+                </div>
+                
+                <div class="test-card">
+                    <h3>Myers-Briggs Type Indicator (MBTI)</h3>
+                    <p>Identifies your personality type</p>
+                    <div class="mbti-score">MBTI Score: <span id="mbtiScore">Not Taken</span></div>
+                    <button class="action-btn primary" onclick="location.href='mbti.html'">Take Test</button>
+                </div>
+                <div class="test-card">
+                    <h3>Personal Values Assessment (PVA)</h3>
+                    <p>Assesses your core work values</p>    
+                    <div class="pva-score">PVA Score: <span id="pvaScore">Not Taken</span></div>
+                    <button class="action-btn primary" onclick="location.href='pva.html'">Take Test</button>
+                </div>
+    
+            </div>
+            
+        </section>
+
         <!-- Community & Resources Section (Point 5) -->
         <section class="community-resources">
             <h2>Community & Resources</h2>
@@ -146,7 +175,7 @@
             // Fetch candidate profile data from Supabase table "candidate_profiles"
             const { data: candidateProfile, error } = await supabase
                 .from('candidate_profiles')
-                .select('*')
+                .select('*, epp_result')
                 .eq('user_id', user.id)
                 .single();
 
@@ -154,6 +183,42 @@
                 console.error('Error fetching candidate profile:', error);
                 // Optionally redirect to an error page or display an error message
                 return;
+            }
+
+            // Handle EPP Score display
+            
+            const eppScoreElement = document.getElementById('eppScore');
+            if (candidateProfile.epp_result) {
+                const scores = candidateProfile.epp_result;
+                const maxScore = 5;
+                
+                // Create container for all bars
+                const barsContainer = document.createElement('div');
+                barsContainer.className = 'epp-bars';
+                
+                // Create bars for each trait
+                Object.entries(scores).forEach(([trait, score]) => {
+                    const percentage = (score / maxScore) * 100;
+                    
+                    const barHtml = `
+                        <div class="epp-bar-container">
+                            <div class="epp-bar-label">
+                                <span>${trait}</span>
+                                <span class="epp-score-value">${score}/5</span>
+                            </div>
+                            <div class="epp-bar">
+                                <div class="epp-bar-progress" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    barsContainer.innerHTML += barHtml;
+                });
+                
+                eppScoreElement.innerHTML = '';
+                eppScoreElement.appendChild(barsContainer);
+            } else {
+                eppScoreElement.textContent = 'Not Taken';
             }
 
             // Update user name using the candidate profile data

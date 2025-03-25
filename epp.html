@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personality Assessment</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .question { margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 8px; }
+        .options { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        #result { margin-top: 30px; padding: 20px; background: #e9f5ff; display: none; }
+        .reverse { color: #666; font-style: italic; }
+        .epptimer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 1000;
+            display: none; /* Initially hidden */
+        }
+
+        /* Modal Styles */
+        .wmodal {
+            display: flex;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wmodal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .wmodal-content h2 {
+            margin-bottom: 10px;
+        }
+
+        .wmodal-content p {
+            margin-bottom: 20px;
+        }
+
+        .wmodal-content button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .wmodal-content button:hover {
+            background: #0056b3;
+        }
+
+        /* Modal Styles */
+        .rmodal {
+            display: none; /* Initially hidden */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .rmodal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .rmodal-content h2 {
+            margin-bottom: 10px;
+        }
+
+        .rmodal-content div {
+            margin-bottom: 20px;
+        }
+
+        .rmodal-content button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .rmodal-content button:hover {
+            background: #0056b3;
+        }
+        .result-item {
+            margin-bottom: 20px;
+        }
+
+        .bar-container {
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            height: 20px;
+            margin-top: 5px;
+        }
+
+        .bar {
+            height: 100%;
+            background-color: #007bff;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+    </style>
+    <!-- Add Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        window.supabase = supabase.createClient(
+            'https://ovqkuwbjstovqjjtrwny.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92cWt1d2Jqc3RvdnFqanRyd255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTY5NzUsImV4cCI6MjA1NjA3Mjk3NX0.zEXoXzlyOyE4UvPI7yIzXKOAkjhZv0gYwA35ycwRiPw'
+        );
+    </script>
+    
+</head>
+<body>
+    <div id="welcomeModal" class="wmodal">
+        <div class="wmodal-content">
+            <h2>Welcome to the Personality Test</h2>
+            <p>This test will help you discover your core personality traits based on the Big Five personality traits model.</p>
+            <button id="startTestButton">Start Test</button>
+        </div>
+    </div>
+    <div id="timer" class="epptimer"></div>
+    <h1>Personality Assessment</h1>
+    <div id="testContainer"></div>
+    <button onclick="calculateResults()">Get Results</button>
+    <div id="result"></div>
+    <div id="resultModal" class="rmodal">
+        <div class="rmodal-content">
+            <h2>Your Core Personality Traits</h2>
+            <div id="resultContent"></div>
+            <button id="goToDashboardButton">Go to Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+
+        async function saveResultsToSupabase(results) {
+            try {
+                // Get current user
+                const { data: { user }, error: authError } = await supabase.auth.getUser();
+                
+                if (authError || !user) {
+                    console.error('Authentication error:', authError);
+                    alert('You need to be logged in to save results');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Update the candidate_profiles table
+                const { data, error } = await supabase
+                    .from('candidate_profiles')
+                    .update({ 
+                        epp_result: results,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('user_id', user.id)
+                    .select();
+
+                if (error) throw error;
+                console.log('Results saved successfully:', data);
+                return data;
+            } catch (error) {
+                console.error('Error saving results:', error);
+                alert('Error saving results. Please try again.');
+                throw error;
+            }
+        }
+
+        // Show the welcome modal on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('welcomeModal');
+            const startButton = document.getElementById('startTestButton');
+            const timerDiv = document.getElementById('timer');
+
+            // Show the modal
+            modal.style.display = 'flex';
+
+            // Hide the modal and start the test when the button is clicked
+            startButton.addEventListener('click', () => {
+                modal.style.display = 'none';
+                timerDiv.style.display = 'block'; // Show the timer
+                startTimer(20 * 60); // Start the timer for 20 minutes
+                initTest(); // Start the test
+            });
+        });
+
+        // Timer function
+        function startTimer(duration) {
+            const timerDiv = document.getElementById('timer');
+            let timeRemaining = duration;
+
+            const timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+
+                // Update the timer display
+                timerDiv.textContent = `Time Remaining: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+                // Decrement the time remaining
+                timeRemaining--;
+
+                // Stop the timer when it reaches 0
+                if (timeRemaining < 0) {
+                    clearInterval(timerInterval);
+                    timerDiv.textContent = 'Time is up!';
+                    alert('Time is up! Please submit your test.');
+                }
+            }, 1000); // Update every second
+        }
+        const questions = [
+            // Openness (10 questions)
+            { trait: 'Openness', text: "I enjoy brainstorming sessions where unconventional ideas are encouraged", reverse: false },
+            { trait: 'Openness', text: "I prefer listening to the same genre of music rather than exploring new artists", reverse: true },
+            { trait: 'Openness', text: "Abstract art puzzles me more than it intrigues", reverse: true },
+            { trait: 'Openness', text: "Learning about different cultures' traditions is something I actively seek out", reverse: false },
+            { trait: 'Openness', text: "I'd rather stick to a tried-and-tested method than experiment with new approaches", reverse: true },
+            { trait: 'Openness', text: "Philosophical debates about life's meaning energize me", reverse: false },
+            { trait: 'Openness', text: "I find it difficult to engage with complex theoretical concepts", reverse: true },
+            { trait: 'Openness', text: "Spontaneous road trips with no itinerary appeal to me", reverse: false },
+            { trait: 'Openness', text: "I prefer structured tasks over open-ended projects", reverse: true },
+            { trait: 'Openness', text: "I often imagine alternative ways to solve problems at work", reverse: false },
+
+            // Conscientiousness (10 questions)
+            { trait: 'Conscientiousness', text: "I often double-check my work to ensure there are no errors", reverse: false },
+            { trait: 'Conscientiousness', text: "Deadlines stress me out, so I sometimes submit work late", reverse: true },
+            { trait: 'Conscientiousness', text: "My workspace is usually organized and clutter-free", reverse: false },
+            { trait: 'Conscientiousness', text: "I tend to procrastinate on tasks I find uninteresting", reverse: true },
+            { trait: 'Conscientiousness', text: "Setting daily goals helps me stay productive", reverse: false },
+            { trait: 'Conscientiousness', text: "I often forget to return items to their proper place after use", reverse: true },
+            { trait: 'Conscientiousness', text: "Completing projects ahead of schedule gives me a sense of accomplishment", reverse: false },
+            { trait: 'Conscientiousness', text: "I struggle to maintain a consistent routine, even when I try", reverse: true },
+            { trait: 'Conscientiousness', text: "Keeping a detailed to-do list is essential for my workflow", reverse: false },
+            { trait: 'Conscientiousness', text: "I sometimes overlook small details when working under pressure", reverse: true },
+
+            // Extraversion (10 questions)
+            { trait: 'Extraversion', text: "I feel energized after spending time with a large group of people", reverse: false },
+            { trait: 'Extraversion', text: "I prefer listening in meetings rather than actively contributing my ideas", reverse: true },
+            { trait: 'Extraversion', text: "Striking up conversations with strangers comes naturally to me", reverse: false },
+            { trait: 'Extraversion', text: "After a busy day, I need alone time to recharge", reverse: true },
+            { trait: 'Extraversion', text: "I enjoy being the one to break the ice in social situations", reverse: false },
+            { trait: 'Extraversion', text: "Public speaking makes me anxious, even if I'm well-prepared", reverse: true },
+            { trait: 'Extraversion', text: "I often take the lead when working on group projects", reverse: false },
+            { trait: 'Extraversion', text: "I'd rather respond to emails than have a face-to-face discussion", reverse: true },
+            { trait: 'Extraversion', text: "Social events are where I thrive and feel most alive", reverse: false },
+            { trait: 'Extraversion', text: "Networking with new people for extended periods drains me", reverse: true },
+
+            // Agreeableness (10 questions)
+            { trait: 'Agreeableness', text: "I often go out of my way to help colleagues, even if it inconveniences me", reverse: false },
+            { trait: 'Agreeableness', text: "I don't mind arguing my point aggressively if I know I'm right", reverse: true },
+            { trait: 'Agreeableness', text: "People describe me as someone who's easy to get along with", reverse: false },
+            { trait: 'Agreeableness', text: "I find it hard to trust others' intentions until they've proven themselves", reverse: true },
+            { trait: 'Agreeableness', text: "I avoid giving critical feedback to prevent hurting someone's feelings", reverse: false },
+            { trait: 'Agreeableness', text: "I feel uncomfortable when others share personal problems with me", reverse: true },
+            { trait: 'Agreeableness', text: "Compromising during conflicts feels more productive than standing my ground", reverse: false },
+            { trait: 'Agreeableness', text: "I'd rather compete than collaborate to achieve better results", reverse: true },
+            { trait: 'Agreeableness', text: "I'm quick to forgive even when someone has treated me unfairly", reverse: false },
+            { trait: 'Agreeableness', text: "I get irritated when people don't follow through on their commitments", reverse: true },
+
+            // Neuroticism (10 questions)
+            { trait: 'Neuroticism', text: "I often worry about making mistakes, even in minor tasks", reverse: false },
+            { trait: 'Neuroticism', text: "Criticism, even when constructive, tends to upset me deeply", reverse: false },
+            { trait: 'Neuroticism', text: "I remain calm under pressure and think clearly", reverse: true },
+            { trait: 'Neuroticism', text: "Small inconveniences can put me in a bad mood for hours", reverse: false },
+            { trait: 'Neuroticism', text: "I rarely feel anxious about upcoming deadlines or challenges", reverse: true },
+            { trait: 'Neuroticism', text: "I replay past conversations in my head, analyzing what I could've said differently", reverse: false },
+            { trait: 'Neuroticism', text: "Sudden changes in plans make me feel uneasy and frustrated", reverse: false },
+            { trait: 'Neuroticism', text: "I handle stressful situations without becoming emotionally overwhelmed", reverse: true },
+            { trait: 'Neuroticism', text: "I often feel tense even when there's no obvious reason to be", reverse: false },
+            { trait: 'Neuroticism', text: "It takes me a long time to bounce back after a disappointment", reverse: false }
+        ];
+
+        function initTest() {
+            const container = document.getElementById('testContainer');
+            
+            questions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.setAttribute('data-trait', question.trait);
+                
+                questionDiv.innerHTML = `
+                    <p>${index + 1}. ${question.text}${question.reverse ? ' <span class="reverse"></span>' : ''}</p>
+                    <div class="options">
+                        ${[1, 2, 3, 4, 5].map(value => `
+                            <label>
+                                <input type="radio" name="q${index + 1}" value="${value}">
+                                ${getLabel(value)}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function getLabel(value) {
+            return ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'][value - 1];
+        }
+
+        const traits = {
+            Openness: { score: 0, count: 0 },
+            Conscientiousness: { score: 0, count: 0 },
+            Extraversion: { score: 0, count: 0 },
+            Agreeableness: { score: 0, count: 0 },
+            Neuroticism: { score: 0, count: 0 }
+        };
+
+        async function calculateResults() {
+            // Check if all questions are answered
+            const unansweredQuestions = [];
+            document.querySelectorAll('.question').forEach((question, index) => {
+                const selected = question.querySelector('input:checked');
+                if (!selected) {
+                    unansweredQuestions.push(index + 1); // Store the question number
+                }
+            });
+
+            // If there are unanswered questions, show an alert and stop
+            if (unansweredQuestions.length > 0) {
+                alert(`Please answer all questions before submitting. Unanswered questions: ${unansweredQuestions.join(', ')}`);
+                return;
+            }
+
+            // Reset trait scores
+            Object.values(traits).forEach(trait => {
+                trait.score = 0;
+                trait.count = 0;
+            });
+
+            // Calculate scores for each trait
+            document.querySelectorAll('.question').forEach((question, index) => {
+                const trait = question.getAttribute('data-trait');
+                const selected = question.querySelector('input:checked');
+                const isReverse = questions[index].reverse;
+
+                if (selected) {
+                    let value = parseInt(selected.value);
+                    // Apply reverse scoring if needed
+                    value = isReverse ? 6 - value : value;
+
+                    traits[trait].score += value;
+                    traits[trait].count++;
+                }
+            });
+
+            // Calculate average scores for each trait
+            const results = {};
+            Object.entries(traits).forEach(([trait, data]) => {
+                results[trait] = data.count > 0 
+                    ? (data.score / data.count).toFixed(2)
+                    : 0;
+            });
+
+            // Save results to Supabase
+            try {
+                // Save results to Supabase
+                await saveResultsToSupabase(results);
+                
+                // Show results modal only after successful save
+                const resultContent = document.getElementById('resultContent');
+                resultContent.innerHTML = `
+                    ${Object.entries(results).map(([trait, score]) => `
+                        <div class="result-item">
+                            <p><strong>${trait}:</strong> ${score}/5</p>
+                            <div class="bar-container">
+                                <div class="bar" style="width: ${score * 20}%;"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                    <p><em>Results saved successfully!</em></p>
+                `;
+
+                // Show modal
+                document.getElementById('resultModal').style.display = 'flex';
+
+            } catch (error) {
+                // Error handling already done in saveResultsToSupabase
+            }
+
+            // Display the results in the modal
+            const resultContent = document.getElementById('resultContent');
+            resultContent.innerHTML = `
+                ${Object.entries(results).map(([trait, score]) => `
+                    <div class="result-item">
+                        <p><strong>${trait}:</strong> ${score}/5</p>
+                        <div class="bar-container">
+                            <div class="bar" style="width: ${score * 20}%;"></div>
+                        </div>
+                    </div>
+                `).join('')}
+                <p><em>Based on the Big Five personality traits model</em></p>
+            `;
+
+            // Show the result modal
+            const resultModal = document.getElementById('resultModal');
+            resultModal.style.display = 'flex';
+
+            // Handle "Go to Dashboard" button click
+            document.getElementById('goToDashboardButton').addEventListener('click', () => {
+                window.location.href = '/dashboard.html'; // Redirect to the dashboard
+            });
+        }
+        //initTest();
+    </script>
+</body>
+</html>
