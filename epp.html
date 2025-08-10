@@ -389,6 +389,15 @@
                 }
             }
 
+            if (forceSubmit) {
+                // Violation auto-submit: skip calculation and saving
+                alert('Your test was automatically submitted due to policy violation. Your answers will NOT be saved.');
+                
+                // Optionally disable the form, or redirect user to dashboard or a different page
+                window.location.href = '/dashboard.html';
+
+                return; // Stop execution here; no calculation, no save, no modal
+            }
 
             // Reset trait scores
             Object.values(traits).forEach(trait => {
