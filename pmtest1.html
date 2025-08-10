@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PM Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #e1e8ed;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .instruction strong {
+            font-size: 3rem;
+            color: #00ff26;
+            text-shadow: 2px 2px 4px #fe070f;
+            margin: 10px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #e1e8ed;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        #welcomeOverlay {
+            display: flex;
+            color: #000;
+        }
+
+        .wmodal-content {
+            background-color: #fff;
+            padding: 20px;
+            font-size: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            width: 90%;
+            max-width: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        
+
+        #exitOverlay {
+            display: none;
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        #exitOverlay .warningMessage {
+            animation: pulse 1s infinite;
+        }
+
+        #exitOverlay .instruction {
+            animation: pulse 1s infinite;
+            color: #ff0000;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .warningMessage {
+            font-size: 2.5rem;
+            margin: 20px;
+            color: #ff0000;
+            
+        }
+
+        
+        .instruction {
+            font-size: 1.5rem;
+            margin: 10px;
+            max-width: 80%;
+            line-height: 1.5;
+            color: #000;
+        }
+
+        #finishBtn {
+            display: block;
+            margin: 20px auto;
+            padding: 20px 40px;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 20px 40px;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            color: #fff;
+            background-color: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 9998;
+        }
+        
+
+        #testContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 80vh;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            color: white;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+        
+
+        .question {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            color: black;
+            user-select: none;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .options label {
+            display: block;
+            padding: 10px;
+            background: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid #ddd;
+        }
+
+        .options input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .question-nav {
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            max-width: 800px;
+            margin: 20px 0;
+        }
+
+        .nav-button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .nav-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .question-counter {
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        /* Modal Styles */
+        .rmodal {
+            display: none; /* Initially hidden */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .rmodal-content {
+            color: #000;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .rmodal-content h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .rmodal-content div {
+            margin-bottom: 20px;
+        }
+
+        .rmodal-content button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .rmodal-content button:hover {
+            background: #0056b3;
+        }
+        .result-item {
+            margin-bottom: 20px;
+        }
+        .bar-container {
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            height: 20px;
+            margin-top: 5px;
+        }
+
+        .bar {
+            height: 100%;
+            background-color: #007bff;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        #timeUpOverlay {
+            display: none; /* Initially hidden */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8); /* Darker background for emphasis */
+            z-index: 10000; /* Higher z-index to ensure it appears above other elements */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        #timeUpOverlay .warningMessage {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #ff0000;
+        }
+
+        #timeUpOverlay .instruction button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #timeUpOverlay .instruction button:hover {
+            background-color: #45a049; /* Slightly darker green on hover */
+        }
+    </style>
+    <!-- Add Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        window.supabase = supabase.createClient(
+            'https://ovqkuwbjstovqjjtrwny.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92cWt1d2Jqc3RvdnFqanRyd255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTY5NzUsImV4cCI6MjA1NjA3Mjk3NX0.zEXoXzlyOyE4UvPI7yIzXKOAkjhZv0gYwA35ycwRiPw'
+        );
+    </script>
+</head>
+<body>
+    
+    <div id="welcomeOverlay" class="overlay">
+        <div class="wmodal-content">
+            <h2>Welcome to the "Employee Personality Profile" Test</h2>
+            <p>This test will help you discover your core personality traits based on the Big Five personality traits model.</p>
+        </div>
+        <div class="warningMessage">Important Instructions</div>
+        <div class="instruction">
+            • Single monitor setup required<br>
+            • Do not move browser window between screens<br>
+            • Screen changes will result in test submission<br>
+            • This test must be completed in fullscreen mode<br>
+            • You will have 20 minutes to complete the test<br>
+            • Do not attempt to exit fullscreen during the test<br><br>
+            <strong> Click anywhere to begin your test </strong>
+        </div>
+    </div>
+
+    <div id="exitOverlay" class="overlay">
+        <div class="warningMessage">⚠️ Fullscreen is required to continue ⚠️</div>
+        <div class="instruction">Click anywhere to return to your test</div>
+    </div>
+
+    <div id="timer">20:00</div>
+    <div id="testContainer">
+        
+    </div>
+    <button onclick="calculateResults()">Get Results</button>
+    
+    <div id="submitContainer" style="display: none; text-align: center; margin-top: 20px;">
+        <button id="submitButton" class="nav-button" onclick="submitTest()">Submit Test</button>
+    </div>
+
+    <div id="result"></div>
+    <div id="resultModal" class="rmodal">
+        <div class="rmodal-content">
+            <h2>Your Core Personality Traits</h2>
+            <div id="resultContent"></div>
+            <button id="goToDashboardButton">Go to Dashboard</button>
+        </div>
+    </div>
+    <div id="timeUpOverlay" class="overlay">
+        <div class="warningMessage">Time Up! Test Automatically Submitted</div>
+        <div class="instruction">
+            <button onclick="calculateResults()">Get Results</button>
+        </div>
+    </div>
+    
+
+    <script>
+        let fullscreenActive = false;
+        let allowExit = false;
+        let timerInterval;
+        const TEST_DURATION = 1 * 60 * 1000; // 1 minutes
+        let startTime;
+        let isTimeUp = false; // Default: false
+        // Added these variables to block navigation
+        let navigationEnabled = false;
+        let initialPop = true;
+        // Added these variables to track and block tab/window switching
+        let visibilityViolations = 0;
+        let MAX_VIOLATIONS = 2; // Allowed number of tab switches
+        let windowBlurCount = 0;
+        // Added this variable to track auto-submit
+        let isAutoSubmit = false; // Default: false
+        //Screen Details API (experimental)
+        let screenCheckInterval;
+        let initialScreenPosition = { x: 0, y: 0, width: 0, height: 0 };
+
+        async function saveResultsToSupabase(results) {
+            try {
+                // Get current user
+                const { data: { user }, error: authError } = await supabase.auth.getUser();
+                
+                if (authError || !user) {
+                    console.error('Authentication error:', authError);
+                    alert('You need to be logged in to save results');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Update the candidate_profiles table
+                const { data, error } = await supabase
+                    .from('candidate_profiles')
+                    .update({ 
+                        epp_resultnew: results,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('user_id', user.id)
+                    .select();
+
+                if (error) throw error;
+                console.log('Results saved successfully:', data);
+                return data;
+            } catch (error) {
+                console.error('Error saving results:', error);
+                alert('Error saving results. Please try again.');
+                throw error;
+            }
+        }
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            document.addEventListener('keydown', handleKeys);
+            document.getElementById('welcomeOverlay').addEventListener('click', startTest);
+
+            // Ensure #timeUpOverlay is hidden on page load
+            document.getElementById('timeUpOverlay').style.display = 'none';
+            disableNavigation(); // Add this line to disable navigation
+            history.replaceState(null, null, document.URL); // Add this line to prevent back navigation
+        });
+
+        async function startTest() {
+            document.getElementById('welcomeOverlay').style.display = 'none';
+            await initializeFullscreen();
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            initialScreenPosition = {
+                x: window.screenX,
+                y: window.screenY,
+                width: window.screen.availWidth,
+                height: window.screen.availHeight
+            };
+
+            if (await checkScreenSetup()) return;
+            screenCheckInterval = setInterval(checkScreenSetup, 1000);
+            
+            startTime = Date.now();
+            startTimer();
+            await initTest();
+            disableNavigation();
+            enableWindowSwitchProtection();
+        }
+
+
+        function initializeFullscreen() {
+            return new Promise((resolve, reject) => { // Wrap in Promise
+                const element = document.documentElement;
+                const requestFullscreen = element.requestFullscreen || 
+                    element.mozRequestFullScreen ||
+                    element.webkitRequestFullscreen ||
+                    element.msRequestFullscreen;
+
+                if (requestFullscreen) {
+                    requestFullscreen.call(element).then(() => {
+                        fullscreenActive = true;
+                        startTimer();
+                        startFullscreenProtection();
+                        resolve(); // Resolve promise when successful
+                    }).catch(error => {
+                        showExitOverlay();
+                        reject(error); // Reject on error
+                    });
+                }
+            });
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        
+
+        async function initTest() {
+            try {
+                const { data, error } = await supabase
+                    .from('knowledge_questions')
+                    .select('*');
+
+                if (error) {
+                    console.error('Supabase error:', error); // Log the error
+                    throw error;
+                }
+
+                console.log('Questions loaded:', data); // Log the fetched data
+
+                questions = data;
+                userAnswers = {};
+                currentQuestionIndex = 0;
+                
+                showQuestion(currentQuestionIndex);
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                alert('Failed to load questions. Please try again.');
+            }
+        }
+
+        function showQuestion(index) {
+            const container = document.getElementById('testContainer');
+            const question = questions[index];
+
+            container.innerHTML = `
+                <div class="question">
+                    <p>${index + 1}. ${question.question}</p>
+                    <div class="options">
+                        ${['option1', 'option2', 'option3', 'option4'].map((opt, i) => `
+                            <label>
+                                <input type="radio" 
+                                    name="q${question.id}" 
+                                    value="${String.fromCharCode(65 + i)}" 
+                                    ${userAnswers[question.id] === String.fromCharCode(65 + i) ? 'checked' : ''}>
+                                ${question[opt]}
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="question-nav">
+                    <button class="nav-button" onclick="previousQuestion()" id="prevBtn">Previous</button>
+                    <span class="question-counter" id="qCounter">${index + 1}/${questions.length}</span>
+                    <button class="nav-button" onclick="nextQuestion()" id="nextBtn">Next</button>
+                </div>
+            `;
+
+            // Update navigation
+            document.getElementById('qCounter').textContent = `${index + 1}/${questions.length}`;
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === questions.length - 1;
+
+            // Show the "Submit" button only on the last question
+            const submitContainer = document.getElementById('submitContainer');
+            if (index === questions.length - 1) {
+                submitContainer.style.display = 'block';
+            } else {
+                submitContainer.style.display = 'none';
+            }
+
+            // Add event listeners for options
+            container.querySelectorAll('input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    userAnswers[question.id] = e.target.value;
+                });
+            });
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion(currentQuestionIndex);
+            }
+        }
+
+        function submitTest() {
+            if (confirm('Are you sure you want to submit the test?')) {
+                calculateResults(); // Call the function to calculate and display results
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion(currentQuestionIndex);
+            }
+        }
+
+
+        
+
+        function updateTimer() {
+            const elapsed = Date.now() - startTime;
+            const remaining = TEST_DURATION - elapsed;
+            
+            if (remaining <= 0) {
+                clearInterval(timerInterval);
+                isTimeUp = true; // Set the flag to true
+                showTimeUpOverlay(); // Trigger the overlay when time is up
+                return;
+            }
+
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            document.getElementById('timer').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+
+        function showTimeUpOverlay() {
+            disableWindowSwitchProtection();  // <-- ADD HERE
+            const exitOverlay = document.getElementById('timeUpOverlay');
+            timeUpOverlay.style.display = 'flex';
+
+            // Update the warning message
+            timeUpOverlay.querySelector('.warningMessage').textContent = 'Time Up! Test Automatically Submitted';
+
+            // Clear existing content in the instruction section
+            const instruction = timeUpOverlay.querySelector('.instruction');
+            instruction.innerHTML = '';
+
+            // Add a button to go to show results
+            const getResultsButton = document.createElement('button');
+            getResultsButton.textContent = 'Show Results';
+            getResultsButton.style.padding = '10px 20px';
+            getResultsButton.style.fontSize = '18px';
+            getResultsButton.style.cursor = 'pointer';
+            getResultsButton.style.backgroundColor = '#4CAF50';
+            getResultsButton.style.color = 'white';
+            getResultsButton.style.border = 'none';
+            getResultsButton.style.borderRadius = '5px';
+            // Add an event listener to the button
+            getResultsButton.addEventListener('click', () => {
+                timeUpOverlay.style.display = 'none'; // Hide the "Time Up" overlay
+                console.log('Get Results button clicked');
+                calculateResults(); // Call the function to calculate results
+            });
+
+            instruction.appendChild(getResultsButton);
+        }
+
+        function startFullscreenProtection() {
+            setInterval(() => {
+                if (!document.fullscreenElement && fullscreenActive && !allowExit) {
+                    handleFullscreenExit();
+                }
+            }, 100);
+
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+        }
+
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && !allowExit) {
+                handleFullscreenExit();
+            }
+        }
+
+        function handleFullscreenExit() {
+            showExitOverlay();
+            //document.getElementById('finishBtn').style.display = 'none';
+        }
+
+        function showExitOverlay(message = '⚠️ Fullscreen is required to continue ⚠️') {
+            const overlay = document.getElementById('exitOverlay');
+            overlay.style.display = 'flex';
+            overlay.querySelector('.warningMessage').innerHTML = message; // Changed to innerHTML
+            overlay.addEventListener('click', attemptResumeTest, { once: true });
+        }
+
+        function attemptResumeTest() {
+            document.getElementById('exitOverlay').style.display = 'none';
+            initializeFullscreen();
+        }
+
+        function handleKeys(e) {
+            if (!allowExit && (e.key === 'Escape' || e.key === 'F11')) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleFullscreenExit();
+            }
+        }
+
+
+        function showSuccessOverlay() {
+            const exitOverlay = document.getElementById('exitOverlay');
+            exitOverlay.style.display = 'flex';
+
+            // Update the warning message to show success
+            exitOverlay.querySelector('.warningMessage').textContent = 'Test Successfully Submitted!';
+
+            // Clear existing content in the instruction section
+            const instruction = exitOverlay.querySelector('.instruction');
+            instruction.innerHTML = '';
+
+            // Add a button to go to the dashboard
+            const dashboardButton = document.createElement('button');
+            dashboardButton.textContent = 'Go to Dashboard';
+            dashboardButton.style.padding = '10px 20px';
+            dashboardButton.style.fontSize = '18px';
+            dashboardButton.style.cursor = 'pointer';
+            dashboardButton.style.backgroundColor = '#4CAF50';
+            dashboardButton.style.color = 'white';
+            dashboardButton.style.border = 'none';
+            dashboardButton.style.borderRadius = '5px';
+            dashboardButton.addEventListener('click', () => {
+                window.location.href = 'dashboard.html'; // Redirect to the dashboard
+            });
+
+            instruction.appendChild(dashboardButton);
+        }
+
+        async function calculateResults() {
+            let correct = 0;
+
+            try {
+                // Fetch correct answers from the database
+                const { data: correctAnswers, error } = await supabase
+                    .from('knowledge_questions')
+                    .select('id, correct_answer');
+                // Check for errors
+                if (error) {
+                    console.error('Error fetching correct answers:', error);
+                    alert('Failed to calculate results. Please try again.');
+                    return;
+                }
+                // Log the correct answers for debugging
+                console.log('Correct answers fetched:', correctAnswers);
+
+                // Compare user answers with correct answers
+                correctAnswers.forEach(q => {
+                    if (userAnswers[q.id] === q.correct_answer) { // Now comparing B vs B
+                        correct++;
+                    }
+                });
+
+                console.log('User answers:', userAnswers);
+                console.log('Correct answers count:', correct);
+
+                // Calculate the score
+                const score = ((correct / questions.length) * 100).toFixed(1);
+
+                const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+                if (!user || authError) {
+                    alert('You must be logged in to save results!');
+                    return;
+                }
+
+                // Save the results to the pm_results database
+                const { error: saveError } = await supabase
+                .from('pm_results')
+                .upsert(
+                    [{
+                        user_id: user.id,  // Use the user object from earlier
+                        score: score,
+                        correct_count: correct,
+                        responses: userAnswers,
+                        //updated_at: new Date().toISOString()
+                    }], 
+                    {
+                        onConflict: 'user_id',  // Add conflict resolution
+                        ignoreDuplicates: false
+                    }
+                )
+                .select();  // Add .select() to get better error messages
+
+                if (saveError) {
+                    console.error('Error saving results:', saveError);
+                    alert('Failed to save results. Please try again.');
+                    return;
+                }
+
+                // Fetch existing skills
+                const { data: profileData, error: profileError } = await supabase
+                    .from('candidate_profiles')
+                    .select('skills')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (profileError) {
+                    console.error('Error fetching profile:', profileError);
+                    throw profileError;
+                }
+
+                // Handle skills data properly
+                let skills = Array.isArray(profileData.skills) ? profileData.skills : [];
+                const existingIndex = skills.findIndex(s => s.name === 'Project Management');
+
+                if (existingIndex > -1) {
+                    // Update existing
+                    skills[existingIndex] = { 
+                        ...skills[existingIndex],
+                        progress: parseFloat(score),
+                        verified: true,
+                        last_updated: new Date().toISOString()
+                    };
+                } else {
+                    // Add new
+                    skills.push({
+                        name: 'Project Management',
+                        progress: parseFloat(score),
+                        verified: true,
+                        created_at: new Date().toISOString()
+                    });
+                }
+
+                // Update skills without stringify
+                const { error: updateError } = await supabase
+                    .from('candidate_profiles')
+                    .update({ skills })
+                    .eq('user_id', user.id);
+
+                // Display the results
+                document.getElementById('resultContent').innerHTML = `
+                    <h3>Your Score: ${score}%</h3>
+                    <p>Correct Answers: ${correct}/${questions.length}</p>
+                `;
+
+                document.getElementById('resultModal').style.display = 'flex';
+                navigationEnabled = true;
+                disableWindowSwitchProtection();
+                enableNavigation();
+            } catch (error) {
+                console.error('Error calculating results:', error);
+                alert('An unexpected error occurred. Please try again.');
+            }
+            // Handle "Go to Dashboard" button click
+            document.getElementById('goToDashboardButton').addEventListener('click', () => {
+                window.location.href = '/dashboard.html'; // Redirect to the dashboard
+            });
+        }
+
+        function updateTimer() {
+            const elapsed = Date.now() - startTime;
+            const remaining = TEST_DURATION - elapsed;
+
+            if (remaining <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null; // Clear the interval to stop the timer
+                if (!isTimeUp) {
+                    isTimeUp = true; // Set the flag to true
+                    showTimeUpOverlay(); // Trigger the overlay when time is up
+                }
+                //showResultsModal(); // Directly show the results modal
+                return;
+            }
+
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            document.getElementById('timer').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // Navigation prevention
+        function disableNavigation() {
+            // Disable back/forward navigation
+            history.pushState(null, null, document.URL);
+            window.addEventListener('popstate', handlePopState);
+
+            // Disable page refresh/closing
+            window.addEventListener('beforeunload', handleBeforeUnload);
+
+            // Disable right-click context menu
+            document.addEventListener('contextmenu', handleContextMenu);
+        }
+
+        function enableNavigation() {
+            window.removeEventListener('popstate', handlePopState);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            document.removeEventListener('contextmenu', handleContextMenu);
+        }
+
+        function handlePopState(e) {
+            if (!navigationEnabled) {
+                history.pushState(null, null, document.URL);
+                if (!initialPop) {
+                    alert("Navigation is disabled during the test!");
+                }
+                initialPop = false;
+            }
+        }
+
+        function handleBeforeUnload(e) {
+            if (!navigationEnabled) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        }
+
+        function handleContextMenu(e) {
+            if (!navigationEnabled) {
+                e.preventDefault();
+                alert("Right-click is disabled during the test!");
+            }
+        }
+
+        // Added these functions to track and block tab/window switching
+        function enableWindowSwitchProtection() {
+            // Detect tab/window switching
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            
+            // Detect window blur (clicking another application)
+            window.addEventListener('blur', handleWindowBlur);
+            
+            // Prevent keyboard shortcuts for new windows
+            document.addEventListener('keydown', handleWindowShortcuts);
+        }
+
+        function disableWindowSwitchProtection() {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('blur', handleWindowBlur);
+            document.removeEventListener('keydown', handleWindowShortcuts);
+        }
+
+        function handleVisibilityChange() {
+            if (document.hidden && !isTimeUp) {
+                visibilityViolations++;
+                handleCheatingAttempt('tab');
+            }
+        }
+
+        function handleWindowBlur() {
+            if (!document.hidden && !isTimeUp) {
+                visibilityViolations++; 
+                handleCheatingAttempt('window');
+            }
+        }
+
+        function handleWindowShortcuts(e) {
+            // Block Ctrl+N/Cmd+N (new window)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 78) {
+                e.preventDefault();
+                handleCheatingAttempt('shortcut');
+            }
+            // Block Ctrl+T/Cmd+T (new tab)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 84) {
+                e.preventDefault();
+                handleCheatingAttempt('shortcut');
+            }
+        }
+
+        function handleCheatingAttempt(type) {
+            const attemptsLeft = MAX_VIOLATIONS - visibilityViolations;
+            
+            // Show full-screen warning
+            const message = type === 'tab' ? 
+                `Tab switching detected! (${attemptsLeft} attempts remaining)<br> If you switch tabs/windows ${attemptsLeft} more times, the test will be auto-submitted!` :
+                type === 'window' ?
+                `Window switching detected! (${attemptsLeft} attempts remaining)` :
+                `New window/tab shortcuts are disabled!`;
+            
+            showExitOverlay(message);
+            
+            // Auto-submit test if max violations reached
+            if (visibilityViolations >= MAX_VIOLATIONS) {
+                alert('Maximum violations reached! Submitting test...');
+                isAutoSubmit = true; // Set the flag to true for auto-submission
+                calculateResults();
+            }
+        }
+        
+        // Added this function to check screen setup
+        async function checkScreenSetup() {
+            try {
+                // Try Screen Details API (Chrome/Edge only)
+                if ('getScreenDetails' in window) {
+                    const screenDetails = await window.getScreenDetails();
+                    if (screenDetails.screens.length > 1) {
+                        handleScreenViolation('multiple_screens');
+                        return true;
+                    }
+                }
+                
+                // Fallback: Monitor window position
+                // Add 50px margin tolerance
+                const margin = 50;
+                const currentX = window.screenX;
+                const currentY = window.screenY;
+                
+                
+                // Detect if window is outside initial screen bounds
+                if (currentX < initialScreenPosition.x - margin || 
+                    currentY < initialScreenPosition.y - margin ||
+                    currentX > initialScreenPosition.x + margin ||
+                    currentY > initialScreenPosition.y + margin) {
+                    handleScreenViolation('window_position');
+                    return true;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('Screen detection error:', error);
+                return false;
+            }
+        }
+
+        // Added this function to handle screen violations
+        function handleScreenViolation(type) {
+            const message = type === 'multiple_screens' ?
+                `Multi-screen setup detected!<br>Disconnect additional monitors to continue` :
+                `Window moved to secondary screen!<br>Return to primary screen immediately`;
+            
+            showExitOverlay(message);
+            clearInterval(screenCheckInterval);
+            
+            // Add a button to allow the user to retry after resolving the issue
+            const instruction = document.querySelector('#exitOverlay .instruction');
+            instruction.innerHTML = ''; // Clear existing content
+
+            const retryButton = document.createElement('button');
+            retryButton.textContent = 'Retry';
+            retryButton.style.padding = '10px 20px';
+            retryButton.style.fontSize = '18px';
+            retryButton.style.cursor = 'pointer';
+            retryButton.style.backgroundColor = '#4CAF50';
+            retryButton.style.color = 'white';
+            retryButton.style.border = 'none';
+            retryButton.style.borderRadius = '5px';
+
+            retryButton.addEventListener('click', async () => {
+                const violationResolved = await checkScreenSetup(); // Recheck the screen setup
+                if (!violationResolved) {
+                    document.getElementById('exitOverlay').style.display = 'none'; // Hide the overlay
+                    screenCheckInterval = setInterval(checkScreenSetup, 1000); // Resume screen monitoring
+                }
+            });
+
+            instruction.appendChild(retryButton);
+        }
+
+    </script>
+</body>
+</html>
