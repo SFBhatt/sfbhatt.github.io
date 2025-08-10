@@ -34,7 +34,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 1.5);
             justify-content: center;
             align-items: center;
         }
@@ -164,6 +164,16 @@
         </div>
     </div>
 
+    
+    <div id="fullscreenWarningModal" class="wmodal" style="display:none;">
+        <div class="wmodal-content">
+            <h2>Fullscreen Mode Required</h2>
+            <p>You exited fullscreen mode. Please click the button below to return to fullscreen and resume the test.</p>
+            <button id="returnFullscreenBtn">Return to Fullscreen</button>
+        </div>
+    </div>
+
+
     <script>
 
         async function saveResultsToSupabase(results) {
@@ -199,7 +209,20 @@
         }
 
         // Show the welcome modal on page load
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check if user is logged in
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!user) {
+                // Not logged in, redirect to login page
+                window.location.href = 'https://skilwise.com/login.html';
+                return; // Stop further script execution
+            }
+
+            // If logged in, proceed with rest of your code here
+            // For example, show welcome modal and initialize test etc.
+            
+            // Your existing DOMContentLoaded code...
             const modal = document.getElementById('welcomeModal');
             const startButton = document.getElementById('startTestButton');
             const timerDiv = document.getElementById('timer');
@@ -211,9 +234,20 @@
             startButton.addEventListener('click', () => {
                 modal.style.display = 'none';
                 timerDiv.style.display = 'block'; // Show the timer
-                startTimer(20 * 60); // Start the timer for 20 minutes
-                initTest(); // Start the test
+                startTimer(20 * 60); // Start timer
+
+                // Request fullscreen
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) { /* IE11 */
+                    document.documentElement.msRequestFullscreen();
+                }
+
+                initTest(); // Start test
             });
+
         });
 
         // Timer function
@@ -337,21 +371,24 @@
             Neuroticism: { score: 0, count: 0 }
         };
 
-        async function calculateResults() {
-            // Check if all questions are answered
-            const unansweredQuestions = [];
-            document.querySelectorAll('.question').forEach((question, index) => {
-                const selected = question.querySelector('input:checked');
-                if (!selected) {
-                    unansweredQuestions.push(index + 1); // Store the question number
-                }
-            });
+        async function calculateResults(forceSubmit = false) {
+            if (!forceSubmit) {
+                // Check if all questions are answered
+                const unansweredQuestions = [];
+                document.querySelectorAll('.question').forEach((question, index) => {
+                    const selected = question.querySelector('input:checked');
+                    if (!selected) {
+                        unansweredQuestions.push(index + 1); // Store the question number
+                    }
+                });
 
-            // If there are unanswered questions, show an alert and stop
-            if (unansweredQuestions.length > 0) {
-                alert(`Please answer all questions before submitting. Unanswered questions: ${unansweredQuestions.join(', ')}`);
-                return;
+                // If there are unanswered questions, show an alert and stop
+                if (unansweredQuestions.length > 0) {
+                    alert(`Please answer all questions before submitting. Unanswered questions: ${unansweredQuestions.join(', ')}`);
+                    return;
+                }
             }
+
 
             // Reset trait scores
             Object.values(traits).forEach(trait => {
@@ -433,6 +470,53 @@
             });
         }
         //initTest();
+
+        // Check if the user is already in fullscreen mode
+        const fullscreenWarningModal = document.getElementById('fullscreenWarningModal');
+        const returnFullscreenBtn = document.getElementById('returnFullscreenBtn');
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                // Pause test timer if you want (optional)
+                // Show the modal instead of alert
+                fullscreenWarningModal.style.display = 'flex';
+            } else {
+                // Hide modal if user is fullscreen again
+                fullscreenWarningModal.style.display = 'none';
+                // Resume test timer if paused (optional)
+            }
+        });
+
+        // When user clicks the return fullscreen button
+        returnFullscreenBtn.addEventListener('click', () => {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.webkitRequestFullscreen) { // Safari
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) { // IE11
+                document.documentElement.msRequestFullscreen();
+            }
+        });
+
+        // Prevent tab/window switching
+        let tabSwitchCount = 0;
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                tabSwitchCount++;
+
+                if (tabSwitchCount === 1) {
+                alert('Warning: Switching tabs or windows is not allowed during the test. If you do this again, your test will be automatically submitted.');
+                } else if (tabSwitchCount >= 2) {
+                alert('You have violated the test policy by switching tabs/windows multiple times. Your test will now be submitted.');
+                calculateResults(true);
+                }
+            }
+        });
+
+
+
+
     </script>
 </body>
 </html>
