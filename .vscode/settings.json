@@ -1,3 +1,4 @@
 {
-    "livePreview.defaultPreviewPath": "/employer-set-password.html"
+    "livePreview.defaultPreviewPath": "/employer-set-password.html",
+    "continue.enableConsole": false
 }
