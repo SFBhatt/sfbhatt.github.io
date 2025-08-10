@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employer Dashboard - SkilWise</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        window.supabase = supabase.createClient(
+            'https://ovqkuwbjstovqjjtrwny.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92cWt1d2Jqc3RvdnFqanRyd255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTY5NzUsImV4cCI6MjA1NjA3Mjk3NX0.zEXoXzlyOyE4UvPI7yIzXKOAkjhZv0gYwA35ycwRiPw'
+        );
+         // Check if user is logged in and is an employer
+         async function checkEmployerAuth() {
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            if (!user) {
+                window.location.href = 'employer-login.html';
+                return;
+            }
+
+            // Check if user is employer
+            if (user.user_metadata?.role !== 'employer') {
+                await supabase.auth.signOut();
+                alert('Only employers can access this page');
+                window.location.href = 'employer-login.html';
+                return;
+            }
+        }
+
+        // Run auth check when page loads
+        document.addEventListener('DOMContentLoaded', checkEmployerAuth);
+
+    </script>
+</head>
+<body class="employer-portal">
+    <header>
+        <a href="employer-dashboard.html" class="logo">
+            <img src="/images/SkilWise Logo.png" alt="SkilWise Logo">
+        </a>
+        <nav>
+            <ul>
+                <li><a href="employer-dashboard.html">Dashboard</a></li>
+                <li><a href="search.html" class="active">Search</a></li>
+                <li><button class="logout-btn" id="logoutButton">Logout</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Employer Dashboard</h1>
+            <div class="company-info" id="companyInfo"></div>
+        </div>
+
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <h3>Total Candidates</h3>
+                <div class="stat-value" id="totalCandidates">...</div>
+            </div>
+            <div class="stat-card">
+                <h3>New This Week</h3>
+                <div class="stat-value" id="newCandidates">...</div>
+            </div>
+            <div class="stat-card">
+                <h3>Top Skill</h3>
+                <div class="stat-value" id="topSkill">...</div>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="recent-candidates">
+                <h3>Recently Verified Candidates</h3>
+                <div class="candidate-list" id="recentCandidates"></div>
+            </div>
+            
+            <div class="saved-searches">
+                <h3>Saved Searches</h3>
+                <div class="search-list" id="savedSearches"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function loadDashboard() {
+            // Load company profile
+            const { data: { user } } = await supabase.auth.getUser();
+            const { data: company } = await supabase
+                .from('employer_profiles')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+
+            document.getElementById('companyInfo').innerHTML = `
+                <h2>${company?.company_name || 'Your Company'}</h2>
+                <p>${company?.industry || ''} • ${company?.company_size || ''} employees</p>
+            `;
+
+            // Load candidate stats
+            const { count: totalCandidates } = await supabase
+                .from('candidate_profiles')
+                .select('*', { count: 'exact' });
+
+            const { count: newCandidates } = await supabase
+                .from('candidate_profiles')
+                .select('*', { count: 'exact' })
+                .gt('created_at', new Date(Date.now() - 7 * 86400000).toISOString());
+
+            document.getElementById('totalCandidates').textContent = totalCandidates;
+            document.getElementById('newCandidates').textContent = newCandidates;
+
+            // Load recent candidates
+            const { data: recent } = await supabase
+                .from('candidate_profiles')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+            document.getElementById('recentCandidates').innerHTML = recent.map(c => `
+                <div class="recent-candidate">
+                    <span>${c.full_name}</span>
+                    <span>${c.skills?.slice(0, 3).map(s => s.name).join(', ')}</span>
+                </div>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+</html>

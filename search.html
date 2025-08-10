@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Search - SkilWise</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <style>
+        .search-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+
+        .search-form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .search-button {
+            background-color: #3f51b5;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .results-container {
+            margin-top: 2rem;
+        }
+
+        .candidate-card {
+            background: #fff;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .skill-tag {
+            display: inline-block;
+            background: #e0e0e0;
+            padding: 0.25rem 0.5rem;
+            margin: 0.25rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .verified-badge {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .view-button {
+            background: #3f51b5;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .view-button:hover {
+            opacity: 0.9;
+        }
+
+        .job-title {
+            color: #666;
+            margin: 0.5rem 0;
+        }
+
+        .experience {
+            margin: 1rem 0;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .no-results p {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .no-results small {
+            color: #666;
+        }
+        .verified-skill {
+                background: #4CAF50;
+                color: white;
+            }
+            
+            .skill-tag {
+                position: relative;
+                padding-right: 25px;
+            }
+            
+            .skill-tag.verified-skill:after {
+                content: "✓";
+                position: absolute;
+                right: 5px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+    </style>
+    <script>
+        window.supabase = supabase.createClient(
+            'https://ovqkuwbjstovqjjtrwny.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92cWt1d2Jqc3RvdnFqanRyd255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTY5NzUsImV4cCI6MjA1NjA3Mjk3NX0.zEXoXzlyOyE4UvPI7yIzXKOAkjhZv0gYwA35ycwRiPw'
+        );
+
+        
+        // Check if user is logged in and is an employer
+        async function checkEmployerAuth() {
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            if (!user) {
+                window.location.href = 'employer-login.html';
+                return;
+            }
+
+            // Check if user is employer
+            if (user.user_metadata?.role !== 'employer') {
+                await supabase.auth.signOut();
+                alert('Only employers can access this page');
+                window.location.href = 'employer-login.html';
+                return;
+            }
+        }
+
+        // Run auth check when page loads
+        document.addEventListener('DOMContentLoaded', checkEmployerAuth);
+
+        async function searchCandidates() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user || user.user_metadata?.role !== 'employer') return;
+
+                const skillsInput = document.getElementById('skills').value;
+                const location = document.getElementById('location').value;
+                const minExperience = parseFloat(document.getElementById('experience').value) || 0;
+
+                // Process skills
+                const skillPatterns = skillsInput.split(',')
+                    .map(s => `%${s.trim().toLowerCase()}%`)
+                    .filter(s => s);
+
+                let query = supabase
+                    .from('candidate_profiles')
+                    .select('*');
+
+                // Skill search
+                if (skillPatterns.length > 0) {
+                    const { data: skillResults, error: skillError } = await supabase.rpc(
+                        'search_candidates_by_skills',
+                        { skill_arr: skillPatterns }
+                    );
+                    
+                    if (skillError) throw skillError;
+                    if (skillResults?.length) {
+                        query = query.in('user_id', skillResults.map(c => c.user_id));
+                    } else {
+                        displayResults([]);
+                        return;
+                    }
+                }
+
+                // Other filters
+                if (location) query = query.ilike('location', `%${location}%`);
+                if (minExperience > 0) query = query.gte('total_experience', minExperience);
+
+                const { data, error } = await query;
+                if (error) throw error;
+                
+                displayResults(data);
+            } catch (error) {
+                console.error('Search error:', error);
+                alert(`Search failed: ${error.message}`);
+            }
+        }
+
+            function displayResults(candidates) {
+                const resultsContainer = document.getElementById('results');
+                resultsContainer.innerHTML = '';
+
+                if (!candidates || !candidates.length) {
+                    resultsContainer.innerHTML = `
+                        <div class="no-results">
+                            <p>🔍 No candidates found matching your criteria</p>
+                            <small>Try broadening your search filters</small>
+                        </div>
+                    `;
+                    return;
+                }
+
+                candidates.forEach(candidate => {
+                    // Safe parsing for existing text-based JSON
+                    let skills = [];
+                    try {
+                    skills = JSON.parse(candidate.skills.replace(/\\/g, ''));
+                    } catch(e) {
+                    console.error('Error parsing skills:', e);
+                    }
+
+                    // Display logic using parsed skills
+                    const skillsHTML = skills.map(skill => `
+                    <span class="skill-tag ${skill.verified ? 'verified-skill' : ''}">
+                        ${skill.name}
+                    </span>
+                    `).join('');
+
+
+                    const verifiedSkills = Array.isArray(skills) ? skills.filter(skill => skill.verified).length : 0;
+
+                    card.innerHTML = `
+                        <h3>${candidate.full_name || 'Anonymous'}</h3>
+                        ${candidate.job_title ? `<p class="job-title">${candidate.job_title}</p>` : ''}
+                        ${candidate.location ? `<p class="location">📍 ${candidate.location}</p>` : ''}
+                        ${candidate.total_experience ? `
+                            <div class="experience">
+                                <strong>Total Experience:</strong>
+                                <span>${candidate.total_experience} years</span>
+                            </div>` : ''}
+                        ${Array.isArray(skills) && skills.length ? `
+                            <div class="skills">
+                                ${skills.map(skill => `
+                                    <span class="skill-tag ${skill.verified ? 'verified-skill' : ''}">
+                                        ${skill.name}
+                                        ${skill.verified ? '✓' : ''}
+                                    </span>
+                                `).join('')}
+                            </div>` : ''}
+                        ${verifiedSkills > 0 ? `
+                            <div class="verification">
+                                <span class="verified-badge">✓ ${verifiedSkills} Verified Skills</span>
+                            </div>` : ''}
+                        <button class="view-button" onclick="viewCandidate('${candidate.user_id}')">
+                            View Full Profile
+                        </button>
+                    `;
+                    resultsContainer.appendChild(card);
+                });
+            }
+
+            function viewCandidate(userId) {
+            // Basic implementation
+            supabase
+                .from('candidate_profiles')
+                .select('*')
+                .eq('user_id', userId)
+                .single()
+                .then(({ data }) => {
+                if (data) {
+                    localStorage.setItem('currentCandidate', JSON.stringify(data));
+                    window.location.href = 'candidate-profile-view.html';
+                }
+                });
+            }
+    
+
+    </script>
+</head>
+<body>
+    <header>
+        <!-- Use same header as other pages -->
+        <a href="index.html" class="logo">
+            <img src="/images/SkilWise Logo.png" alt="SkilWise Logo">
+        </a>
+        <nav>
+            <ul>
+                <li><a href="employer-dashboard.html">Dashboard</a></li>
+                <li><button class="logout-btn" id="logoutButton">Logout</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="search-container">
+        <h1>Find Candidates</h1>
+        
+        <div class="search-form">
+            <div class="form-group">
+                <label for="skills">Skills (comma separated)</label>
+                <input type="text" id="skills" class="search-input" 
+                    placeholder="e.g., JavaScript, React, Node.js">
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" id="location" class="search-input" 
+                    placeholder="Enter preferred location">
+            </div>
+
+            <div class="form-group">
+                <label for="experience">Minimum Experience (years)</label>
+                <input type="number" id="experience" class="search-input" 
+                    placeholder="Enter minimum years of experience" min="0">
+            </div>
+
+            <button class="search-button" id="search-button" onclick="searchCandidates()">
+                Search
+            </button>
+        </div>
+
+        <div class="results-container" id="results"></div>
+    </main>
+
+    <script>
+        // Add logout functionality
+        document.getElementById('logoutButton').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'employer-login.html';
+        });
+    </script>
+</body>
+</html>

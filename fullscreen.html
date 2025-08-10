@@ -6,9 +6,16 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #000000;
+            background-color: #e1e8ed;
             color: white;
             font-family: Arial, sans-serif;
+        }
+
+        .instruction strong {
+            font-size: 3rem;
+            color: #00ff26;
+            text-shadow: 2px 2px 4px #fe070f;
+            margin: 10px;
         }
 
         .overlay {
@@ -17,7 +24,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000000;
+            background: #e1e8ed;
             z-index: 9999;
             display: flex;
             flex-direction: column;
@@ -29,16 +36,42 @@
 
         #welcomeOverlay {
             display: flex;
+            color: #000;
         }
+
+        .wmodal-content {
+            background-color: #fff;
+            padding: 20px;
+            font-size: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            width: 90%;
+            max-width: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        
 
         #exitOverlay {
             display: none;
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        #exitOverlay .warningMessage {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
         .warningMessage {
             font-size: 2.5rem;
             margin: 20px;
             color: #ff0000;
+            
         }
 
         .instruction {
@@ -46,9 +79,12 @@
             margin: 10px;
             max-width: 80%;
             line-height: 1.5;
+            color: #000;
         }
 
         #finishBtn {
+            display: block;
+            margin: 20px auto;
             padding: 20px 40px;
             font-size: 24px;
             cursor: pointer;
@@ -56,10 +92,20 @@
             color: white;
             border: none;
             border-radius: 5px;
-            position: fixed;
             bottom: 20px;
-            display: none;
+            right: 20px;
             z-index: 10000;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 20px 40px;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
         }
 
         #timer {
@@ -73,16 +119,198 @@
             border-radius: 5px;
             z-index: 9998;
         }
+
+        .questions-container {
+            max-width: 80%;
+            margin: 20px auto;
+            padding: 40px 60px;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            color: white;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        .question { 
+            margin: 20px 0; 
+            ;
+            width: max-content;
+            padding: 15px; 
+            background: #f5f5f5; 
+            border-radius: 8px;
+            color: black; 
+            -webkit-user-select: none; /* For Safari and Chrome */
+            -moz-user-select: none;    /* For Firefox */
+            -ms-user-select: none;     /* For Internet Explorer/Edge */
+            user-select: none; 
+        }
+        .options { 
+            display: flex; 
+            gap: 25px; 
+            margin-top: 10px; 
+            margin: auto;
+            flex-wrap: wrap; 
+            -webkit-user-select: none; /* For Safari and Chrome */
+            -moz-user-select: none;    /* For Firefox */
+            -ms-user-select: none;     /* For Internet Explorer/Edge */
+            user-select: none; 
+        }
+
+        #testContainer {
+            display: flex;
+            flex-direction: column; /* Stack questions vertically */
+            justify-content: center; /* Center vertically */
+            align-items: center; /* Center horizontally */
+            min-height: 80vh; /* Ensure it takes up most of the viewport height */
+            margin: 0 auto; /* Center horizontally if there's extra space */
+            padding: 20px;
+            background-color: #1a1a1a; /* Background color for the container */
+            border-radius: 8px;
+            color: white;
+            font-size: 18px;
+            line-height: 1.5;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: Add a shadow for better visibility */
+        }
+        
+
+        .options label {
+            display: block;
+            margin-bottom: 5px;
+            cursor: pointer;
+            width: max-content;
+        }
+
+        .options input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        /* Modal Styles */
+        .rmodal {
+            display: none; /* Initially hidden */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .rmodal-content {
+            color: #000;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .rmodal-content h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .rmodal-content div {
+            margin-bottom: 20px;
+        }
+
+        .rmodal-content button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .rmodal-content button:hover {
+            background: #0056b3;
+        }
+        .result-item {
+            margin-bottom: 20px;
+        }
+        .bar-container {
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            height: 20px;
+            margin-top: 5px;
+        }
+
+        .bar {
+            height: 100%;
+            background-color: #007bff;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        #timeUpOverlay {
+            display: none; /* Initially hidden */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8); /* Darker background for emphasis */
+            z-index: 10000; /* Higher z-index to ensure it appears above other elements */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        #timeUpOverlay .warningMessage {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #ff0000;
+        }
+
+        #timeUpOverlay .instruction button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #timeUpOverlay .instruction button:hover {
+            background-color: #45a049; /* Slightly darker green on hover */
+        }
     </style>
+    <!-- Add Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        window.supabase = supabase.createClient(
+            'https://ovqkuwbjstovqjjtrwny.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92cWt1d2Jqc3RvdnFqanRyd255Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTY5NzUsImV4cCI6MjA1NjA3Mjk3NX0.zEXoXzlyOyE4UvPI7yIzXKOAkjhZv0gYwA35ycwRiPw'
+        );
+    </script>
 </head>
 <body>
+    
     <div id="welcomeOverlay" class="overlay">
+        <div class="wmodal-content">
+            <h2>Welcome to the "Employee Personality Profile" Test</h2>
+            <p>This test will help you discover your core personality traits based on the Big Five personality traits model.</p>
+        </div>
         <div class="warningMessage">Important Instructions</div>
         <div class="instruction">
+            • Single monitor setup required<br>
+            • Do not move browser window between screens<br>
+            • Screen changes will result in test submission<br>
             • This test must be completed in fullscreen mode<br>
-            • You will have 30 minutes to complete the test<br>
-            • Do not attempt to exit fullscreen during the test<br>
-            • Click anywhere to begin your test
+            • You will have 20 minutes to complete the test<br>
+            • Do not attempt to exit fullscreen during the test<br><br>
+            <strong> Click anywhere to begin your test </strong>
         </div>
     </div>
 
@@ -91,8 +319,25 @@
         <div class="instruction">Click anywhere to return to your test</div>
     </div>
 
-    <div id="timer">30:00</div>
-    <button id="finishBtn">Submit Test</button>
+    <div id="timer">20:00</div>
+    <div id="testContainer"></div>
+    <button onclick="calculateResults()">Get Results</button>
+
+    <div id="result"></div>
+    <div id="resultModal" class="rmodal">
+        <div class="rmodal-content">
+            <h2>Your Core Personality Traits</h2>
+            <div id="resultContent"></div>
+            <button id="goToDashboardButton">Go to Dashboard</button>
+        </div>
+    </div>
+    <div id="timeUpOverlay" class="overlay">
+        <div class="warningMessage">Time Up! Test Automatically Submitted</div>
+        <div class="instruction">
+            <button onclick="calculateResults()">Get Results</button>
+        </div>
+    </div>
+    
 
     <script>
         let fullscreenActive = false;
@@ -100,45 +345,224 @@
         let timerInterval;
         const TEST_DURATION = 1 * 60 * 1000; // 1 minutes
         let startTime;
+        let isTimeUp = false; // Default: false
+        // Added these variables to block navigation
+        let navigationEnabled = false;
+        let initialPop = true;
+        // Added these variables to track and block tab/window switching
+        let visibilityViolations = 0;
+        let MAX_VIOLATIONS = 2; // Allowed number of tab switches
+        let windowBlurCount = 0;
+        // Added this variable to track auto-submit
+        let isAutoSubmit = false; // Default: false
+        //Screen Details API (experimental)
+        let screenCheckInterval;
+        let initialScreenPosition = { x: 0, y: 0, width: 0, height: 0 };
+
+        async function saveResultsToSupabase(results) {
+            try {
+                // Get current user
+                const { data: { user }, error: authError } = await supabase.auth.getUser();
+                
+                if (authError || !user) {
+                    console.error('Authentication error:', authError);
+                    alert('You need to be logged in to save results');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Update the candidate_profiles table
+                const { data, error } = await supabase
+                    .from('candidate_profiles')
+                    .update({ 
+                        epp_resultnew: results,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('user_id', user.id)
+                    .select();
+
+                if (error) throw error;
+                console.log('Results saved successfully:', data);
+                return data;
+            } catch (error) {
+                console.error('Error saving results:', error);
+                alert('Error saving results. Please try again.');
+                throw error;
+            }
+        }
 
         // Initial setup
         document.addEventListener('DOMContentLoaded', () => {
             document.addEventListener('keydown', handleKeys);
             document.getElementById('welcomeOverlay').addEventListener('click', startTest);
+
+            // Ensure #timeUpOverlay is hidden on page load
+            document.getElementById('timeUpOverlay').style.display = 'none';
+            disableNavigation(); // Add this line to disable navigation
+            history.replaceState(null, null, document.URL); // Add this line to prevent back navigation
         });
 
-        function startTest() {
+        async function startTest() {
             document.getElementById('welcomeOverlay').style.display = 'none';
-            initializeFullscreen();
+
+            // Initialize fullscreen first
+            await initializeFullscreen(); // wait for fullscreen to be initialized
+
+            // Capture initial position AFTER fullscreen
+            await new Promise(resolve => setTimeout(resolve, 100)); // 100ms delay
+
+            // Store initial screen position
+            initialScreenPosition = {
+                x: window.screenX,
+                y: window.screenY,
+                width: window.screen.availWidth,
+                height: window.screen.availHeight
+            };
+
+            // Initial screen check
+            if (await checkScreenSetup()) {
+                return; // Stop test if violation found
+            }
+
+            
+
+            // Start screen monitoring
+            screenCheckInterval = setInterval(checkScreenSetup, 1000); // Check every second
+            
             if (!startTime) {
                 // Set startTime only once
                 startTime = Date.now();
                 startTimer();
+                initTest();
             }
+            disableNavigation(); // Disable navigation
+            enableWindowSwitchProtection(); // Enable window switching protection
         }
 
         function initializeFullscreen() {
-            const element = document.documentElement;
-            const requestFullscreen = element.requestFullscreen || 
-                element.mozRequestFullScreen ||
-                element.webkitRequestFullscreen ||
-                element.msRequestFullscreen;
+            return new Promise((resolve, reject) => { // Wrap in Promise
+                const element = document.documentElement;
+                const requestFullscreen = element.requestFullscreen || 
+                    element.mozRequestFullScreen ||
+                    element.webkitRequestFullscreen ||
+                    element.msRequestFullscreen;
 
-            if (requestFullscreen) {
-                requestFullscreen.call(element).then(() => {
-                    fullscreenActive = true;
-                    document.getElementById('finishBtn').style.display = 'block';
-                    startTimer();
-                    startFullscreenProtection();
-                }).catch(error => {
-                    showExitOverlay();
-                });
-            }
+                if (requestFullscreen) {
+                    requestFullscreen.call(element).then(() => {
+                        fullscreenActive = true;
+                        startTimer();
+                        startFullscreenProtection();
+                        resolve(); // Resolve promise when successful
+                    }).catch(error => {
+                        showExitOverlay();
+                        reject(error); // Reject on error
+                    });
+                }
+            });
         }
 
         function startTimer() {
             timerInterval = setInterval(updateTimer, 1000);
         }
+
+        const questions = [
+            // Openness (10 questions)
+            { trait: 'Openness', text: "I enjoy brainstorming sessions where unconventional ideas are encouraged", reverse: false },
+            { trait: 'Openness', text: "I prefer listening to the same genre of music rather than exploring new artists", reverse: true },
+            { trait: 'Openness', text: "Abstract art puzzles me more than it intrigues", reverse: true },
+            { trait: 'Openness', text: "Learning about different cultures' traditions is something I actively seek out", reverse: false },
+            { trait: 'Openness', text: "I'd rather stick to a tried-and-tested method than experiment with new approaches", reverse: true },
+            { trait: 'Openness', text: "Philosophical debates about life's meaning energize me", reverse: false },
+            { trait: 'Openness', text: "I find it difficult to engage with complex theoretical concepts", reverse: true },
+            { trait: 'Openness', text: "Spontaneous road trips with no itinerary appeal to me", reverse: false },
+            { trait: 'Openness', text: "I prefer structured tasks over open-ended projects", reverse: true },
+            { trait: 'Openness', text: "I often imagine alternative ways to solve problems at work", reverse: false },
+
+            // Conscientiousness (10 questions)
+            { trait: 'Conscientiousness', text: "I often double-check my work to ensure there are no errors", reverse: false },
+            { trait: 'Conscientiousness', text: "Deadlines stress me out, so I sometimes submit work late", reverse: true },
+            { trait: 'Conscientiousness', text: "My workspace is usually organized and clutter-free", reverse: false },
+            { trait: 'Conscientiousness', text: "I tend to procrastinate on tasks I find uninteresting", reverse: true },
+            { trait: 'Conscientiousness', text: "Setting daily goals helps me stay productive", reverse: false },
+            { trait: 'Conscientiousness', text: "I often forget to return items to their proper place after use", reverse: true },
+            { trait: 'Conscientiousness', text: "Completing projects ahead of schedule gives me a sense of accomplishment", reverse: false },
+            { trait: 'Conscientiousness', text: "I struggle to maintain a consistent routine, even when I try", reverse: true },
+            { trait: 'Conscientiousness', text: "Keeping a detailed to-do list is essential for my workflow", reverse: false },
+            { trait: 'Conscientiousness', text: "I sometimes overlook small details when working under pressure", reverse: true },
+
+            // Extraversion (10 questions)
+            { trait: 'Extraversion', text: "I feel energized after spending time with a large group of people", reverse: false },
+            { trait: 'Extraversion', text: "I prefer listening in meetings rather than actively contributing my ideas", reverse: true },
+            { trait: 'Extraversion', text: "Striking up conversations with strangers comes naturally to me", reverse: false },
+            { trait: 'Extraversion', text: "After a busy day, I need alone time to recharge", reverse: true },
+            { trait: 'Extraversion', text: "I enjoy being the one to break the ice in social situations", reverse: false },
+            { trait: 'Extraversion', text: "Public speaking makes me anxious, even if I'm well-prepared", reverse: true },
+            { trait: 'Extraversion', text: "I often take the lead when working on group projects", reverse: false },
+            { trait: 'Extraversion', text: "I'd rather respond to emails than have a face-to-face discussion", reverse: true },
+            { trait: 'Extraversion', text: "Social events are where I thrive and feel most alive", reverse: false },
+            { trait: 'Extraversion', text: "Networking with new people for extended periods drains me", reverse: true },
+
+            // Agreeableness (10 questions)
+            { trait: 'Agreeableness', text: "I often go out of my way to help colleagues, even if it inconveniences me", reverse: false },
+            { trait: 'Agreeableness', text: "I don't mind arguing my point aggressively if I know I'm right", reverse: true },
+            { trait: 'Agreeableness', text: "People describe me as someone who's easy to get along with", reverse: false },
+            { trait: 'Agreeableness', text: "I find it hard to trust others' intentions until they've proven themselves", reverse: true },
+            { trait: 'Agreeableness', text: "I avoid giving critical feedback to prevent hurting someone's feelings", reverse: false },
+            { trait: 'Agreeableness', text: "I feel uncomfortable when others share personal problems with me", reverse: true },
+            { trait: 'Agreeableness', text: "Compromising during conflicts feels more productive than standing my ground", reverse: false },
+            { trait: 'Agreeableness', text: "I'd rather compete than collaborate to achieve better results", reverse: true },
+            { trait: 'Agreeableness', text: "I'm quick to forgive even when someone has treated me unfairly", reverse: false },
+            { trait: 'Agreeableness', text: "I get irritated when people don't follow through on their commitments", reverse: true },
+
+            // Neuroticism (10 questions)
+            { trait: 'Neuroticism', text: "I often worry about making mistakes, even in minor tasks", reverse: false },
+            { trait: 'Neuroticism', text: "Criticism, even when constructive, tends to upset me deeply", reverse: false },
+            { trait: 'Neuroticism', text: "I remain calm under pressure and think clearly", reverse: true },
+            { trait: 'Neuroticism', text: "Small inconveniences can put me in a bad mood for hours", reverse: false },
+            { trait: 'Neuroticism', text: "I rarely feel anxious about upcoming deadlines or challenges", reverse: true },
+            { trait: 'Neuroticism', text: "I replay past conversations in my head, analyzing what I could've said differently", reverse: false },
+            { trait: 'Neuroticism', text: "Sudden changes in plans make me feel uneasy and frustrated", reverse: false },
+            { trait: 'Neuroticism', text: "I handle stressful situations without becoming emotionally overwhelmed", reverse: true },
+            { trait: 'Neuroticism', text: "I often feel tense even when there's no obvious reason to be", reverse: false },
+            { trait: 'Neuroticism', text: "It takes me a long time to bounce back after a disappointment", reverse: false }
+        ];
+
+        function initTest() {
+            const container = document.getElementById('testContainer');
+            
+            questions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.setAttribute('data-trait', question.trait);
+                
+                questionDiv.innerHTML = `
+                    <p>${index + 1}. ${question.text}${question.reverse ? ' <span class="reverse"></span>' : ''}</p>
+                    <div class="options">
+                        ${[1, 2, 3, 4, 5].map(value => `
+                            <label>
+                                <input type="radio" name="q${index + 1}" value="${value}">
+                                ${getLabel(value)}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(questionDiv);
+            });
+        }
+        function getLabel(value) {
+            return ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'][value - 1];
+        }
+
+        const traits = {
+            Openness: { score: 0, count: 0 },
+            Conscientiousness: { score: 0, count: 0 },
+            Extraversion: { score: 0, count: 0 },
+            Agreeableness: { score: 0, count: 0 },
+            Neuroticism: { score: 0, count: 0 }
+        };
+
+        
 
         function updateTimer() {
             const elapsed = Date.now() - startTime;
@@ -146,7 +570,8 @@
             
             if (remaining <= 0) {
                 clearInterval(timerInterval);
-                autoSubmit();
+                isTimeUp = true; // Set the flag to true
+                showTimeUpOverlay(); // Trigger the overlay when time is up
                 return;
             }
 
@@ -156,42 +581,37 @@
                 `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
-        function autoSubmit() {
-            allowExit = true;
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            }
-            document.getElementById('finishBtn').style.display = 'none';
-            // Show a new overlay for the "time up" scenario
-            showTimeUpOverlay();
-        }
 
         function showTimeUpOverlay() {
-            const exitOverlay = document.getElementById('exitOverlay');
-            exitOverlay.style.display = 'flex';
+            disableWindowSwitchProtection();  // <-- ADD HERE
+            const exitOverlay = document.getElementById('timeUpOverlay');
+            timeUpOverlay.style.display = 'flex';
 
             // Update the warning message
-            exitOverlay.querySelector('.warningMessage').textContent = 'Time Up! Test Automatically Submitted';
+            timeUpOverlay.querySelector('.warningMessage').textContent = 'Time Up! Test Automatically Submitted';
 
             // Clear existing content in the instruction section
-            const instruction = exitOverlay.querySelector('.instruction');
+            const instruction = timeUpOverlay.querySelector('.instruction');
             instruction.innerHTML = '';
 
-            // Add a button to go to the dashboard
-            const dashboardButton = document.createElement('button');
-            dashboardButton.textContent = 'Go to Dashboard';
-            dashboardButton.style.padding = '10px 20px';
-            dashboardButton.style.fontSize = '18px';
-            dashboardButton.style.cursor = 'pointer';
-            dashboardButton.style.backgroundColor = '#4CAF50';
-            dashboardButton.style.color = 'white';
-            dashboardButton.style.border = 'none';
-            dashboardButton.style.borderRadius = '5px';
-            dashboardButton.addEventListener('click', () => {
-                window.location.href = 'dashboard.html'; // Redirect to the dashboard
+            // Add a button to go to show results
+            const getResultsButton = document.createElement('button');
+            getResultsButton.textContent = 'Show Results';
+            getResultsButton.style.padding = '10px 20px';
+            getResultsButton.style.fontSize = '18px';
+            getResultsButton.style.cursor = 'pointer';
+            getResultsButton.style.backgroundColor = '#4CAF50';
+            getResultsButton.style.color = 'white';
+            getResultsButton.style.border = 'none';
+            getResultsButton.style.borderRadius = '5px';
+            // Add an event listener to the button
+            getResultsButton.addEventListener('click', () => {
+                timeUpOverlay.style.display = 'none'; // Hide the "Time Up" overlay
+                console.log('Get Results button clicked');
+                calculateResults(); // Call the function to calculate results
             });
 
-            instruction.appendChild(dashboardButton);
+            instruction.appendChild(getResultsButton);
         }
 
         function startFullscreenProtection() {
@@ -212,13 +632,14 @@
 
         function handleFullscreenExit() {
             showExitOverlay();
-            document.getElementById('finishBtn').style.display = 'none';
+            //document.getElementById('finishBtn').style.display = 'none';
         }
 
         function showExitOverlay(message = '⚠️ Fullscreen is required to continue ⚠️') {
-            document.getElementById('exitOverlay').style.display = 'flex';
-            document.getElementById('exitOverlay').querySelector('.warningMessage').textContent = message;
-            document.getElementById('exitOverlay').addEventListener('click', attemptResumeTest, { once: true });
+            const overlay = document.getElementById('exitOverlay');
+            overlay.style.display = 'flex';
+            overlay.querySelector('.warningMessage').innerHTML = message; // Changed to innerHTML
+            overlay.addEventListener('click', attemptResumeTest, { once: true });
         }
 
         function attemptResumeTest() {
@@ -263,18 +684,308 @@
             instruction.appendChild(dashboardButton);
         }
 
-        document.getElementById('finishBtn').addEventListener('click', function() {
-            if (confirm('Are you absolutely sure you want to submit this test?')) {
-                clearInterval(timerInterval);
-                allowExit = true;
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
+        async function calculateResults() {
+            // Check if all questions are answered (only if not triggered by the timer)
+            if (!isTimeUp && !isAutoSubmit) {
+                const unansweredQuestions = [];
+                document.querySelectorAll('.question').forEach((question, index) => {
+                    const selected = question.querySelector('input:checked');
+                    if (!selected) {
+                        unansweredQuestions.push(index + 1); // Store the question number
+                    }
+                });
+
+                // If there are unanswered questions, show an alert and stop
+                if (unansweredQuestions.length > 45) {
+                    alert(`Please answer all questions before submitting. Unanswered questions: ${unansweredQuestions.join(', ')}`);
+                    return;
                 }
-                this.style.display = 'none';
-                // Show the "Test Successfully Submitted" overlay
-                showSuccessOverlay();
             }
-        });
+
+            // Reset trait scores
+            Object.values(traits).forEach(trait => {
+                trait.score = 0;
+                trait.count = 0;
+            });
+
+            // Calculate scores for each trait
+            document.querySelectorAll('.question').forEach((question, index) => {
+                const trait = question.getAttribute('data-trait');
+                const selected = question.querySelector('input:checked');
+                const isReverse = questions[index].reverse;
+
+                if (selected) {
+                    let value = parseInt(selected.value);
+                    // Apply reverse scoring if needed
+                    value = isReverse ? 6 - value : value;
+
+                    traits[trait].score += value;
+                    traits[trait].count++;
+                }
+            });
+
+            // Calculate average scores for each trait
+            const results = {};
+            Object.entries(traits).forEach(([trait, data]) => {
+                results[trait] = data.count > 0 
+                    ? (data.score / data.count).toFixed(2)
+                    : 0;
+            });
+
+            // Save results to Supabase
+            try {
+                // Save results to Supabase
+                await saveResultsToSupabase(results);
+                navigationEnabled = true; // Add this
+                disableWindowSwitchProtection();  // Add this to disable window switching protection
+                enableNavigation(); // Add this
+                // Show results modal only after successful save
+                const resultContent = document.getElementById('resultContent');
+                resultContent.innerHTML = `
+                    ${Object.entries(results).map(([trait, score]) => `
+                        <div class="result-item">
+                            <p><strong>${trait}:</strong> ${score}/5</p>
+                            <div class="bar-container">
+                                <div class="bar" style="width: ${score * 20}%;"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                    <p><em>Results saved successfully!</em></p>
+                `;
+
+                // Show modal
+                document.getElementById('resultModal').style.display = 'flex';
+
+                
+            }
+            
+            catch (error) {
+                disableWindowSwitchProtection();  // Add this to disable window switching protection
+                // Error handling already done in saveResultsToSupabase
+            }
+
+            // Display the results in the modal
+            const resultContent = document.getElementById('resultContent');
+            resultContent.innerHTML = `
+                ${Object.entries(results).map(([trait, score]) => `
+                    <div class="result-item">
+                        <p><strong>${trait}:</strong> ${score}/5</p>
+                        <div class="bar-container">
+                            <div class="bar" style="width: ${score * 20}%;"></div>
+                        </div>
+                    </div>
+                `).join('')}
+                <p><em>Based on the Big Five personality traits model</em></p>
+            `;
+
+            // Show the result modal
+            const resultModal = document.getElementById('resultModal');
+            
+            resultModal.style.display = 'flex';
+
+            // Handle "Go to Dashboard" button click
+            document.getElementById('goToDashboardButton').addEventListener('click', () => {
+                window.location.href = '/dashboard.html'; // Redirect to the dashboard
+            });
+        }
+        function updateTimer() {
+            const elapsed = Date.now() - startTime;
+            const remaining = TEST_DURATION - elapsed;
+
+            if (remaining <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null; // Clear the interval to stop the timer
+                if (!isTimeUp) {
+                    isTimeUp = true; // Set the flag to true
+                    showTimeUpOverlay(); // Trigger the overlay when time is up
+                }
+                //showResultsModal(); // Directly show the results modal
+                return;
+            }
+
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            document.getElementById('timer').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // Navigation prevention
+        function disableNavigation() {
+            // Disable back/forward navigation
+            history.pushState(null, null, document.URL);
+            window.addEventListener('popstate', handlePopState);
+
+            // Disable page refresh/closing
+            window.addEventListener('beforeunload', handleBeforeUnload);
+
+            // Disable right-click context menu
+            document.addEventListener('contextmenu', handleContextMenu);
+        }
+
+        function enableNavigation() {
+            window.removeEventListener('popstate', handlePopState);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            document.removeEventListener('contextmenu', handleContextMenu);
+        }
+
+        function handlePopState(e) {
+            if (!navigationEnabled) {
+                history.pushState(null, null, document.URL);
+                if (!initialPop) {
+                    alert("Navigation is disabled during the test!");
+                }
+                initialPop = false;
+            }
+        }
+
+        function handleBeforeUnload(e) {
+            if (!navigationEnabled) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        }
+
+        function handleContextMenu(e) {
+            if (!navigationEnabled) {
+                e.preventDefault();
+                alert("Right-click is disabled during the test!");
+            }
+        }
+
+        // Added these functions to track and block tab/window switching
+        function enableWindowSwitchProtection() {
+            // Detect tab/window switching
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            
+            // Detect window blur (clicking another application)
+            window.addEventListener('blur', handleWindowBlur);
+            
+            // Prevent keyboard shortcuts for new windows
+            document.addEventListener('keydown', handleWindowShortcuts);
+        }
+
+        function disableWindowSwitchProtection() {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('blur', handleWindowBlur);
+            document.removeEventListener('keydown', handleWindowShortcuts);
+        }
+
+        function handleVisibilityChange() {
+            if (document.hidden && !isTimeUp) {
+                visibilityViolations++;
+                handleCheatingAttempt('tab');
+            }
+        }
+
+        function handleWindowBlur() {
+            if (!document.hidden && !isTimeUp) {
+                visibilityViolations++; 
+                handleCheatingAttempt('window');
+            }
+        }
+
+        function handleWindowShortcuts(e) {
+            // Block Ctrl+N/Cmd+N (new window)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 78) {
+                e.preventDefault();
+                handleCheatingAttempt('shortcut');
+            }
+            // Block Ctrl+T/Cmd+T (new tab)
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === 84) {
+                e.preventDefault();
+                handleCheatingAttempt('shortcut');
+            }
+        }
+
+        function handleCheatingAttempt(type) {
+            const attemptsLeft = MAX_VIOLATIONS - visibilityViolations;
+            
+            // Show full-screen warning
+            const message = type === 'tab' ? 
+                `Tab switching detected! (${attemptsLeft} attempts remaining)<br> If you switch tabs/windows ${attemptsLeft} more times, the test will be auto-submitted!` :
+                type === 'window' ?
+                `Window switching detected! (${attemptsLeft} attempts remaining)` :
+                `New window/tab shortcuts are disabled!`;
+            
+            showExitOverlay(message);
+            
+            // Auto-submit test if max violations reached
+            if (visibilityViolations >= MAX_VIOLATIONS) {
+                alert('Maximum violations reached! Submitting test...');
+                isAutoSubmit = true; // Set the flag to true for auto-submission
+                calculateResults();
+            }
+        }
+        
+        // Added this function to check screen setup
+        async function checkScreenSetup() {
+            try {
+                // Try Screen Details API (Chrome/Edge only)
+                if ('getScreenDetails' in window) {
+                    const screenDetails = await window.getScreenDetails();
+                    if (screenDetails.screens.length > 1) {
+                        handleScreenViolation('multiple_screens');
+                        return true;
+                    }
+                }
+                
+                // Fallback: Monitor window position
+                // Add 50px margin tolerance
+                const margin = 50;
+                const currentX = window.screenX;
+                const currentY = window.screenY;
+                
+                
+                // Detect if window is outside initial screen bounds
+                if (currentX < initialScreenPosition.x - margin || 
+                    currentY < initialScreenPosition.y - margin ||
+                    currentX > initialScreenPosition.x + margin ||
+                    currentY > initialScreenPosition.y + margin) {
+                    handleScreenViolation('window_position');
+                    return true;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('Screen detection error:', error);
+                return false;
+            }
+        }
+
+        // Added this function to handle screen violations
+        function handleScreenViolation(type) {
+            const message = type === 'multiple_screens' ?
+                `Multi-screen setup detected!<br>Disconnect additional monitors to continue` :
+                `Window moved to secondary screen!<br>Return to primary screen immediately`;
+            
+            showExitOverlay(message);
+            clearInterval(screenCheckInterval);
+            
+            // Add a button to allow the user to retry after resolving the issue
+            const instruction = document.querySelector('#exitOverlay .instruction');
+            instruction.innerHTML = ''; // Clear existing content
+
+            const retryButton = document.createElement('button');
+            retryButton.textContent = 'Retry';
+            retryButton.style.padding = '10px 20px';
+            retryButton.style.fontSize = '18px';
+            retryButton.style.cursor = 'pointer';
+            retryButton.style.backgroundColor = '#4CAF50';
+            retryButton.style.color = 'white';
+            retryButton.style.border = 'none';
+            retryButton.style.borderRadius = '5px';
+
+            retryButton.addEventListener('click', async () => {
+                const violationResolved = await checkScreenSetup(); // Recheck the screen setup
+                if (!violationResolved) {
+                    document.getElementById('exitOverlay').style.display = 'none'; // Hide the overlay
+                    screenCheckInterval = setInterval(checkScreenSetup, 1000); // Resume screen monitoring
+                }
+            });
+
+            instruction.appendChild(retryButton);
+        }
+
     </script>
 </body>
 </html>
