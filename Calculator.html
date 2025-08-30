@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HawkHive Logistics - Pricing Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e74c3c;
+            --accent: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --text: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            color: var(--text);
+            line-height: 1.6;
+            background-color: #f9f9f9;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #4a6491 100%);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 2rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%232c3e50"/></svg>');
+            background-size: cover;
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #e67e22;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background: var(--primary);
+            margin-left: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: #3c5a7a;
+        }
+        
+        /* Sections */
+        section {
+            padding: 5rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--primary);
+            position: relative;
+        }
+        
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--accent);
+            margin: 10px auto;
+        }
+        
+        /* Pricing Calculator */
+        .calculator {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .calculator-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .calculator-result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 1rem 0;
+        }
+        
+        .price-note {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 1rem;
+        }
+        
+        /* Services */
+        .services {
+            background: var(--light);
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .service-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.3s;
+            box-shadow: var(--shadow);
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .service-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        /* Why Choose Us */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .feature i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        /* Pricing Comparison */
+        .comparison {
+            background: var(--light);
+            text-align: center;
+        }
+        
+        .comparison-content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .comparison-content p {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .footer-bottom {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        
+        /* Custom Alert Dialog Styles */
+        #custom-alert {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        #custom-alert > div {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        #custom-alert p {
+            margin-bottom: 15px;
+        }
+
+        
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .calculator-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .hero-buttons .btn {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-shipping-fast"></i>
+                    Hawk<span>Hive</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="hawkhive.html">Home</a></li>
+                    <li><a href="hawkhive.html#services">Services</a></li>
+                    <li><a href="hawkhive.html#process">How It Works</a></li>
+                    <li><a href="hawkhive.html#waitlist">Join Waitlist</a></li>
+                    <li><a href="#calculator">Pricing</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Transparent Pricing for Your Delivery Needs</h1>
+            <p>Calculate your delivery costs instantly with our pricing calculator. See how much you can save with HawkHive Logistics.</p>
+            <div class="hero-buttons">
+                <a href="#calculator" class="btn">Calculate Your Price</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Calculator -->
+    <section id="calculator" class="calculator-section">
+        <div class="container">
+            <h2 class="section-title">Delivery Cost Calculator</h2>
+            <div class="calculator">
+                <div class="calculator-form">
+                    <div class="form-group">
+                        <label for="weight">Package Weight (kg)</label>
+                        <input type="number" id="weight" min="0.1" step="0.1" placeholder="Enter weight in kg" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service">Service Type</label>
+                        <select id="service" required>
+                            <option value="">Select service type</option>
+                            <option value="standard">Standard (1-3 Days)</option>
+                            <option value="express">Express Next-Day</option>
+                            <option value="sameDay">ZEP Same-Day</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="origin">Origin City</label>
+                        <select id="origin" required>
+                            <option value="">Select origin city</option>
+                            <option value="sarnia">Sarnia</option>
+                            <option value="strathroy">Strathroy</option>
+                            <option value="london">London</option>
+                            <option value="woodstock">Woodstock</option>
+                            <option value="cambridge">Cambridge</option>
+                            <option value="kitchener">Kitchener</option>
+                            <option value="waterloo">Waterloo</option>
+                            <option value="brantford">Brantford</option>
+                            <option value="burlington">Burlington</option>
+                            <option value="hamilton">Hamilton</option>
+                            <option value="oakville">oakville</option>
+                            <option value="mississauga">Mississauga</option>
+                            <option value="toronto">Toronto</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="destination">Destination City</label>
+                        <select id="destination" required>
+                            <option value="">Select destination city</option>
+                            <option value="sarnia">Sarnia</option>
+                            <option value="strathroy">Strathroy</option>
+                            <option value="london">London</option>
+                            <option value="woodstock">Woodstock</option>
+                            <option value="cambridge">Cambridge</option>
+                            <option value="kitchener">Kitchener</option>
+                            <option value="waterloo">Waterloo</option>
+                            <option value="brantford">Brantford</option>
+                            <option value="burlington">Burlington</option>
+                            <option value="hamilton">Hamilton</option>
+                            <option value="oakville">oakville</option>
+                            <option value="mississauga">Mississauga</option>
+                            <option value="toronto">Toronto</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button id="calculate-btn" class="btn">Calculate Price</button>
+                
+                <div id="calculator-result" class="calculator-result">
+                    <h3>Estimated Delivery Cost</h3>
+                    <div class="price" id="calculated-price">$0.00</div>
+                    <p id="delivery-time"></p>
+                    <p class="price-note">This is an estimate. Final price may vary based on exact package dimensions and special requirements.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Comparison -->
+    <section class="comparison">
+        <div class="container">
+            <h2 class="section-title">Why Our Pricing is Better</h2>
+            <div class="comparison-content">
+                <p>At HawkHive Logistics, we offer competitive pricing without compromising on service quality. Our hybrid delivery model allows us to optimize routes and reduce costs, passing the savings on to you.</p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-percentage"></i>
+                        <h3>Up to 30% Savings</h3>
+                        <p>Save significantly compared to traditional courier services for the same delivery speed.</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-transparency"></i>
+                        <h3>No Hidden Fees</h3>
+                        <p>What you see is what you pay. No surprise charges or extra fees.</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-box-open"></i>
+                        <h3>Volume Discounts</h3>
+                        <p>Special rates for businesses with regular shipping needs.</p>
+                    </div>
+                </div>
+                
+                <a href="hawkhive.html#waitlist" class="btn">Join Now to Save More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>HawkHive Logistics Inc.</h3>
+                    <p>Smart Hybrid Delivery for Businesses</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Information</h3>
+                    <p>Email: info@hawkhive.skilwise.com</p>
+                    <p>Phone: (555) 123-4567</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Service Area</h3>
+                    <p>Sarnia–Toronto Corridor</p>
+                    <p>Including all major cities along the route</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 HawkHive Logistics Inc. Part of the Skilwise network.</p>
+                <p>hawkhive.skilwise.com</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom Alert Dialog -->
+    <div id="custom-alert" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border-radius: 5px; text-align: center;">
+            <p id="alert-message">We are really sorry, we cannot accept parcel more than <strong>7 kg</strong> for now because of our operational limitation, but we are trying our best to increase our operational limitation. Thank you for your understanding.</p>
+            <button id="alert-ok-btn" class="btn">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // Distance matrix (in km) — from online data
+        const distances = {
+            "sarnia":     { "sarnia":0,"strathroy":68,"london":101,"woodstock":153,"cambridge":198,"kitchener":208,"waterloo":214,"brantford":193,"burlington":238,"hamilton":226,"oakville":254,"mississauga":269,"toronto":293 },
+            "strathroy":  { "sarnia":68,"strathroy":0,"london":37,"woodstock":89,"cambridge":134,"kitchener":144,"waterloo":150,"brantford":129,"burlington":175,"hamilton":163,"oakville":191,"mississauga":206,"toronto":230 },
+            "london":     { "sarnia":101,"strathroy":37,"london":0,"woodstock":43,"cambridge":89,"kitchener":99,"waterloo":105,"brantford":84,"burlington":130,"hamilton":118,"oakville":146,"mississauga":161,"toronto":185 },
+            "woodstock":  { "sarnia":153,"strathroy":89,"london":43,"woodstock":0,"cambridge":51,"kitchener":61,"waterloo":67,"brantford":46,"burlington":92,"hamilton":80,"oakville":108,"mississauga":123,"toronto":147 },
+            "cambridge":  { "sarnia":198,"strathroy":134,"london":89,"woodstock":51,"cambridge":0,"kitchener":14,"waterloo":20,"brantford":54,"burlington":48,"hamilton":44,"oakville":69,"mississauga":84,"toronto":108 },
+            "kitchener":  { "sarnia":208,"strathroy":144,"london":99,"woodstock":61,"cambridge":14,"kitchener":0,"waterloo":8,"brantford":54,"burlington":48,"hamilton":44,"oakville":69,"mississauga":84,"toronto":108 },
+            "waterloo":   { "sarnia":214,"strathroy":150,"london":105,"woodstock":67,"cambridge":20,"kitchener":8,"waterloo":0,"brantford":54,"burlington":48,"hamilton":44,"oakville":69,"mississauga":84,"toronto":108 },
+            "brantford":  { "sarnia":193,"strathroy":129,"london":84,"woodstock":46,"cambridge":54,"kitchener":54,"waterloo":54,"brantford":0,"burlington":48,"hamilton":27,"oakville":55,"mississauga":70,"toronto":94 },
+            "burlington": { "sarnia":238,"strathroy":175,"london":130,"woodstock":92,"cambridge":48,"kitchener":48,"waterloo":48,"brantford":48,"burlington":0,"hamilton":27,"oakville":32,"mississauga":47,"toronto":71 },
+            "hamilton":   { "sarnia":226,"strathroy":163,"london":118,"woodstock":80,"cambridge":44,"kitchener":44,"waterloo":44,"brantford":27,"burlington":27,"hamilton":0,"oakville":32,"mississauga":47,"toronto":71 },
+            "oakville":   { "sarnia":254,"strathroy":191,"london":146,"woodstock":108,"cambridge":69,"kitchener":69,"waterloo":69,"brantford":55,"burlington":32,"hamilton":32,"oakville":0,"mississauga":21,"toronto":45 },
+            "mississauga":{ "sarnia":269,"strathroy":206,"london":161,"woodstock":123,"cambridge":84,"kitchener":84,"waterloo":84,"brantford":70,"burlington":47,"hamilton":47,"oakville":21,"mississauga":0,"toronto":29 },
+            "toronto":    { "sarnia":293,"strathroy":230,"london":185,"woodstock":147,"cambridge":108,"kitchener":108,"waterloo":108,"brantford":94,"burlington":71,"hamilton":71,"oakville":45,"mississauga":29,"toronto":0 }
+        };
+
+        function getDistanceKm(a, b) {
+            a = a.toLowerCase(); b = b.toLowerCase();
+            if (distances[a] && distances[a][b] != null) return distances[a][b];
+            return null;
+        }
+
+        function calculatePrice() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const service = document.getElementById('service').value;
+            const origin = document.getElementById('origin').value.toLowerCase();
+            const destination = document.getElementById('destination').value.toLowerCase();
+
+            if (weight > 7) {
+                // Show custom alert dialog
+                document.getElementById('alert-message')
+                document.getElementById('custom-alert').style.display = 'block';
+                return; // Exit the function if weight is invalid
+            }
+            
+
+            // Base price by weight
+            let basePrice = 0;
+            if (weight <= 2) basePrice = 16;
+            else if (weight <= 5) basePrice = 18;
+            else if (weight <= 7) basePrice = 20;
+            else basePrice = 20 + (weight - 7) * 2;
+
+            // Service adjustment
+            let deliveryTime = '';
+            if (service === 'express') {
+            basePrice *= 1.5;
+            deliveryTime = 'Next business day delivery';
+            } else if (service === 'sameDay') {
+            basePrice *= 2;
+            deliveryTime = 'Same day delivery (if ordered before 12 PM)';
+            } else {
+            deliveryTime = '1-3 business days delivery';
+            }
+
+            let finalPrice = basePrice;
+            let d = getDistanceKm(origin, destination);
+
+            // Same city → discount
+            if (origin === destination) {
+                finalPrice = basePrice * 0.8;  // 20% off
+                deliveryTime += ' — Local delivery';
+                d = 0;
+            } else {
+                
+                if (d <= 120) finalPrice = basePrice;
+                else if (d <= 250) finalPrice = basePrice * 1.15;
+                else if (d <= 400) finalPrice = basePrice * 1.25;
+                else finalPrice = basePrice * 1.25;
+            }
+
+            document.getElementById('calculated-price').textContent = '$' + finalPrice.toFixed(2);
+            document.getElementById('delivery-time').textContent = deliveryTime + ' — Distance: ' + d + ' km';
+            document.getElementById('calculator-result').style.display = 'block';
+        }
+
+        // Button click
+        document.getElementById('calculate-btn').addEventListener('click', calculatePrice);
+
+        // Auto-update when fields change
+        document.getElementById('weight').addEventListener('input', calculatePrice);
+        document.getElementById('service').addEventListener('change', calculatePrice);
+        document.getElementById('origin').addEventListener('change', calculatePrice);
+        document.getElementById('destination').addEventListener('change', calculatePrice);
+
+        // Close alert dialog
+        document.getElementById('alert-ok-btn').addEventListener('click', function() {
+            document.getElementById('custom-alert').style.display = 'none';
+        });
+    </script>
+
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 60, // Adjust for header height
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+    
+</body>
+</html>
