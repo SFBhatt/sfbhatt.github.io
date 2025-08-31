@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HawkHive Logistics - Request Pickup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e74c3c;
+            --accent: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --text: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --section-bg: #f8f9fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            color: var(--text);
+            line-height: 1.6;
+            background-color: #f9f9f9;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #4a6491 100%);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 2rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%232c3e50"/></svg>');
+            background-size: cover;
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #e67e22;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background: var(--primary);
+            margin-left: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: #3c5a7a;
+        }
+        
+        .btn-pay {
+            background: #0070ba;
+            margin-top: 20px;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+        }
+        
+        .btn-pay:hover {
+            background: #005ea6;
+        }
+        
+        /* Sections */
+        section {
+            padding: 5rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--primary);
+            position: relative;
+        }
+        
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--accent);
+            margin: 10px auto;
+        }
+        
+        /* Form Sections */
+        .form-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .form-section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .form-section-icon {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+        
+        .form-section-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        /* Pricing Calculator */
+        .calculator {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .calculator-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .calculator-result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 1rem 0;
+        }
+        
+        .price-note {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 1rem;
+        }
+        
+        /* Services */
+        .services {
+            background: var(--light);
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .service-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.3s;
+            box-shadow: var(--shadow);
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .service-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        /* Why Choose Us */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .feature i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .footer-bottom {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        
+        /* Custom Alert Dialog Styles */
+        #custom-alert {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        #custom-alert > div {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        #custom-alert p {
+            margin-bottom: 15px;
+        }
+
+        /* Payment Section */
+        .payment-section {
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .calculator-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .hero-buttons .btn {
+                margin-left: 0;
+            }
+            
+            .form-section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .form-section-icon {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-shipping-fast"></i>
+                    Hawk<span>Hive</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="hawkhive.html">Home</a></li>
+                    <li><a href="hawkhive.html#services">Services</a></li>
+                    <li><a href="hawkhive.html#process">How It Works</a></li>
+                    <li><a href="hawkhive.html#waitlist">Join Waitlist</a></li>
+                    <li><a href="#calculator">Pricing</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Schedule Your Pickup</h1>
+            <p>Calculate your delivery cost and schedule a pickup with HawkHive Logistics. Fast, reliable, and affordable.</p>
+        </div>
+    </section>
+
+    <!-- Pickup Request Form -->
+    <section id="calculator" class="calculator-section">
+        <div class="container">
+            <h2 class="section-title">Request a Pickup</h2>
+
+            
+
+            <div class="calculator">
+                <!-- Customer Information Section -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <div class="form-section-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h3 class="form-section-title">Your Information</h3>
+                    </div>
+                    <div class="calculator-form">
+                        <div class="form-group">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" placeholder="Enter your full name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" placeholder="Enter your email address" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" placeholder="Enter your phone number" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pickup Address Section -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <div class="form-section-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3 class="form-section-title">Pickup Address</h3>
+                    </div>
+                    <div class="calculator-form">
+                        <div class="form-group">
+                            <label for="pickup-address">Street Address</label>
+                            <textarea id="pickup-address" rows="3" placeholder="Enter street address for pickup" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="origin">City</label>
+                            <select id="origin" required>
+                                <option value="">Select Pickup city</option>
+                                <option value="sarnia">Sarnia</option>
+                                <option value="strathroy">Strathroy</option>
+                                <option value="london">London</option>
+                                <option value="woodstock">Woodstock</option>
+                                <option value="cambridge">Cambridge</option>
+                                <option value="kitchener">Kitchener</option>
+                                <option value="waterloo">Waterloo</option>
+                                <option value="brantford">Brantford</option>
+                                <option value="burlington">Burlington</option>
+                                <option value="hamilton">Hamilton</option>
+                                <option value="oakville">Oakville</option>
+                                <option value="mississauga">Mississauga</option>
+                                <option value="toronto">Toronto</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pic-postal-code">Postal Code</label>
+                            <input type="text" id="pic-postal-code" placeholder="Enter postal code" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Address Section -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <div class="form-section-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <h3 class="form-section-title">Delivery Address</h3>
+                    </div>
+                    <div class="calculator-form">
+                        <div class="form-group">
+                            <label for="delivery-address">Street Address</label>
+                            <textarea id="delivery-address" rows="3" placeholder="Enter street address for delivery" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="destination">City</label>
+                            <select id="destination" required>
+                                <option value="">Select destination city</option>
+                                <option value="sarnia">Sarnia</option>
+                                <option value="strathroy">Strathroy</option>
+                                <option value="london">London</option>
+                                <option value="woodstock">Woodstock</option>
+                                <option value="cambridge">Cambridge</option>
+                                <option value="kitchener">Kitchener</option>
+                                <option value="waterloo">Waterloo</option>
+                                <option value="brantford">Brantford</option>
+                                <option value="burlington">Burlington</option>
+                                <option value="hamilton">Hamilton</option>
+                                <option value="oakville">Oakville</option>
+                                <option value="mississauga">Mississauga</option>
+                                <option value="toronto">Toronto</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="del-postal-code">Postal Code</label>
+                            <input type="text" id="del-postal-code" placeholder="Enter postal code" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Package Details Section -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <div class="form-section-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <h3 class="form-section-title">Package Details</h3>
+                    </div>
+                    <div class="calculator-form">
+                        <div class="form-group">
+                            <label for="weight">Package Weight (kg)</label>
+                            <input type="number" id="weight" min="0.1" step="0.1" placeholder="Enter weight in kg" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="service">Service Type</label>
+                            <select id="service" required>
+                                <option value="">Select service type</option>
+                                <option value="standard">Standard (1-3 Days)</option>
+                                <option value="express">Express Next-Day</option>
+                                <option value="sameDay">ZEP Same-Day</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="calculate-btn" class="btn">Calculate Price</button>
+                
+                <div id="calculator-result" class="calculator-result">
+                    <h3>Estimated Delivery Cost</h3>
+                    <div class="price" id="calculated-price">$0.00</div>
+                    <p id="delivery-time"></p>
+                    <p class="price-note">This is an estimate. Final price may vary based on exact package dimensions and special requirements.</p>
+                    
+                    <div id="payment-section" class="payment-section">
+                        <p>Ready to schedule your pickup?</p>
+                        <div class="spinner" id="save-spinner"></div>
+                        <div id="status-message" class="status-message"></div>
+                        <button id="pay-now-btn" class="btn btn-pay">
+                            <i class="fab fa-paypal"></i> Pay for Your Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>HawkHive Logistics Inc.</h3>
+                    <p>Smart Hybrid Delivery for Businesses</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Information</h3>
+                    <p>Email: info@hawkhive.skilwise.com</p>
+                    <p>Phone: (555) 123-4567</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Service Area</h3>
+                    <p>Sarnia–Toronto Corridor</p>
+                    <p>Including all major cities along the route</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 HawkHive Logistics Inc. Part of the Skilwise network.</p>
+                <p>hawkhive.skilwise.com</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom Alert Dialog -->
+    <div id="custom-alert" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border-radius: 5px; text-align: center;">
+            <p id="alert-message">We are really sorry, we cannot accept parcel more than <strong>7 kg</strong> for now because of our operational limitation, but we are trying our best to increase our operational limitation. Thank you for your understanding.</p>
+            <button id="alert-ok-btn" class="btn">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // Distance matrix (in km) — from online data
+        const distances = {
+            "sarnia":     { "sarnia":0,"strathroy":68,"london":101,"woodstock":153,"cambridge":198,"kitchener":208,"waterloo":214,"brantford":193,"burlington":238,"hamilton":226,"oakville":254,"mississauga":269,"toronto":293 },
+            "strathroy":  { "sarnia":68,"strathroy":0,"london":37,"woodstock":89,"cambridge":134,"kitchener":144,"waterloo":150,"brantford":129,"burlington":175,"hamilton":163,"oakville":191,"mississauga":206,"toronto":230 },
+            "london":     { "sarnia":101,"strathroy":37,"london":0,"woodstock":43,"cambridge":89,"kitchener":99,"waterloo":105,"brantford":84,"burlington":130,"hamilton":118,"oakville":146,"mississauga":161,"toronto":185 },
+            "woodstock":  { "sarnia":153,"strathroy":89,"london":43,"woodstock":0,"cambridge":51,"kitchener":61,"waterloo":67,"brantford":46,"burlington":92,"hamilton":80,"oakville":108,"mississauga":123,"toronto":147 },
+            "cambridge":  { "sarnia":198,"strathroy":134,"london":89,"woodstock":51,"cambridge":0,"kitchener":14,"waterloo":20,"brantford":54,"burlington":48,"hamilton":44,"oakville":69,"mississauga":84,"toronto":108 },
+            "kitchener":  { "sarnia":208,"strathroy":144,"london":99,"woodstock":61,"cambridge":14,"kitchener":0,"waterloo":8,"brantford":54,"burlington":48,"hamilton":44,"oakville":69,"mississauga":84,"toronto":108 },
+            "waterloo":   { "sarnia":214,"strathroy":150,"london":105,"woodstock":67,"cambridge":20,"kitchener":8,"waterloo":0,"brantford":54,"burlington":48,"hamilton":44,"oakville":69,"mississauga":84,"toronto":108 },
+            "brantford":  { "sarnia":193,"strathroy":129,"london":84,"woodstock":46,"cambridge":54,"kitchener":54,"waterloo":54,"brantford":0,"burlington":48,"hamilton":27,"oakville":55,"mississauga":70,"toronto":94 },
+            "burlington": { "sarnia":238,"strathroy":175,"london":130,"woodstock":92,"cambridge":48,"kitchener":48,"waterloo":48,"brantford":48,"burlington":0,"hamilton":27,"oakville":32,"mississauga":47,"toronto":71 },
+            "hamilton":   { "sarnia":226,"strathroy":163,"london":118,"woodstock":80,"cambridge":44,"kitchener":44,"waterloo":44,"brantford":27,"burlington":27,"hamilton":0,"oakville":32,"mississauga":47,"toronto":71 },
+            "oakville":   { "sarnia":254,"strathroy":191,"london":146,"woodstock":108,"cambridge":69,"kitchener":69,"waterloo":69,"brantford":55,"burlington":32,"hamilton":32,"oakville":0,"mississauga":21,"toronto":45 },
+            "mississauga":{ "sarnia":269,"strathroy":206,"london":161,"woodstock":123,"cambridge":84,"kitchener":84,"waterloo":84,"brantford":70,"burlington":47,"hamilton":47,"oakville":21,"mississauga":0,"toronto":29 },
+            "toronto":    { "sarnia":293,"strathroy":230,"london":185,"woodstock":147,"cambridge":108,"kitchener":108,"waterloo":108,"brantford":94,"burlington":71,"hamilton":71,"oakville":45,"mississauga":29,"toronto":0 }
+        };
+
+        // Store calculated price globally
+        let calculatedPrice = 0;
+
+        // PayPal URL mapping - REPLACE THESE WITH YOUR ACTUAL PAYPAL BUTTON LINKS
+        const paypalUrls = {
+            "16": "https://www.paypal.com/ncp/payment/HA2LDZ25889AG",
+            "18": "https://www.paypal.com/ncp/payment/YWBXHPVYNX3NC",
+            "18.4": "https://www.paypal.com/ncp/payment/YDWY4UP4Z76W2",
+            "20": "https://www.paypal.com/ncp/payment/BAJG4VZ9TCDG4",
+            "20.7": "https://www.paypal.com/ncp/payment/YYEJKFB3XGHUA",
+            "22.5": "https://www.paypal.com/ncp/payment/JE8VL8SN9U9R4",
+            "23": "https://www.paypal.com/ncp/payment/QP2TUYAXJE9SE",
+            "24": "https://www.paypal.com/ncp/payment/ZCVP2TU2VVZUE",
+            "25": "https://www.paypal.com/ncp/payment/SR9QXERYZKS7G",
+            "27": "https://www.paypal.com/ncp/payment/STKWA4ZBJ33FG",
+            "27.6": "https://www.paypal.com/ncp/payment/L4NNQCNMZSDSE",
+            "30": "https://www.paypal.com/ncp/payment/2TWUD8QL7BJN2",
+            "31.05": "https://www.paypal.com/ncp/payment/7MVET3S8RHLMY",
+            "32": "https://www.paypal.com/ncp/payment/JSE4D2BNPJXZG",
+            "33.75": "https://www.paypal.com/ncp/payment/6AR442EZB7JCJ",
+            "34.5": "https://www.paypal.com/ncp/payment/2XMEVCVFRYAAL",
+            "36": "https://www.paypal.com/ncp/payment/LBN4FEMAX6MLG",
+            "36.8": "https://www.paypal.com/ncp/payment/UDKU3NRY7MY7U",
+            "37.5": "https://www.paypal.com/ncp/payment/GYL2SB2VVE3FS",
+            "40": "https://www.paypal.com/ncp/payment/2Q8QLP8NB29CG",
+            "41.4": "https://www.paypal.com/ncp/payment/4B68CV6APNVVA",
+            "45": "https://www.paypal.com/ncp/payment/YEK4MCSA533EE",
+            "46": "https://www.paypal.com/ncp/payment/DP4STP2LF8K3Q",
+            "50": "https://www.paypal.com/ncp/payment/RFKNZBR2YQTWE"
+        };
+
+        // Google Apps Script URL - REPLACE THIS WITH YOUR OWN SCRIPT URL
+        const googleScriptURL = "https://script.google.com/macros/s/AKfycbx8dltuk68gPocA38d8VXBBOAmOF5tmDc-GpWxSOESVvv8BahXJ9SVgqwHX6JhWhDiO/exec";
+
+        function getDistanceKm(a, b) {
+            a = a.toLowerCase(); b = b.toLowerCase();
+            if (distances[a] && distances[a][b] != null) return distances[a][b];
+            return null;
+        }
+
+        function calculatePrice() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const service = document.getElementById('service').value;
+            const origin = document.getElementById('origin').value.toLowerCase();
+            const destination = document.getElementById('destination').value.toLowerCase();
+
+            if (weight > 7) {
+                // Show custom alert dialog
+                document.getElementById('alert-message')
+                document.getElementById('custom-alert').style.display = 'block';
+                return; // Exit the function if weight is invalid
+            }
+            
+            // Validate all required fields
+            if (!weight || !service || !origin || !destination) {
+                alert("Please fill in all required fields.");
+                return;
+            }
+
+            // Base price by weight
+            let basePrice = 0;
+            if (weight <= 2) basePrice = 16;
+            else if (weight <= 5) basePrice = 18;
+            else if (weight <= 7) basePrice = 20;
+            else basePrice = 20 + (weight - 7) * 2;
+
+            // Service adjustment
+            let deliveryTime = '';
+            if (service === 'express') {
+            basePrice *= 1.5;
+            deliveryTime = 'Next business day delivery';
+            } else if (service === 'sameDay') {
+            basePrice *= 2;
+            deliveryTime = 'Same day delivery (if ordered before 12 PM)';
+            } else {
+            deliveryTime = '1-3 business days delivery';
+            }
+
+            calculatedPrice = basePrice;
+            let d = getDistanceKm(origin, destination);
+
+            // Same city → discount
+            if (origin === destination) {
+                calculatedPrice = basePrice * 0.8;  // 20% off
+                deliveryTime += ' — Local delivery';
+                d = 0;
+            } else {
+                
+                if (d <= 120) calculatedPrice = basePrice;
+                else if (d <= 250) calculatedPrice = basePrice * 1.15;
+                else if (d <= 400) calculatedPrice = basePrice * 1.25;
+                else calculatedPrice = basePrice * 1.25;
+            }
+
+            document.getElementById('calculated-price').textContent = '$' + calculatedPrice.toFixed(2);
+            document.getElementById('delivery-time').textContent = deliveryTime + ' — Distance: ' + d + ' km';
+            document.getElementById('calculator-result').style.display = 'block';
+            
+            // Show payment section
+            document.getElementById('payment-section').style.display = 'block';
+            
+            // Scroll to results
+            document.getElementById('calculator-result').scrollIntoView({ behavior: 'smooth' });
+        }
+
+
+        async function saveToGoogleSheets() {
+        // Prepare form data
+        const formData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            pickupAddress: document.getElementById('pickup-address').value,
+            origin: document.getElementById('origin').value,
+            pickupPostalCode: document.getElementById('pic-postal-code').value,
+            deliveryAddress: document.getElementById('delivery-address').value,
+            destination: document.getElementById('destination').value,
+            deliveryPostalCode: document.getElementById('del-postal-code').value,
+            weight: document.getElementById('weight').value,
+            service: document.getElementById('service').value,
+            calculatedPrice: calculatedPrice
+        };
+
+        try {
+            // Send POST request to Google Apps Script
+            const response = await fetch(googleScriptURL, {
+                method: 'POST',
+                mode: 'no-cors', // Google Apps Script requires no-cors
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams(formData).toString()
+            });
+            // No response body in no-cors mode, so just proceed
+            return true;
+        } catch (error) {
+            alert('Failed to save data to Google Sheets.');
+            return false;
+        }
+}
+
+        async function redirectToPayPal() {
+            // Validate all form fields
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const pickupAddress = document.getElementById('pickup-address').value;
+            const deliveryAddress = document.getElementById('delivery-address').value;
+            
+            if (!name || !email || !phone || !pickupAddress || !deliveryAddress) {
+                alert("Please fill in all your contact and address details before proceeding to payment.");
+                return;
+            }
+            
+            if (calculatedPrice <= 0) {
+                alert("Please calculate the price first.");
+                return;
+            }
+            
+            // Find the closest matching price from our predefined list
+            const priceKeys = Object.keys(paypalUrls).map(Number).sort((a, b) => a - b);
+            let selectedPrice = priceKeys[0];
+            
+            for (let i = 0; i < priceKeys.length; i++) {
+                if (calculatedPrice <= priceKeys[i]) {
+                    selectedPrice = priceKeys[i];
+                    break;
+                }
+                // If we've reached the end, use the highest price
+                if (i === priceKeys.length - 1) {
+                    selectedPrice = priceKeys[i];
+                }
+            }
+            
+            // Get the PayPal URL for the selected price
+            const paypalUrl = paypalUrls[selectedPrice.toString()];
+            
+            if (!paypalUrl || paypalUrl.includes("YOUR_BUTTON_ID")) {
+                alert("Payment option not available for this amount. Please contact customer service.");
+                return;
+            }
+
+            // Save to Google Sheets before redirecting
+            await saveToGoogleSheets();
+
+            // Redirect to PayPal
+            window.location.href = paypalUrl;
+        }
+
+        // Button click
+        document.getElementById('calculate-btn').addEventListener('click', calculatePrice);
+        document.getElementById('pay-now-btn').addEventListener('click', redirectToPayPal);
+
+        // Auto-update when service fields change as it is the last input
+        document.getElementById('service').addEventListener('change', calculatePrice);
+        
+
+        // Close alert dialog
+        document.getElementById('alert-ok-btn').addEventListener('click', function() {
+            document.getElementById('custom-alert').style.display = 'none';
+        });
+    </script>
+
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 60, // Adjust for header height
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Form to Google Sheets</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .instructions {
+            background: #e8f4fc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #3498db;
+        }
+        .instructions h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .setup-steps {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .setup-steps ol {
+            margin-left: 20px;
+        }
+        .setup-steps li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple Form to Google Sheets</h1>
+        
+        <div class="instructions">
+            <h2>Easy Setup Instructions</h2>
+            <div class="setup-steps">
+                <ol>
+                    <li>Create a new Google Sheet</li>
+                    <li>Click <strong>Extensions > Apps Script</strong></li>
+                    <li>Delete any code and paste the code from the box below</li>
+                    <li>Click <strong>Deploy > New deployment</strong></li>
+                    <li>Select <strong>Web app</strong> as the type</li>
+                    <li>Set <strong>Execute as</strong> to "Me" and <strong>Who has access</strong> to "Anyone"</li>
+                    <li>Click <strong>Deploy</strong> and copy the provided URL</li>
+                    <li>Paste the URL in the field below</li>
+                </ol>
+            </div>
+            
+            <div class="form-group">
+                <label for="script-url">Your Google Script URL:</label>
+                <input type="text" id="script-url" placeholder="https://script.google.com/macros/s/.../exec">
+            </div>
+        </div>
+
+        <form id="simple-form">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" placeholder="Your name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Your email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="service-type">Service Type</label>
+                <select id="service-type" required>
+                    <option value="">Select a service</option>
+                    <option value="standard">Standard Delivery</option>
+                    <option value="express">Express Delivery</option>
+                    <option value="same-day">Same Day Delivery</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message-text" rows="4" placeholder="Your message"></textarea>
+            </div>
+
+            <button type="submit">Submit to Google Sheets</button>
+        </form>
+        
+        <div class="spinner" id="spinner"></div>
+        
+        <div id="message"></div>
+        
+        <div class="instructions">
+            <h2>Google Apps Script Code</h2>
+            <p>Copy and paste this code into your Google Apps Script editor:</p>
+            <pre style="background: #2c3e50; color: white; padding: 15px; border-radius: 5px; overflow-x: auto;">
+function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    
+    // Get parameters from the request
+    var params = e.parameter;
+    
+    // Prepare the row data
+    var row = [
+      new Date(), // Timestamp
+      params.name || '',
+      params.email || '',
+      params.service || '',
+      params.message || ''
+    ];
+    
+    // Append the row to the sheet
+    sheet.appendRow(row);
+    
+    // Return a success response
+    return ContentService.createTextOutput("Success: Data saved to sheet");
+    
+  } catch (error) {
+    // Return an error response
+    return ContentService.createTextOutput("Error: " + error.toString());
+  }
+}
+
+function doGet(e) {
+  return ContentService.createTextOutput("Use POST requests to submit data");
+}
+            </pre>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('simple-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const scriptUrl = document.getElementById('script-url').value;
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const service = document.getElementById('service-type').value;
+            const message = document.getElementById('message-text').value;
+            
+            if (!scriptUrl) {
+                showMessage('Please enter your Google Script URL first', 'error');
+                return;
+            }
+            
+            if (!name || !email || !service) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            document.getElementById('spinner').style.display = 'block';
+            document.querySelector('button').disabled = true;
+            
+            try {
+                // Create a form data object
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('email', email);
+                formData.append('service', service);
+                formData.append('message', message);
+                
+                // Submit using a hidden form technique (bypasses CORS)
+                const hiddenForm = document.createElement('form');
+                hiddenForm.style.display = 'none';
+                hiddenForm.method = 'POST';
+                hiddenForm.action = scriptUrl;
+                hiddenForm.target = 'hiddenFrame';
+                
+                // Add all form data as hidden inputs
+                for (const [key, value] of formData.entries()) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = value;
+                    hiddenForm.appendChild(input);
+                }
+                
+                document.body.appendChild(hiddenForm);
+                
+                // Create a hidden iframe to handle the response
+                const iframe = document.createElement('iframe');
+                iframe.name = 'hiddenFrame';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                
+                // Submit the form
+                hiddenForm.submit();
+                
+                // Wait a moment for the submission to complete
+                setTimeout(() => {
+                    // Clean up
+                    document.body.removeChild(hiddenForm);
+                    document.body.removeChild(iframe);
+                    
+                    document.getElementById('spinner').style.display = 'none';
+                    document.querySelector('button').disabled = false;
+                    
+                    showMessage('Data successfully submitted to Google Sheets!', 'success');
+                    
+                    // Clear the form
+                    document.getElementById('simple-form').reset();
+                }, 2000);
+                
+            } catch (error) {
+                document.getElementById('spinner').style.display = 'none';
+                document.querySelector('button').disabled = false;
+                
+                showMessage('Error: ' + error.message, 'error');
+                console.error('Error:', error);
+            }
+        });
+        
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = type;
+            messageEl.style.display = 'block';
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
