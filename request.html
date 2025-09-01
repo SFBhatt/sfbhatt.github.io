@@ -566,9 +566,18 @@
                     <div class="calculator-form">
                         <div class="form-group">
                             <label for="weight">Package Weight (kg)</label>
-                            <input type="number" id="weight" min="0.1" step="0.1" placeholder="Enter weight in kg" required>
+                            <input type="number" id="weight" min="0.5" step="0.5" placeholder="Enter weight in kg" required>
                         </div>
                         
+                        <div class="form-group">
+                            <label>Package Dimension (inches)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" id="length" min="1" step="1" placeholder="L" required style="width: 70px;">
+                                <input type="number" id="width" min="1" step="1" placeholder="W" required style="width: 70px;">
+                                <input type="number" id="height" min="1" step="1" placeholder="H" required style="width: 70px;">
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label for="service">Service Type</label>
                             <select id="service" required>
@@ -686,7 +695,7 @@
         };
 
         // Google Apps Script URL - REPLACE THIS WITH YOUR OWN SCRIPT URL
-        const googleScriptURL = "https://script.google.com/macros/s/AKfycbx8dltuk68gPocA38d8VXBBOAmOF5tmDc-GpWxSOESVvv8BahXJ9SVgqwHX6JhWhDiO/exec";
+        const googleScriptURL = "https://script.google.com/macros/s/AKfycbxuINahQQIRKlPi1WstZ7ZRYuxSGwbhbLGzR8ogcl6wAVCUyR4b_jt-Heogp_Se5jtT/exec";
 
         function getDistanceKm(a, b) {
             a = a.toLowerCase(); b = b.toLowerCase();
@@ -773,6 +782,9 @@
             destination: document.getElementById('destination').value,
             deliveryPostalCode: document.getElementById('del-postal-code').value,
             weight: document.getElementById('weight').value,
+            length: document.getElementById('length').value,
+            width: document.getElementById('width').value,
+            height: document.getElementById('height').value,
             service: document.getElementById('service').value,
             calculatedPrice: calculatedPrice
         };
