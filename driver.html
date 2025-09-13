@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Package Delivery Driver Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Add your CSS and Bootstrap links here -->
+     <style>
+        :root {
+            --primary: #3a57e8;
+            --secondary: #6c757d;
+            --success: #198754;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .order-card {
+            border: 1px solid var(--primary);
+            border-left-width: 5px;
+            transition: transform 0.2s;
+        }
+        
+        .order-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .priority-high {
+            border-left-color: #dc3545;
+        }
+        
+        .priority-medium {
+            border-left-color: #ffc107;
+        }
+        
+        .nav-tabs .nav-link.active {
+            font-weight: 600;
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .driver-assign {
+            background-color: #e8f4ff;
+        }
+        
+        #map {
+            height: 300px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-assigned {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-picked {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-delivered {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-shipping-fast me-2"></i>PackageDelivery
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" id="adminTabLink"></a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button class="btn btn-outline-light btn-sm" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div id="driverDashboard" class="container my-5">
+            <h2 class="mb-4">My Delivery Assignments </h2>
+            <p id="driverName" class="mb-4 text-primary" style="font-size:1.2rem;"></p>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="dashboard-card mb-4">
+                        <h4 class="mb-3">Today's Deliveries</h4>
+                        <div id="deliveriesList">
+                            <!-- Driver's deliveries will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dashboard-card mb-4">
+                        <h4 class="mb-3">Delivery Route</h4>
+                        <div id="map">
+                            <!-- Map will be rendered here -->
+                            <div class="d-flex justify-content-center align-items-center h-100">
+                                <p class="text-muted">Map visualization would appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h4 class="mb-3">Delivery Progress</h4>
+                        <div class="progress mb-3" style="height: 20px;">
+                            <div class="progress-bar" id="deliveryProgressBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted" id="completedCount">Completed: 0/0</span>
+                            <span class="text-muted" id="remainingCount">Remaining: 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(255,255,255,0.7); z-index:9999; align-items:center; justify-content:center;">
+            <div>
+                <div class="loading-spinner" style="width:3rem; height:3rem; border-width:6px;"></div>
+                <div class="mt-3 text-primary fw-bold text-center">Processing...</div>
+            </div>
+        </div>
+    <script>
+        const googleScriptURL = "https://script.google.com/macros/s/AKfycbyWrlHmSFyukjG1qYgflv1c_fRbvZVUitCYYY8fBcEaSnF-0v07DhTAUc8pOfgV6Tf6/exec";
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        document.getElementById('driverName').textContent = `Welcome, ${currentUser.name}!`;
+
+        async function fetchDriverOrders() {
+            showLoading();
+            const response = await fetch(`${googleScriptURL}?driverName=${encodeURIComponent(currentUser.name)}`);
+            const orders = await response.json();
+            const deliveriesList = document.getElementById('deliveriesList');
+            deliveriesList.innerHTML = '';
+
+            // Separate active and completed orders
+            const activeOrders = orders.filter(order => order['Status'] !== 'Delivered');
+            const completedOrders = orders.filter(order => order['Status'] === 'Delivered');
+
+            // Active Orders
+            if (activeOrders.length === 0) {
+                deliveriesList.innerHTML = '<p class="text-muted">No active deliveries assigned to you today.</p>';
+            } else {
+                activeOrders.forEach(order => {
+                    const deliveryCard = document.createElement('div');
+                    deliveryCard.className = `order-card mb-3 p-3 rounded`;
+                    deliveryCard.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <h5 class="mb-1 text-primary">
+                                    <i class="fas fa-box me-2"></i>${order['Order ID']} - ${order['Name']}
+                                </h5>
+                                <div class="mb-1">
+                                    <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                    <strong>Pickup:</strong> ${order['Pickup Address']}, ${order['Origin City']}<br>
+                                    <span class="text-muted ms-4">Postal: ${order['Pickup Postal Code']}</span>
+                                </div>
+                                <div class="mb-1">
+                                    <i class="fas fa-flag-checkered text-success me-1"></i>
+                                    <strong>Delivery:</strong> ${order['Delivery Address']}, ${order['Destination City']}<br>
+                                    <span class="text-muted ms-4">Postal: ${order['Delivery Postal Code']}</span>
+                                </div>
+                                <div class="mb-1">
+                                    <i class="fas fa-weight-hanging text-info me-1"></i>
+                                    <strong>Weight:</strong> ${order['Weight']} kg
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <span class="status-badge mb-2" 
+                                      style="
+                                        background-color: ${
+                                            order['Status'] === 'Delivered' ? '#d1ecf1' :
+                                            order['Status'] === 'In Transit' ? '#ffeeba' :
+                                            order['Status'] === 'assigned' ? '#cce5ff' : '#fff3cd'
+                                        };
+                                        color: ${
+                                            order['Status'] === 'Delivered' ? '#0c5460' :
+                                            order['Status'] === 'In Transit' ? '#856404' :
+                                            order['Status'] === 'assigned' ? '#004085' : '#856404'
+                                        };
+                                        display: inline-flex;
+                                        align-items: center;
+                                        gap: 6px;
+                                      ">
+                                    ${
+                                        order['Status'] === 'Delivered' ? '<i class="fas fa-check-circle"></i>' :
+                                        order['Status'] === 'In Transit' ? '<i class="fas fa-truck-moving"></i>' :
+                                        order['Status'] === 'assigned' ? '<i class="fas fa-user-tag"></i>' :
+                                        '<i class="fas fa-clock"></i>'
+                                    }
+                                    <strong>
+                                        ${
+                                            order['Status'] === 'Delivered' ? 'Delivered' :
+                                            order['Status'] === 'In Transit' ? 'In Transit' :
+                                            order['Status'] === 'assigned' ? 'Assigned' :
+                                            'Pending'
+                                        }
+                                    </strong>
+                                </span>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-end gap-2">
+                            ${
+                                order['Status'] === 'assigned' || order['Status'] === 'Assigned'
+                                ? `<button class="btn btn-sm btn-outline-primary update-status" data-id="${order['Order ID']}" data-status="picked">
+                                        <i class="fas fa-box-open me-1"></i>Mark as Picked
+                                   </button>`
+                                : order['Status'] === 'In Transit'
+                                ? `<button class="btn btn-sm btn-outline-success update-status" data-id="${order['Order ID']}" data-status="delivered">
+                                        <i class="fas fa-check-circle me-1"></i>Mark as Delivered
+                                   </button>`
+                                : ''
+                            }
+                        </div>
+                    `;
+                    deliveriesList.appendChild(deliveryCard);
+                });
+            }
+
+            // Completed Orders Section
+            let completedSection = document.getElementById('completedOrdersList');
+            if (!completedSection) {
+                completedSection = document.createElement('div');
+                completedSection.id = 'completedOrdersList';
+                completedSection.className = 'mt-5';
+                deliveriesList.parentNode.appendChild(completedSection);
+            }
+            completedSection.innerHTML = `<h4 class="mb-3">Completed Orders</h4>`;
+            if (completedOrders.length === 0) {
+                completedSection.innerHTML += '<p class="text-muted">No completed deliveries yet.</p>';
+            } else {
+                completedOrders.forEach(order => {
+                    const completedCard = document.createElement('div');
+                    completedCard.className = `order-card mb-3 p-3 rounded bg-light`;
+                    completedCard.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <h5 class="mb-1 text-success">
+                                    <i class="fas fa-check-circle me-2"></i>${order['Order ID']} - ${order['Name']}
+                                </h5>
+                                <div class="mb-1">
+                                    <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                    <strong>Pickup:</strong> ${order['Pickup Address']}, ${order['Origin City']}<br>
+                                    <span class="text-muted ms-4">Postal: ${order['Pickup Postal Code']}</span>
+                                </div>
+                                <div class="mb-1">
+                                    <i class="fas fa-flag-checkered text-success me-1"></i>
+                                    <strong>Delivery:</strong> ${order['Delivery Address']}, ${order['Destination City']}<br>
+                                    <span class="text-muted ms-4">Postal: ${order['Delivery Postal Code']}</span>
+                                </div>
+                                <div class="mb-1">
+                                    <i class="fas fa-weight-hanging text-info me-1"></i>
+                                    <strong>Weight:</strong> ${order['Weight']} kg
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <span class="status-badge status-delivered mb-2">
+                                    Delivered
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                    completedSection.appendChild(completedCard);
+                });
+            }
+
+            // Calculate progress
+            const totalOrders = activeOrders.length + completedOrders.length;
+            const completed = completedOrders.length;
+            const remaining = activeOrders.length;
+            const percent = totalOrders === 0 ? 0 : Math.round((completed / totalOrders) * 100);
+
+            // Update progress bar and stats
+            const progressBar = document.getElementById('deliveryProgressBar');
+            progressBar.style.width = percent + '%';
+            progressBar.setAttribute('aria-valuenow', percent);
+            progressBar.textContent = percent + '%';
+
+            document.getElementById('completedCount').textContent = `Completed: ${completed}/${totalOrders}`;
+            document.getElementById('remainingCount').textContent = `Remaining: ${remaining}`;
+            hideLoading();
+        }
+
+        async function updateOrderStatus(orderId, status) {
+            await fetch(googleScriptURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    action: 'updateStatus',
+                    orderId: orderId,
+                    status: status
+                })
+            });
+        }
+
+        document.getElementById('deliveriesList').addEventListener('click', async function(e) {
+            if (e.target.closest('.update-status')) {
+                const btn = e.target.closest('.update-status');
+                const orderId = btn.getAttribute('data-id');
+                const status = btn.getAttribute('data-status') === 'picked' ? 'In Transit' : 'Delivered';
+                showLoading();
+                await updateOrderStatus(orderId, status);
+                await fetchDriverOrders(); // Refresh orders after update
+                hideLoading();
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'admin.html';
+        });
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        fetchDriverOrders();
+    </script>
+</body>
+</html>

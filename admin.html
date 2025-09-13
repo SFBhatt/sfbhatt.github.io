@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Package Delivery Driver Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3a57e8;
+            --secondary: #6c757d;
+            --success: #198754;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .order-card {
+            border-left: 4px solid var(--primary);
+            transition: transform 0.2s;
+        }
+        
+        .order-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .priority-high {
+            border-left-color: #dc3545;
+        }
+        
+        .priority-medium {
+            border-left-color: #ffc107;
+        }
+        
+        .nav-tabs .nav-link.active {
+            font-weight: 600;
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .driver-assign {
+            background-color: #e8f4ff;
+        }
+        
+        #map {
+            height: 300px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            box-shadow: 0 2px 6px rgba(255, 243, 205, 0.2);
+        }
+        
+        .status-assigned {
+            background-color: #cce5ff;
+            color: #004085;
+            border: 1px solid #b8daff;
+            box-shadow: 0 2px 6px rgba(204, 229, 255, 0.2);
+        }
+        
+        .status-intransit {
+            background-color: #e2e3e5;
+            color: #383d41;
+            border: 1px solid #d6d8db;
+            box-shadow: 0 2px 6px rgba(226, 227, 229, 0.2);
+        }
+        
+        .status-delivered {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            box-shadow: 0 2px 6px rgba(212, 237, 218, 0.2);
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-shipping-fast me-2"></i>PackageDelivery
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" id="adminTabLink">Admin Dashboard</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button class="btn btn-outline-light btn-sm" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="container py-4">
+        <!-- Login Section -->
+        <div id="loginSection" class="login-container">
+            <h2 class="text-center mb-4">Driver Portal Login</h2>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="rememberMe">
+                    <label class="form-check-label" for="rememberMe">Remember me</label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+            <div class="text-center mt-3">
+                <p class="mb-0">Admin access? <a href="#" id="adminLoginLink">Click here</a></p>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard (Initially Hidden) -->
+        <div id="adminDashboard" style="display: none;">
+            <h2 class="mb-4">Admin Dashboard</h2>
+            
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="dashboard-card text-center">
+                        <h3 class="text-primary" id="totalOrders">0</h3>
+                        <p class="text-muted">Total Orders</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dashboard-card text-center">
+                        <h3 class="text-warning" id="pendingOrders">0</h3>
+                        <p class="text-muted">Pending Assignment</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dashboard-card text-center">
+                        <h3 class="text-info" id="assignedOrders">0</h3>
+                        <p class="text-muted">Assigned Orders</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dashboard-card text-center">
+                        <h3 class="text-success" id="deliveredOrders">0</h3>
+                        <p class="text-muted">Delivered</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-card mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>Order Management</h4>
+                    <button class="btn btn-sm btn-outline-primary" id="refreshOrdersBtn">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh Orders
+                    </button>
+                </div>
+                
+                <div id="loadingIndicator" class="text-center py-4">
+                    <div class="loading-spinner me-2"></div> Loading orders...
+                </div>
+                
+                <div class="table-responsive" id="ordersTable" style="display: none;">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAllOrders">
+                                </th>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Pickup Location</th>
+                                <th>Delivery Location</th>
+                                <th>Status</th>
+                                <th>Driver</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <!-- Orders will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-3 driver-assign p-3 rounded" id="assignSection" style="display: none !important;">
+                    <div>
+                        <span id="selectedOrdersCount">0</span> orders selected
+                    </div>
+                    <div class="d-flex">
+                        <select class="form-select me-2" id="driversList">
+                            <option selected>Select Driver</option>
+                            <!-- Drivers will be populated here -->
+                        </select>
+                        <button class="btn btn-primary" id="assignDriverBtn">Assign</button>
+                    </div>
+                </div>
+                
+                <div id="ordersSections" style="display:none;">
+                    <div class="dashboard-card mb-4">
+                        <h5><span class="status-badge status-pending">Pending Orders</span></h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <input type="checkbox" id="selectAllPending">
+                                        </th>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Pickup</th>
+                                        <th>Delivery</th>
+                                        <th>Status</th>
+                                        <th>Driver</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pendingOrdersTableBody">
+                                    <!-- Pending orders will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3 driver-assign p-3 rounded" id="assignSectionPending" style="display: none;">
+                            <div>
+                                <span id="selectedPendingOrdersCount">0</span> orders selected
+                            </div>
+                            <div class="d-flex">
+                                <select class="form-select me-2" id="driversListPending">
+                                    <option selected>Select Driver</option>
+                                    <!-- Drivers will be populated here -->
+                                </select>
+                                <button class="btn btn-primary" id="assignDriverBtnPending">Assign</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card mb-4">
+                        <h5><span class="status-badge status-assigned">Assigned Orders</span></h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Pickup</th>
+                                        <th>Delivery</th>
+                                        <th>Status</th>
+                                        <th>Driver</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="assignedOrdersTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="dashboard-card mb-4">
+                        <h5><span class="status-badge status-intransit">In Transit Orders</span></h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Pickup</th>
+                                        <th>Delivery</th>
+                                        <th>Status</th>
+                                        <th>Driver</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inTransitOrdersTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="dashboard-card mb-4">
+                        <h5><span class="status-badge status-delivered">Delivered Orders</span></h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Pickup</th>
+                                        <th>Delivery</th>
+                                        <th>Status</th>
+                                        <th>Driver</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="deliveredOrdersTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Driver Management Section -->
+            <div class="dashboard-card">
+                <h4 class="mb-3">Driver Management</h4>
+                <div id="driversLoading" class="text-center py-4">
+                    <div class="loading-spinner me-2"></div> Loading drivers...
+                </div>
+                <div class="driver-list-container" id="driversListContainer" style="display: none;">
+                    <!-- Drivers will be listed here -->
+                </div>
+            </div>
+        </div>   
+    </div>
+        <div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(255,255,255,0.7); z-index:9999; align-items:center; justify-content:center;">
+            <div>
+                <div class="loading-spinner" style="width:3rem; height:3rem; border-width:6px;"></div>
+                <div class="mt-3 text-primary fw-bold text-center">Processing...</div>
+            </div>
+        </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Google Apps Script URL - REPLACE THIS WITH YOUR OWN SCRIPT URL
+        const googleScriptURL = "https://script.google.com/macros/s/AKfycbwPIXpuWmIqzmtO3ycy8h9shRzhmqLM-f9ddKQfYqPkERSGcgiIw1Aamk0BuaO-oApr/exec";
+        
+        
+
+        // DOM Elements
+        const loginSection = document.getElementById('loginSection');
+        const adminDashboard = document.getElementById('adminDashboard');
+        const loginForm = document.getElementById('loginForm');
+        const adminLoginLink = document.getElementById('adminLoginLink');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const ordersTableBody = document.getElementById('ordersTableBody');
+        const selectAllOrders = document.getElementById('selectAllOrders');
+        const assignSection = document.getElementById('assignSection');
+        const selectedOrdersCount = document.getElementById('selectedOrdersCount');
+        const assignDriverBtn = document.getElementById('assignDriverBtn');
+        const refreshOrdersBtn = document.getElementById('refreshOrdersBtn');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const ordersTable = document.getElementById('ordersTable');
+        const driversList = document.getElementById('driversList');
+        const driversLoading = document.getElementById('driversLoading');
+        const driversListContainer = document.getElementById('driversListContainer');
+
+        // Global orders array
+        let orders = [];
+        let drivers = [];
+
+        // Initialize the application
+        function initApp() {
+            // Check if user is already logged in
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                if (user.role === 'admin') {
+                    showAdminDashboard();
+                    fetchOrdersFromGoogleSheets();
+                    fetchDriversFromGoogleSheets();
+                } 
+            }
+        }
+
+        // Fetch drivers from Google Sheets
+        // Replace the simulated fetch with a real fetch
+        async function fetchDriversFromGoogleSheets() {
+            try {
+                driversLoading.style.display = 'block';
+                driversListContainer.style.display = 'none';
+                
+                const response = await fetch(`${googleScriptURL}?type=drivers`);
+                const data = await response.json();
+                
+                // Process the data into drivers format
+                drivers = data.map(row => ({
+                    id: row['Driver ID'] || '',
+                    name: row['Name'] || '',
+                    email: row['Email'] || '',
+                    password: row['Password'] || '',
+                    status: row['Status'] || 'active'
+                }));
+                
+                renderDrivers();
+                populateDriversDropdown();
+                
+                driversLoading.style.display = 'none';
+                driversListContainer.style.display = 'block';
+            } catch (error) {
+                console.error('Error fetching drivers:', error);
+                alert('Failed to load drivers. Please try again.');
+                driversLoading.style.display = 'none';
+            }
+        }
+
+        // Render drivers in the admin panel
+        function renderDrivers() {
+            driversListContainer.innerHTML = '';
+            
+            if (drivers.length === 0) {
+                driversListContainer.innerHTML = `
+                    <div class="text-center py-4 text-muted">
+                        No drivers found.
+                    </div>
+                `;
+                return;
+            }
+            
+            drivers.forEach(driver => {
+                const driverElement = document.createElement('div');
+                driverElement.className = 'driver-item mb-3 p-3 border rounded';
+                driverElement.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">${driver.name}</h5>
+                            <p class="mb-1 text-muted">${driver.email}</p>
+                            <small class="text-muted">ID: ${driver.id}</small>
+                        </div>
+                        <span class="badge bg-success">${driver.status || 'active'}</span>
+                    </div>
+                `;
+                driversListContainer.appendChild(driverElement);
+            });
+        }
+
+        // Populate drivers dropdown
+        function populateDriversDropdown() {
+            driversList.innerHTML = '<option selected>Select Driver</option>';
+            
+            drivers.forEach(driver => {
+                const option = document.createElement('option');
+                option.value = driver.id;
+                option.textContent = `${driver.name} (${driver.id})`;
+                driversList.appendChild(option);
+            });
+        }
+
+        // Fetch orders from Google Sheets
+        // Replace the simulated fetch with a real fetch
+        async function fetchOrdersFromGoogleSheets() {
+            try {
+                loadingIndicator.style.display = 'block';
+                ordersTable.style.display = 'none';
+                
+                const response = await fetch(googleScriptURL);
+                const data = await response.json();
+                
+                // Process the data into orders format
+                orders = data.map(row => ({
+                    id: row['Order ID'] || '',
+                    timestamp: row['Timestamp'] || '',
+                    name: row['Name'] || '',
+                    email: row['Email'] || '',
+                    phone: row['Phone'] || '',
+                    pickupAddress: row['Pickup Address'] || '',
+                    origin: row['Origin City'] || '',
+                    pickupPostalCode: row['Pickup Postal Code'] || '',
+                    deliveryAddress: row['Delivery Address'] || '',
+                    destination: row['Destination City'] || '',
+                    deliveryPostalCode: row['Delivery Postal Code'] || '',
+                    weight: row['Weight'] || '',
+                    length: row['Length'] || '',
+                    width: row['Width'] || '',
+                    height: row['Height'] || '',
+                    service: row['Service'] || '',
+                    calculatedPrice: row['Calculated Price'] || '',
+                    status: row['Status'] || '',
+                    driver: row['Driver'] || ''
+                }));
+                
+                renderOrders();
+                updateOrderStats();
+                loadingIndicator.style.display = 'none';
+                document.getElementById('ordersSections').style.display = 'block';
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                alert('Failed to load orders. Please try again.');
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        // Render orders in the admin table
+        function renderOrders() {
+            // Hide old table, show new sections
+            ordersTable.style.display = 'none';
+            document.getElementById('ordersSections').style.display = 'block';
+
+            // Clear all tables
+            document.getElementById('pendingOrdersTableBody').innerHTML = '';
+            document.getElementById('assignedOrdersTableBody').innerHTML = '';
+            document.getElementById('inTransitOrdersTableBody').innerHTML = '';
+            document.getElementById('deliveredOrdersTableBody').innerHTML = '';
+
+            // Helper to render a row
+            function renderRow(order, type) {
+                let statusKey = (order.status || 'pending').toLowerCase().replace(/\s/g, '');
+                let statusLabel = (order.status || 'Pending');
+                if (statusLabel.toLowerCase() === 'in transit') statusKey = 'intransit';
+                let checkbox = '';
+                if (type === 'pending') {
+                    checkbox = `<td><input type="checkbox" class="pending-order-checkbox" data-id="${order.id}"></td>`;
+                }
+                return `
+                    <tr>
+                        ${checkbox}
+                        <td>${order.id}</td>
+                        <td>${order.name}</td>
+                        <td>${order.pickupAddress}, ${order.origin}, ${order.pickupPostalCode}</td>
+                        <td>${order.deliveryAddress}, ${order.destination}, ${order.deliveryPostalCode}</td>
+                        <td>
+                            <span class="status-badge status-${statusKey}">
+                                ${statusLabel.charAt(0).toUpperCase() + statusLabel.slice(1)}
+                            </span>
+                        </td>
+                        <td>${order.driver || 'Not assigned'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary view-order" data-id="${order.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info ms-1 edit-order" data-id="${order.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            // Populate each section
+            orders.forEach(order => {
+                let status = (order.status || 'pending').toLowerCase();
+                if (status === 'pending') {
+                    document.getElementById('pendingOrdersTableBody').innerHTML += renderRow(order, 'pending');
+                } else if (status === 'assigned') {
+                    document.getElementById('assignedOrdersTableBody').innerHTML += renderRow(order);
+                } else if (status === 'in transit' || status === 'intransit') {
+                    document.getElementById('inTransitOrdersTableBody').innerHTML += renderRow(order);
+                } else if (status === 'delivered' || status === 'completed') {
+                    document.getElementById('deliveredOrdersTableBody').innerHTML += renderRow(order);
+                }
+            });
+
+            // Add event listeners for pending order checkboxes
+            document.querySelectorAll('.pending-order-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectedPendingOrders);
+            });
+
+            // Populate drivers dropdown for pending section
+            populateDriversDropdownPending();
+        }
+
+        // Update order statistics
+        function updateOrderStats() {
+            const totalOrders = orders.length;
+            const pendingOrders = orders.filter(order => !order.status || order.status.toLowerCase() === 'pending').length;
+            const assignedOrders = orders.filter(order => order.status && order.status.toLowerCase() === 'assigned').length;
+            const deliveredOrders = orders.filter(order => {
+                const status = (order.status || '').toLowerCase();
+                return status === 'delivered' || status === 'completed';
+            }).length;
+
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('pendingOrders').textContent = pendingOrders;
+            document.getElementById('assignedOrders').textContent = assignedOrders;
+            document.getElementById('deliveredOrders').textContent = deliveredOrders;
+        }
+
+        // Update selected orders count and show/hide assign section
+        function updateSelectedOrders() {
+            const selectedOrders = document.querySelectorAll('.order-checkbox:checked');
+            selectedOrdersCount.textContent = selectedOrders.length;
+            
+            if (selectedOrders.length > 0) {
+                assignSection.style.display = 'flex';
+            } else {
+                assignSection.style.display = 'none';
+            }
+        }
+
+        // Show admin dashboard
+        function showAdminDashboard() {
+            loginSection.style.display = 'none';
+            adminDashboard.style.display = 'block';
+        }
+
+        // Update driver assignment in Google Sheets
+        async function updateDriverAssignment(orderId, driverName) {
+            try {
+                // Send a POST request to your Google Apps Script with orderId and driverName
+                await fetch(googleScriptURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'assignDriver',
+                        orderId: orderId,
+                        driver: driverName
+                    })
+                });
+            } catch (error) {
+                console.error('Failed to update driver assignment:', error);
+            }
+        }
+
+        // Update order status in Google Sheets
+        async function updateOrderStatus(orderId, status) {
+            try {
+                await fetch(googleScriptURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'updateStatus',
+                        orderId: orderId,
+                        status: status
+                    })
+                });
+            } catch (error) {
+                console.error('Failed to update order status:', error);
+            }
+        }
+
+        // Event Listeners
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Wait for drivers to load if not loaded yet
+            if (drivers.length === 0) {
+                await fetchDriversFromGoogleSheets();
+            }
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Check if it's an admin login
+            if (email === 'admin@example.com' && password === 'admin123') {
+                localStorage.setItem('currentUser', JSON.stringify({
+                    email: email,
+                    role: 'admin'
+                }));
+                showAdminDashboard();
+                fetchOrdersFromGoogleSheets();
+                fetchDriversFromGoogleSheets();
+                return;
+            }
+            
+            // Check if it's a driver login
+            const driver = drivers.find(d => d.email === email && d.password === password);
+            if (driver) {
+                localStorage.setItem('currentUser', JSON.stringify({
+                    id: driver.id,
+                    name: driver.name,
+                    email: driver.email,
+                    role: 'driver'
+                }));
+                // Redirect to driver.html
+                window.location.href = 'driver.html';
+                // Optionally, you can remove the following line:
+                // showDriverDashboard(driver);
+                // fetchOrdersFromGoogleSheets();
+            } else {
+                alert('Invalid email or password. Please try again.');
+            }
+        });
+
+        adminLoginLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('email').value = 'admin@example.com';
+            document.getElementById('password').value = 'admin123';
+        });
+
+        logoutBtn.addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            loginSection.style.display = 'block';
+            adminDashboard.style.display = 'none';
+        });
+
+        selectAllOrders.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.order-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllOrders.checked;
+            });
+            updateSelectedOrders();
+        });
+
+        assignDriverBtn.addEventListener('click', async function() {
+            const driverSelect = document.getElementById('driversList');
+            const selectedDriver = driverSelect.options[driverSelect.selectedIndex].text;
+            const selectedOrderIds = [];
+            
+            document.querySelectorAll('.order-checkbox:checked').forEach(checkbox => {
+                selectedOrderIds.push(checkbox.dataset.id);
+            });
+            
+            if (selectedDriver === 'Select Driver') {
+                alert('Please select a driver first.');
+                return;
+            }
+            
+            // Update orders with the assigned driver
+            orders.forEach(order => {
+                if (selectedOrderIds.includes(order.id)) {
+                    order.driver = selectedDriver;
+                    order.status = 'assigned';
+                }
+            });
+            
+            // Save assignments to Google Sheets
+            for (const orderId of selectedOrderIds) {
+                await updateDriverAssignment(orderId, selectedDriver);
+                await updateOrderStatus(orderId, 'Assigned');
+            }
+
+            
+            renderOrders();
+            updateOrderStats();
+            
+            // Hide the assign section and reset checkboxes
+            assignSection.style.display = 'none';
+            selectAllOrders.checked = false;
+            
+            alert(`Successfully assigned ${selectedOrderIds.length} orders to ${selectedDriver}`);
+        });
+
+        refreshOrdersBtn.addEventListener('click', function() {
+            fetchOrdersFromGoogleSheets();
+        });
+
+        // Populate drivers dropdown for pending section
+        function populateDriversDropdownPending() {
+            const driversListPending = document.getElementById('driversListPending');
+            driversListPending.innerHTML = '<option selected>Select Driver</option>';
+            drivers.forEach(driver => {
+                const option = document.createElement('option');
+                option.value = driver.id;
+                option.textContent = `${driver.name} (${driver.id})`;
+                driversListPending.appendChild(option);
+            });
+        }
+
+        // Update selected pending orders count and show/hide assign section
+        function updateSelectedPendingOrders() {
+            const selectedOrders = document.querySelectorAll('.pending-order-checkbox:checked');
+            document.getElementById('selectedPendingOrdersCount').textContent = selectedOrders.length;
+            const assignSectionPending = document.getElementById('assignSectionPending');
+            if (selectedOrders.length > 0) {
+                assignSectionPending.style.display = 'flex';
+            } else {
+                assignSectionPending.style.display = 'none';
+            }
+        }
+
+        // Assign driver to selected pending orders
+        document.getElementById('assignDriverBtnPending').addEventListener('click', async function() {
+            showLoading();
+            const driversListPending = document.getElementById('driversListPending');
+            const selectedDriver = driversListPending.options[driversListPending.selectedIndex].text;
+            const selectedOrderIds = [];
+            document.querySelectorAll('.pending-order-checkbox:checked').forEach(checkbox => {
+                selectedOrderIds.push(checkbox.dataset.id);
+            });
+            if (selectedDriver === 'Select Driver') {
+                alert('Please select a driver first.');
+                return;
+            }
+            // Update orders with the assigned driver
+            orders.forEach(order => {
+                if (selectedOrderIds.includes(order.id)) {
+                    order.driver = selectedDriver;
+                    order.status = 'assigned';
+                }
+            });
+            // Save assignments to Google Sheets
+            for (const orderId of selectedOrderIds) {
+                await updateDriverAssignment(orderId, selectedDriver);
+                await updateOrderStatus(orderId, 'Assigned');
+            }
+            renderOrders();
+            updateOrderStats();
+            document.getElementById('assignSectionPending').style.display = 'none';
+            document.getElementById('selectAllPending').checked = false;
+            hideLoading();
+            alert(`Successfully assigned ${selectedOrderIds.length} orders to ${selectedDriver}`);
+        });
+
+        // Select all pending orders checkbox
+        document.getElementById('selectAllPending').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.pending-order-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateSelectedPendingOrders();
+        });
+
+        // Helper functions to show/hide loading overlay
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // Initialize the application
+        initApp();
+    </script>
+</body>
+</html>
