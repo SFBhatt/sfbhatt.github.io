@@ -95,6 +95,7 @@
       pointer-events: none;
       transform: translate(-50%, -50%); /* center text on QR midpoint */
       z-index: 10;
+      transition: opacity 0.3s;
     }
 
     .qr-highlight {
@@ -105,6 +106,7 @@
       pointer-events: none;
       z-index: 5;
       display: none;
+      transition: all 0.3s;
     }
 
     #status {
@@ -112,6 +114,12 @@
       font-size: 1.1rem;
       text-align: center;
       min-height: 24px;
+      transition: opacity 0.3s;
+    }
+
+    .found-match {
+      color: #ff9900;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -150,6 +158,10 @@
     let scanning = false;
     let searchMode = false;
     let targetNumber = null;
+    let lastDetectedCode = null;
+    let detectionCount = 0;
+    let lastDetectionTime = 0;
+    const DEBOUNCE_DELAY = 300; // milliseconds
 
     // Start scanning all QR codes
     startBtn.addEventListener('click', () => {
@@ -158,6 +170,7 @@
       searchMode = false;
       targetNumber = null;
       status.textContent = "Scanning all QR codes...";
+      status.className = '';
       startCamera();
     });
 
@@ -174,6 +187,7 @@
       searchMode = true;
       targetNumber = inputValue;
       status.textContent = `Looking for QR code with value: ${targetNumber}`;
+      status.className = '';
       startCamera();
     });
 
@@ -200,8 +214,21 @@
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
         const code = jsQR(imageData.data, imageData.width, imageData.height);
+        const currentTime = Date.now();
         
+        // Debouncing logic to reduce flickering
         if (code) {
+          // If we detected the same code recently, don't update the display
+          if (lastDetectedCode && lastDetectedCode.data === code.data && 
+              currentTime - lastDetectionTime < DEBOUNCE_DELAY) {
+            requestAnimationFrame(scan);
+            return;
+          }
+          
+          lastDetectedCode = code;
+          lastDetectionTime = currentTime;
+          detectionCount++;
+          
           // Calculate QR center point
           const loc = code.location;
           const centerX = (loc.topLeftCorner.x + loc.bottomRightCorner.x) / 2;
@@ -216,37 +243,55 @@
             if (code.data === targetNumber) {
               // Highlight the matching QR code
               highlightQRCode(loc, scaleX, scaleY);
-              overlay.style.display = "block";
-              overlay.textContent = code.data;
-              overlay.style.left = `${centerX * scaleX}px`;
-              overlay.style.top = `${centerY * scaleY}px`;
+              showOverlay(code.data, centerX * scaleX, centerY * scaleY);
               status.textContent = `Found matching QR code: ${code.data}`;
+              status.className = 'found-match';
             } else {
               // Not the one we're looking for
-              overlay.style.display = "none";
-              qrHighlight.style.display = "none";
+              hideOverlay();
+              hideHighlight();
+              status.textContent = `Looking for: ${targetNumber} | Detected: ${code.data}`;
+              status.className = '';
             }
           } else {
             // In normal scanning mode, show all QR codes
-            overlay.style.display = "block";
-            overlay.textContent = code.data;
-            overlay.style.left = `${centerX * scaleX}px`;
-            overlay.style.top = `${centerY * scaleY}px`;
+            showOverlay(code.data, centerX * scaleX, centerY * scaleY);
             status.textContent = `Detected QR code: ${code.data}`;
+            status.className = '';
           }
         } else {
           // No QR code detected
-          overlay.style.display = "none";
-          qrHighlight.style.display = "none";
-          
-          if (searchMode) {
-            status.textContent = `Looking for QR code with value: ${targetNumber}`;
-          } else {
-            status.textContent = "Scanning for QR codes...";
+          if (currentTime - lastDetectionTime > DEBOUNCE_DELAY * 2) {
+            hideOverlay();
+            hideHighlight();
+            
+            if (searchMode) {
+              status.textContent = `Looking for QR code with value: ${targetNumber}`;
+            } else {
+              status.textContent = "Scanning for QR codes...";
+            }
+            status.className = '';
           }
         }
       }
       requestAnimationFrame(scan);
+    }
+
+    function showOverlay(text, x, y) {
+      overlay.textContent = text;
+      overlay.style.left = `${x}px`;
+      overlay.style.top = `${y}px`;
+      overlay.style.display = "block";
+      overlay.style.opacity = "1";
+    }
+
+    function hideOverlay() {
+      overlay.style.opacity = "0";
+      setTimeout(() => {
+        if (overlay.style.opacity === "0") {
+          overlay.style.display = "none";
+        }
+      }, 300);
     }
 
     function highlightQRCode(location, scaleX, scaleY) {
@@ -265,6 +310,16 @@
       qrHighlight.style.top = `${topLeftY}px`;
       qrHighlight.style.width = `${width}px`;
       qrHighlight.style.height = `${height}px`;
+      qrHighlight.style.opacity = "1";
+    }
+
+    function hideHighlight() {
+      qrHighlight.style.opacity = "0";
+      setTimeout(() => {
+        if (qrHighlight.style.opacity === "0") {
+          qrHighlight.style.display = "none";
+        }
+      }, 300);
     }
   </script>
 </body>
