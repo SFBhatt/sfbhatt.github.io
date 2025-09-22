@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Live Scanner with Search</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    #startBtn, #findBtn {
+      padding: 12px 24px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #startBtn {
+      background: limegreen;
+      color: white;
+    }
+    #startBtn:hover {
+      background: #2ecc71;
+    }
+
+    #findBtn {
+      background: #3498db;
+      color: white;
+    }
+    #findBtn:hover {
+      background: #2980b9;
+    }
+
+    .search-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    #searchInput {
+      padding: 10px;
+      font-size: 1rem;
+      border: 2px solid #3498db;
+      border-radius: 6px;
+      background: #222;
+      color: white;
+      width: 200px;
+    }
+
+    #scannerContainer {
+      position: relative;
+      width: 320px;
+      height: 240px;
+      border: 3px solid limegreen;
+      border-radius: 12px;
+      overflow: hidden;
+      display: none; /* hidden until scanning starts */
+    }
+
+    #camera {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #overlay {
+      position: absolute;
+      font-size: 1.4rem;
+      font-weight: bold;
+      background: rgba(0,0,0,0.7);
+      padding: 6px 12px;
+      border-radius: 6px;
+      color: lime;
+      display: none;
+      pointer-events: none;
+      transform: translate(-50%, -50%); /* center text on QR midpoint */
+      z-index: 10;
+    }
+
+    .qr-highlight {
+      position: absolute;
+      border: 3px solid #ff9900;
+      border-radius: 8px;
+      box-shadow: 0 0 15px #ff9900;
+      pointer-events: none;
+      z-index: 5;
+      display: none;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-size: 1.1rem;
+      text-align: center;
+      min-height: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <button id="startBtn">Scan All QR Codes</button>
+    
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Enter number to find">
+      <button id="findBtn">Find</button>
+    </div>
+  </div>
+
+  <div id="scannerContainer">
+    <video id="camera" autoplay></video>
+    <div id="overlay"></div>
+    <div class="qr-highlight" id="qrHighlight"></div>
+  </div>
+
+  <div id="status"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+  <script>
+    const startBtn = document.getElementById('startBtn');
+    const findBtn = document.getElementById('findBtn');
+    const searchInput = document.getElementById('searchInput');
+    const video = document.getElementById('camera');
+    const overlay = document.getElementById('overlay');
+    const qrHighlight = document.getElementById('qrHighlight');
+    const container = document.getElementById('scannerContainer');
+    const status = document.getElementById('status');
+    
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let scanning = false;
+    let searchMode = false;
+    let targetNumber = null;
+
+    // Start scanning all QR codes
+    startBtn.addEventListener('click', () => {
+      container.style.display = 'block';
+      startBtn.style.display = 'none';
+      searchMode = false;
+      targetNumber = null;
+      status.textContent = "Scanning all QR codes...";
+      startCamera();
+    });
+
+    // Find specific QR code
+    findBtn.addEventListener('click', () => {
+      const inputValue = searchInput.value.trim();
+      if (!inputValue) {
+        status.textContent = "Please enter a number to search for.";
+        return;
+      }
+      
+      container.style.display = 'block';
+      startBtn.style.display = 'none';
+      searchMode = true;
+      targetNumber = inputValue;
+      status.textContent = `Looking for QR code with value: ${targetNumber}`;
+      startCamera();
+    });
+
+    function startCamera() {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(stream => { 
+          video.srcObject = stream; 
+          scanning = true;
+          requestAnimationFrame(scan);
+        })
+        .catch(err => {
+          alert("Camera access denied or not available.");
+          console.error(err);
+        });
+    }
+
+    function scan() {
+      if (!scanning) return;
+      
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+        
+        if (code) {
+          // Calculate QR center point
+          const loc = code.location;
+          const centerX = (loc.topLeftCorner.x + loc.bottomRightCorner.x) / 2;
+          const centerY = (loc.topLeftCorner.y + loc.bottomRightCorner.y) / 2;
+
+          // Scale coordinates to match displayed video size
+          const scaleX = container.offsetWidth / canvas.width;
+          const scaleY = container.offsetHeight / canvas.height;
+
+          if (searchMode) {
+            // In search mode, check if this QR code matches our target
+            if (code.data === targetNumber) {
+              // Highlight the matching QR code
+              highlightQRCode(loc, scaleX, scaleY);
+              overlay.style.display = "block";
+              overlay.textContent = code.data;
+              overlay.style.left = `${centerX * scaleX}px`;
+              overlay.style.top = `${centerY * scaleY}px`;
+              status.textContent = `Found matching QR code: ${code.data}`;
+            } else {
+              // Not the one we're looking for
+              overlay.style.display = "none";
+              qrHighlight.style.display = "none";
+            }
+          } else {
+            // In normal scanning mode, show all QR codes
+            overlay.style.display = "block";
+            overlay.textContent = code.data;
+            overlay.style.left = `${centerX * scaleX}px`;
+            overlay.style.top = `${centerY * scaleY}px`;
+            status.textContent = `Detected QR code: ${code.data}`;
+          }
+        } else {
+          // No QR code detected
+          overlay.style.display = "none";
+          qrHighlight.style.display = "none";
+          
+          if (searchMode) {
+            status.textContent = `Looking for QR code with value: ${targetNumber}`;
+          } else {
+            status.textContent = "Scanning for QR codes...";
+          }
+        }
+      }
+      requestAnimationFrame(scan);
+    }
+
+    function highlightQRCode(location, scaleX, scaleY) {
+      // Calculate the bounding box of the QR code
+      const topLeftX = location.topLeftCorner.x * scaleX;
+      const topLeftY = location.topLeftCorner.y * scaleY;
+      const bottomRightX = location.bottomRightCorner.x * scaleX;
+      const bottomRightY = location.bottomRightCorner.y * scaleY;
+      
+      const width = bottomRightX - topLeftX;
+      const height = bottomRightY - topLeftY;
+      
+      // Position and size the highlight box
+      qrHighlight.style.display = "block";
+      qrHighlight.style.left = `${topLeftX}px`;
+      qrHighlight.style.top = `${topLeftY}px`;
+      qrHighlight.style.width = `${width}px`;
+      qrHighlight.style.height = `${height}px`;
+    }
+  </script>
+</body>
+</html>
