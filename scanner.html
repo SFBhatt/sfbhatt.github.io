@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Live Scanner with Multi-QR Support</title>
+  <title>QR Live Scanner with Search</title>
   <style>
     body {
       margin: 0;
@@ -69,8 +69,8 @@
 
     #scannerContainer {
       position: relative;
-      width: 400px;
-      height: 300px;
+      width: 320px;
+      height: 240px;
       border: 3px solid limegreen;
       border-radius: 12px;
       overflow: hidden;
@@ -83,19 +83,19 @@
       object-fit: cover;
     }
 
-    .overlay {
+    #overlay {
       position: absolute;
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       font-weight: bold;
       background: rgba(0,0,0,0.7);
-      padding: 4px 8px;
+      padding: 6px 12px;
       border-radius: 6px;
       color: lime;
+      display: none;
       pointer-events: none;
       transform: translate(-50%, -50%); /* center text on QR midpoint */
       z-index: 10;
       transition: opacity 0.3s;
-      display: none;
     }
 
     .qr-highlight {
@@ -105,17 +105,8 @@
       box-shadow: 0 0 15px #ff9900;
       pointer-events: none;
       z-index: 5;
+      display: none;
       transition: all 0.3s;
-      display: none;
-    }
-
-    .qr-outline {
-      position: absolute;
-      border: 2px solid rgba(255, 255, 255, 0.5);
-      border-radius: 6px;
-      pointer-events: none;
-      z-index: 3;
-      display: none;
     }
 
     #status {
@@ -124,20 +115,11 @@
       text-align: center;
       min-height: 24px;
       transition: opacity 0.3s;
-      max-width: 400px;
     }
 
     .found-match {
       color: #ff9900;
       font-weight: bold;
-    }
-
-    #detectedCodes {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color: #ccc;
-      max-width: 400px;
-      text-align: center;
     }
   </style>
 </head>
@@ -153,11 +135,11 @@
 
   <div id="scannerContainer">
     <video id="camera" autoplay></video>
-    <!-- Dynamic elements will be created here -->
+    <div id="overlay"></div>
+    <div class="qr-highlight" id="qrHighlight"></div>
   </div>
 
-  <div id="status">Ready to scan</div>
-  <div id="detectedCodes"></div>
+  <div id="status"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
   <script>
@@ -165,9 +147,10 @@
     const findBtn = document.getElementById('findBtn');
     const searchInput = document.getElementById('searchInput');
     const video = document.getElementById('camera');
+    const overlay = document.getElementById('overlay');
+    const qrHighlight = document.getElementById('qrHighlight');
     const container = document.getElementById('scannerContainer');
     const status = document.getElementById('status');
-    const detectedCodes = document.getElementById('detectedCodes');
     
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -175,15 +158,10 @@
     let scanning = false;
     let searchMode = false;
     let targetNumber = null;
-    let lastDetectedCodes = [];
+    let lastDetectedCode = null;
     let detectionCount = 0;
     let lastDetectionTime = 0;
     const DEBOUNCE_DELAY = 300; // milliseconds
-
-    // Element pools for reuse (to avoid DOM manipulation overhead)
-    const overlayPool = [];
-    const outlinePool = [];
-    let highlightElement = null;
 
     // Start scanning all QR codes
     startBtn.addEventListener('click', () => {
@@ -193,7 +171,6 @@
       targetNumber = null;
       status.textContent = "Scanning all QR codes...";
       status.className = '';
-      detectedCodes.textContent = '';
       startCamera();
     });
 
@@ -211,7 +188,6 @@
       targetNumber = inputValue;
       status.textContent = `Looking for QR code with value: ${targetNumber}`;
       status.className = '';
-      detectedCodes.textContent = '';
       startCamera();
     });
 
@@ -237,37 +213,57 @@
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-        // Detect all QR codes in the frame
-        const codes = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: "dontInvert",
-        });
-        
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
         const currentTime = Date.now();
         
         // Debouncing logic to reduce flickering
-        if (codes && codes.length > 0) {
-          // Check if we need to update the display
-          const shouldUpdate = shouldUpdateDisplay(codes, currentTime);
+        if (code) {
+          // If we detected the same code recently, don't update the display
+          if (lastDetectedCode && lastDetectedCode.data === code.data && 
+              currentTime - lastDetectionTime < DEBOUNCE_DELAY) {
+            requestAnimationFrame(scan);
+            return;
+          }
           
-          if (shouldUpdate) {
-            lastDetectedCodes = codes;
-            lastDetectionTime = currentTime;
-            detectionCount++;
-            
-            // Scale coordinates to match displayed video size
-            const scaleX = container.offsetWidth / canvas.width;
-            const scaleY = container.offsetHeight / canvas.height;
+          lastDetectedCode = code;
+          lastDetectionTime = currentTime;
+          detectionCount++;
+          
+          // Calculate QR center point
+          const loc = code.location;
+          const centerX = (loc.topLeftCorner.x + loc.bottomRightCorner.x) / 2;
+          const centerY = (loc.topLeftCorner.y + loc.bottomRightCorner.y) / 2;
 
-            // Clear previous visual elements
-            clearVisualElements();
-            
-            // Process all detected codes
-            processDetectedCodes(codes, scaleX, scaleY, currentTime);
+          // Scale coordinates to match displayed video size
+          const scaleX = container.offsetWidth / canvas.width;
+          const scaleY = container.offsetHeight / canvas.height;
+
+          if (searchMode) {
+            // In search mode, check if this QR code matches our target
+            if (code.data === targetNumber) {
+              // Highlight the matching QR code
+              highlightQRCode(loc, scaleX, scaleY);
+              showOverlay(code.data, centerX * scaleX, centerY * scaleY);
+              status.textContent = `Found matching QR code: ${code.data}`;
+              status.className = 'found-match';
+            } else {
+              // Not the one we're looking for
+              hideOverlay();
+              hideHighlight();
+              status.textContent = `Looking for: ${targetNumber} | Detected: ${code.data}`;
+              status.className = '';
+            }
+          } else {
+            // In normal scanning mode, show all QR codes
+            showOverlay(code.data, centerX * scaleX, centerY * scaleY);
+            status.textContent = `Detected QR code: ${code.data}`;
+            status.className = '';
           }
         } else {
-          // No QR codes detected
+          // No QR code detected
           if (currentTime - lastDetectionTime > DEBOUNCE_DELAY * 2) {
-            clearVisualElements();
+            hideOverlay();
+            hideHighlight();
             
             if (searchMode) {
               status.textContent = `Looking for QR code with value: ${targetNumber}`;
@@ -275,172 +271,55 @@
               status.textContent = "Scanning for QR codes...";
             }
             status.className = '';
-            detectedCodes.textContent = 'No QR codes detected';
           }
         }
       }
       requestAnimationFrame(scan);
     }
 
-    function shouldUpdateDisplay(codes, currentTime) {
-      // If no previous codes, definitely update
-      if (lastDetectedCodes.length === 0) return true;
-      
-      // If different number of codes, update
-      if (lastDetectedCodes.length !== codes.length) return true;
-      
-      // If same codes but enough time has passed, update
-      if (currentTime - lastDetectionTime > DEBOUNCE_DELAY) return true;
-      
-      // Check if any code data has changed
-      for (let i = 0; i < codes.length; i++) {
-        if (!lastDetectedCodes[i] || codes[i].data !== lastDetectedCodes[i].data) {
-          return true;
-        }
-      }
-      
-      return false;
-    }
-
-    function processDetectedCodes(codes, scaleX, scaleY, currentTime) {
-      let foundMatch = false;
-      let detectedValues = [];
-      
-      // Create or reuse visual elements for each code
-      codes.forEach((code, index) => {
-        // Calculate position and size
-        const loc = code.location;
-        const topLeftX = loc.topLeftCorner.x * scaleX;
-        const topLeftY = loc.topLeftCorner.y * scaleY;
-        const bottomRightX = loc.bottomRightCorner.x * scaleX;
-        const bottomRightY = loc.bottomRightCorner.y * scaleY;
-        
-        const width = bottomRightX - topLeftX;
-        const height = bottomRightY - topLeftY;
-        const centerX = topLeftX + width/2;
-        const centerY = topLeftY + height/2;
-        
-        detectedValues.push(code.data);
-        
-        if (searchMode) {
-          // In search mode, check if this QR code matches our target
-          if (code.data === targetNumber) {
-            // Highlight the matching QR code
-            highlightQRCode(topLeftX, topLeftY, width, height);
-            createOverlay(code.data, centerX, centerY, true);
-            status.textContent = `Found matching QR code: ${code.data}`;
-            status.className = 'found-match';
-            foundMatch = true;
-          } else {
-            // Show outline for non-matching codes
-            createOutline(topLeftX, topLeftY, width, height);
-            createOverlay(code.data, centerX, centerY, false);
-          }
-        } else {
-          // In normal scanning mode, show all QR codes with outlines
-          createOutline(topLeftX, topLeftY, width, height);
-          createOverlay(code.data, centerX, centerY, false);
-        }
-      });
-      
-      // Update status based on search results
-      if (searchMode) {
-        if (!foundMatch) {
-          status.textContent = `Looking for: ${targetNumber} | Detected: ${detectedValues.join(', ')}`;
-          status.className = '';
-        }
-      } else {
-        status.textContent = `Detected ${codes.length} QR code(s)`;
-        status.className = '';
-      }
-      
-      // Update detected codes list
-      detectedCodes.textContent = `Codes detected: ${detectedValues.join(', ')}`;
-    }
-
-    function createOverlay(text, x, y, isMatch) {
-      let overlay;
-      
-      // Try to reuse an existing overlay element
-      if (overlayPool.length > 0) {
-        overlay = overlayPool.pop();
-        overlay.style.display = "block";
-      } else {
-        // Create a new overlay element
-        overlay = document.createElement('div');
-        overlay.className = 'overlay';
-        container.appendChild(overlay);
-      }
-      
+    function showOverlay(text, x, y) {
       overlay.textContent = text;
       overlay.style.left = `${x}px`;
       overlay.style.top = `${y}px`;
-      overlay.style.color = isMatch ? '#ff9900' : 'lime';
+      overlay.style.display = "block";
       overlay.style.opacity = "1";
     }
 
-    function createOutline(x, y, width, height) {
-      let outline;
-      
-      // Try to reuse an existing outline element
-      if (outlinePool.length > 0) {
-        outline = outlinePool.pop();
-        outline.style.display = "block";
-      } else {
-        // Create a new outline element
-        outline = document.createElement('div');
-        outline.className = 'qr-outline';
-        container.appendChild(outline);
-      }
-      
-      outline.style.left = `${x}px`;
-      outline.style.top = `${y}px`;
-      outline.style.width = `${width}px`;
-      outline.style.height = `${height}px`;
-      outline.style.opacity = "1";
+    function hideOverlay() {
+      overlay.style.opacity = "0";
+      setTimeout(() => {
+        if (overlay.style.opacity === "0") {
+          overlay.style.display = "none";
+        }
+      }, 300);
     }
 
-    function highlightQRCode(x, y, width, height) {
-      if (!highlightElement) {
-        highlightElement = document.createElement('div');
-        highlightElement.className = 'qr-highlight';
-        container.appendChild(highlightElement);
-      }
+    function highlightQRCode(location, scaleX, scaleY) {
+      // Calculate the bounding box of the QR code
+      const topLeftX = location.topLeftCorner.x * scaleX;
+      const topLeftY = location.topLeftCorner.y * scaleY;
+      const bottomRightX = location.bottomRightCorner.x * scaleX;
+      const bottomRightY = location.bottomRightCorner.y * scaleY;
       
-      highlightElement.style.display = "block";
-      highlightElement.style.left = `${x}px`;
-      highlightElement.style.top = `${y}px`;
-      highlightElement.style.width = `${width}px`;
-      highlightElement.style.height = `${height}px`;
-      highlightElement.style.opacity = "1";
+      const width = bottomRightX - topLeftX;
+      const height = bottomRightY - topLeftY;
+      
+      // Position and size the highlight box
+      qrHighlight.style.display = "block";
+      qrHighlight.style.left = `${topLeftX}px`;
+      qrHighlight.style.top = `${topLeftY}px`;
+      qrHighlight.style.width = `${width}px`;
+      qrHighlight.style.height = `${height}px`;
+      qrHighlight.style.opacity = "1";
     }
 
-    function clearVisualElements() {
-      // Hide all overlays and return to pool
-      const overlays = container.getElementsByClassName('overlay');
-      while (overlays.length > 0) {
-        const overlay = overlays[0];
-        overlay.style.opacity = "0";
-        overlay.style.display = "none";
-        overlayPool.push(overlay);
-        // Keep in DOM but hidden for reuse
-      }
-      
-      // Hide all outlines and return to pool
-      const outlines = container.getElementsByClassName('qr-outline');
-      while (outlines.length > 0) {
-        const outline = outlines[0];
-        outline.style.opacity = "0";
-        outline.style.display = "none";
-        outlinePool.push(outline);
-        // Keep in DOM but hidden for reuse
-      }
-      
-      // Hide highlight
-      if (highlightElement) {
-        highlightElement.style.opacity = "0";
-        highlightElement.style.display = "none";
-      }
+    function hideHighlight() {
+      qrHighlight.style.opacity = "0";
+      setTimeout(() => {
+        if (qrHighlight.style.opacity === "0") {
+          qrHighlight.style.display = "none";
+        }
+      }, 300);
     }
   </script>
 </body>
