@@ -15,6 +15,8 @@
       height: 100vh;
       color: white;
       font-family: Arial, sans-serif;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     .controls {
@@ -23,6 +25,8 @@
       align-items: center;
       gap: 15px;
       margin-bottom: 20px;
+      width: 100%;
+      max-width: 400px;
     }
 
     #startBtn, #findBtn {
@@ -33,6 +37,7 @@
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s;
+      width: 100%;
     }
 
     #startBtn {
@@ -55,6 +60,7 @@
       display: flex;
       gap: 10px;
       align-items: center;
+      width: 100%;
     }
 
     #searchInput {
@@ -64,17 +70,18 @@
       border-radius: 6px;
       background: #222;
       color: white;
-      width: 200px;
+      flex: 1;
     }
 
     #scannerContainer {
       position: relative;
-      width: 320px;
-      height: 240px;
+      width: 100%;
+      max-width: 400px;
+      height: 300px;
       border: 3px solid limegreen;
       border-radius: 12px;
       overflow: hidden;
-      display: none; /* hidden until scanning starts */
+      display: none;
     }
 
     #camera {
@@ -93,9 +100,12 @@
       color: lime;
       display: none;
       pointer-events: none;
-      transform: translate(-50%, -50%); /* center text on QR midpoint */
+      transform: translate(-50%, -50%);
       z-index: 10;
       transition: opacity 0.3s;
+      text-align: center;
+      max-width: 90%;
+      word-break: break-word;
     }
 
     .qr-highlight {
@@ -115,11 +125,37 @@
       text-align: center;
       min-height: 24px;
       transition: opacity 0.3s;
+      width: 100%;
+      max-width: 400px;
     }
 
     .found-match {
       color: #ff9900;
       font-weight: bold;
+    }
+
+    .error {
+      color: #ff6b6b;
+      font-weight: bold;
+    }
+
+    .instructions {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      #scannerContainer {
+        height: 250px;
+      }
+      
+      .controls {
+        padding: 0 10px;
+      }
     }
   </style>
 </head>
@@ -131,15 +167,19 @@
       <input type="text" id="searchInput" placeholder="Enter number to find">
       <button id="findBtn">Find</button>
     </div>
+    
+    <div class="instructions">
+      Allow camera access when prompted. On iOS, tap the screen to start the camera.
+    </div>
   </div>
 
   <div id="scannerContainer">
-    <video id="camera" autoplay></video>
+    <video id="camera" autoplay playsinline></video>
     <div id="overlay"></div>
     <div class="qr-highlight" id="qrHighlight"></div>
   </div>
 
-  <div id="status"></div>
+  <div id="status">Click "Scan All QR Codes" or "Find" to start scanning</div>
 
   <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
   <script>
@@ -161,17 +201,12 @@
     let lastDetectedCode = null;
     let detectionCount = 0;
     let lastDetectionTime = 0;
-    const DEBOUNCE_DELAY = 300; // milliseconds
+    const DEBOUNCE_DELAY = 300;
+    let stream = null;
 
     // Start scanning all QR codes
     startBtn.addEventListener('click', () => {
-      container.style.display = 'block';
-      startBtn.style.display = 'none';
-      searchMode = false;
-      targetNumber = null;
-      status.textContent = "Scanning all QR codes...";
-      status.className = '';
-      startCamera();
+      startScanning(false);
     });
 
     // Find specific QR code
@@ -179,28 +214,96 @@
       const inputValue = searchInput.value.trim();
       if (!inputValue) {
         status.textContent = "Please enter a number to search for.";
+        status.className = 'error';
         return;
       }
       
-      container.style.display = 'block';
-      startBtn.style.display = 'none';
-      searchMode = true;
-      targetNumber = inputValue;
-      status.textContent = `Looking for QR code with value: ${targetNumber}`;
-      status.className = '';
-      startCamera();
+      startScanning(true, inputValue);
     });
 
+    function startScanning(isSearchMode, searchValue = null) {
+      container.style.display = 'block';
+      startBtn.style.display = 'none';
+      searchMode = isSearchMode;
+      targetNumber = searchValue;
+      
+      if (searchMode) {
+        status.textContent = `Looking for QR code with value: ${targetNumber}`;
+      } else {
+        status.textContent = "Scanning all QR codes...";
+      }
+      status.className = '';
+      
+      startCamera();
+    }
+
     function startCamera() {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-        .then(stream => { 
+      // Stop any existing stream
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
+      // Try different camera constraints for better compatibility
+      const constraints = {
+        video: {
+          facingMode: "environment",
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      };
+      
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then(s => { 
+          stream = s;
           video.srcObject = stream; 
-          scanning = true;
-          requestAnimationFrame(scan);
+          
+          // For iOS, we need to play the video programmatically after user interaction
+          const playPromise = video.play();
+          
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                scanning = true;
+                requestAnimationFrame(scan);
+              })
+              .catch(err => {
+                // iOS often requires a direct user interaction to play video
+                status.textContent = "Tap the video to start scanning";
+                status.className = 'error';
+                
+                // Add a tap-to-play overlay for iOS
+                video.addEventListener('click', () => {
+                  video.play().then(() => {
+                    scanning = true;
+                    requestAnimationFrame(scan);
+                    status.textContent = searchMode ? 
+                      `Looking for QR code with value: ${targetNumber}` : 
+                      "Scanning all QR codes...";
+                    status.className = '';
+                  });
+                }, { once: true });
+              });
+          }
         })
         .catch(err => {
-          alert("Camera access denied or not available.");
-          console.error(err);
+          console.error("Camera error:", err);
+          
+          // Provide specific error messages for different browsers
+          if (err.name === 'NotAllowedError') {
+            status.textContent = "Camera access denied. Please allow camera access and try again.";
+          } else if (err.name === 'NotFoundError') {
+            status.textContent = "No camera found on your device.";
+          } else if (err.name === 'NotSupportedError') {
+            status.textContent = "Your browser doesn't support camera access.";
+          } else if (err.name === 'NotReadableError') {
+            status.textContent = "Camera is already in use by another application.";
+          } else {
+            status.textContent = "Cannot access camera: " + err.message;
+          }
+          status.className = 'error';
+          
+          // Show the start button again to allow retry
+          startBtn.style.display = 'block';
         });
     }
 
@@ -321,6 +424,17 @@
         }
       }, 300);
     }
+
+    // Handle page visibility changes (important for mobile)
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        // Page is hidden, stop scanning to save resources
+        scanning = false;
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+        }
+      }
+    });
   </script>
 </body>
 </html>
